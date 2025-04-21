@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/Template01" version="0.2.1" viewmodes="maximized">
-   <name>Solid Demo App</name>
+   <name>Lolarr</name>
    <icon src="icon.png"></icon>
    <content src="index.html"></content>
    <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"></feature>
@@ -10,9 +10,9 @@
    <tizen:metadata key="http://samsung.com/tv/metadata/prelaunch.support" value="true"></tizen:metadata>
    <tizen:metadata key="http://tizen.org/metadata/app_ui_type/base_screen_resolution" value="extensive"></tizen:metadata>
    <tizen:content-security-policy>
-   default-src 'self'; 
-  script-src 'self' 'unsafe-inline' 'unsafe-eval'; 
-  style-src 'self' 'unsafe-inline'; 
+   default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
   object-src 'none';
   worker-src 'self' blob:;
   connect-src 'self' https://api.themoviedb.org/3/ https://image.tmdb.org/;

@@ -26,7 +26,6 @@ declare module "@lightningtv/solid" {
 }
 
 const LeftNavWrapper = (props) => {
-  
   const navigate = useNavigate();
   const announcer = useAnnouncer();
   announcer.enabled = false;

@@ -13,22 +13,22 @@ const Box = (props) => {
 export const FlexMenu = () => {
   setGlobalBackground("#000");
   return (
-      <View
-        right={0}
-        display="flex" 
-        width={400}
-        flexBoundary="fixed"
-        color="#FFFF0060"
-        flexDirection="column"
-      >
-        <Column x={50} width={300} autofocus>
-          <Box marginTop={50} />
-          <Column flexItem={false} justifyContent="flexEnd">
-            <Box flexOrder={1} />
-            <Box flexOrder={2} marginBottom={50} />
-          </Column>
+    <View
+      right={0}
+      display="flex"
+      width={400}
+      flexBoundary="fixed"
+      color="#FFFF0060"
+      flexDirection="column"
+    >
+      <Column x={50} width={300} autofocus>
+        <Box marginTop={50} />
+        <Column flexItem={false} justifyContent="flexEnd">
+          <Box flexOrder={1} />
+          <Box flexOrder={2} marginBottom={50} />
         </Column>
-      </View>
+      </Column>
+    </View>
   );
 };
 

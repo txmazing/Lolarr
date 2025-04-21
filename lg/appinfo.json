@@ -1,8 +1,8 @@
 {
-  "id": "com.example.soliddemo",
+  "id": "com.txmazing.lolarr",
   "version": "1.0.0",
   "type": "web",
-  "title": "Solid Demo App",
+  "title": "Lolarr",
   "main": "index.html",
   "icon": "icon.png",
   "largeIcon": "largeIcon.png"

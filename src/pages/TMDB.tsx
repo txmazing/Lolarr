@@ -1,6 +1,10 @@
 import { createEffect, on, createSignal } from "solid-js";
 import { ElementNode, activeElement, View, Text } from "@lightningtv/solid";
-import { LazyRow, LazyColumn, useFocusStack } from "@lightningtv/solid/primitives";
+import {
+  LazyRow,
+  LazyColumn,
+  useFocusStack
+} from "@lightningtv/solid/primitives";
 import { Hero, TitleRow, AssetPanel } from "../components";
 import styles from "../styles";
 import { setGlobalBackground } from "../state";
@@ -125,11 +129,16 @@ const TMDB = (props) => {
           )
         }
       </LazyColumn>
-      <AssetPanel onFocus={storeFocus} close={() => {
-        setOpenPanel(false);
-        restoreFocus();
-        return true;
-      }} open={openPanel()} item={heroContent()} />
+      <AssetPanel
+        onFocus={storeFocus}
+        close={() => {
+          setOpenPanel(false);
+          restoreFocus();
+          return true;
+        }}
+        open={openPanel()}
+        item={heroContent()}
+      />
     </View>
   );
 };

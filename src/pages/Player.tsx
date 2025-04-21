@@ -124,9 +124,7 @@ const Player = () => {
     play();
   });
 
-  return <View autofocus onBack={() => navigate(-1)}>
-
-  </View>;
+  return <View autofocus onBack={() => navigate(-1)}></View>;
 };
 
 export default Player;

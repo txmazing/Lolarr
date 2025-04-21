@@ -1,4 +1,10 @@
-import { createSignal, createSelector, For, children, createEffect } from "solid-js";
+import {
+  createSignal,
+  createSelector,
+  For,
+  children,
+  createEffect
+} from "solid-js";
 import { ElementNode, View, Text, assertTruthy } from "@lightningtv/solid";
 import { Column, Row, useFocusStack } from "@lightningtv/solid/primitives";
 import { useNavigate } from "@solidjs/router";
@@ -48,7 +54,7 @@ const Portal = (props) => {
     {
       title: "Flex Menu",
       id: "flexmenu",
-      description: "Flex Menu On Right Implementation",
+      description: "Flex Menu On Right Implementation"
     },
     {
       title: "Flex Row",
@@ -151,18 +157,18 @@ const Portal = (props) => {
     {
       title: "Viewport",
       id: "viewport",
-      description: "Events going in and out of viewport",
+      description: "Events going in and out of viewport"
     },
     {
       title: "Keep Alive",
       id: "keepalive",
-      description: "Reuse component between layouts",
+      description: "Reuse component between layouts"
     },
     {
       title: "Suspense",
       id: "suspense",
-      description: "Using Suspense to load data",
-    },
+      description: "Using Suspense to load data"
+    }
   ];
 
   function DemoTile(props) {
@@ -222,41 +228,47 @@ const Portal = (props) => {
 
   return (
     <>
-    <View ref={portalRef} colorTop={0x446b9eff} colorBottom={0x2c4f7cff} onBlur={storeFocus} hidden={Boolean(resolvedChildren())}>
-      <View x={120}>
-        <View src="./assets/solidjs.png" width={101} height={90} y={40} />
-        <Text fontSize={90} x={110} y={40}>
-          Examples
-        </Text>
-        <View y={140} height={1} width={1800} color={0xe8d7f9ff} />
-      </View>
-      <Column scroll="none" y={200} x={170} gap={80} autofocus>
-        <Row
-          onEnter={onEnter}
-          gap={40}
-          height={320}
-          flexBoundary="contain"
-          scroll="always"
-        >
-          <For each={demos}>
-            {(demo, i) => <DemoTile index={i()} {...demo} />}
-          </For>
-        </Row>
+      <View
+        ref={portalRef}
+        colorTop={0x446b9eff}
+        colorBottom={0x2c4f7cff}
+        onBlur={storeFocus}
+        hidden={Boolean(resolvedChildren())}
+      >
+        <View x={120}>
+          <View src="./assets/solidjs.png" width={101} height={90} y={40} />
+          <Text fontSize={90} x={110} y={40}>
+            Examples
+          </Text>
+          <View y={140} height={1} width={1800} color={0xe8d7f9ff} />
+        </View>
+        <Column scroll="none" y={200} x={170} gap={80} autofocus>
+          <Row
+            onEnter={onEnter}
+            gap={40}
+            height={320}
+            flexBoundary="contain"
+            scroll="always"
+          >
+            <For each={demos}>
+              {(demo, i) => <DemoTile index={i()} {...demo} />}
+            </For>
+          </Row>
 
-        <Row
-          onEnter={onEnter}
-          gap={40}
-          height={320}
-          flexBoundary="contain"
-          scroll="always"
-        >
-          <For each={flexDemos}>
-            {(demo, i) => <DemoTile index={i()} {...demo} />}
-          </For>
-        </Row>
-      </Column>
-    </View>
-    {resolvedChildren()}
+          <Row
+            onEnter={onEnter}
+            gap={40}
+            height={320}
+            flexBoundary="contain"
+            scroll="always"
+          >
+            <For each={flexDemos}>
+              {(demo, i) => <DemoTile index={i()} {...demo} />}
+            </For>
+          </Row>
+        </Column>
+      </View>
+      {resolvedChildren()}
     </>
   );
 };

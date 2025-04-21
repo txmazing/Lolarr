@@ -1,6 +1,6 @@
 import {
   IntrinsicNodeStyleProps,
-  IntrinsicTextNodeStyleProps,
+  IntrinsicTextNodeStyleProps
 } from "@lightningtv/solid";
 import theme from "theme";
 

@@ -12,85 +12,85 @@ export default {
   },
   typography: {
     display1: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 75,
       lineHeight: 85,
       fontWeight: 500,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     display2: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 50,
       lineHeight: 60,
       fontWeight: 500,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     display3: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 56,
       fontWeight: 400,
       lineHeight: 68,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     display4: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 48,
       fontWeight: 400,
       lineHeight: 64,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     headline1: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 35,
       fontWeight: 500,
       lineHeight: 48,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     headline2: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 30,
       fontWeight: 500,
       lineHeight: 40,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     headline3: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 25,
       fontWeight: 500,
       lineHeight: 36,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     body1: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 25,
       fontWeight: 300,
       lineHeight: 40,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     body2: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 22,
       fontWeight: 300,
       lineHeight: 32,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
+      verticalAlign: "middle",
+      textBaseline: "bottom"
     },
     body3: {
-      fontFamily: 'Arial',
+      fontFamily: "Arial",
       fontSize: 20,
       fontWeight: 300,
       lineHeight: 32,
-      verticalAlign: 'middle',
-      textBaseline: 'bottom'
-    },
+      verticalAlign: "middle",
+      textBaseline: "bottom"
+    }
   },
   color: {
     palette: {},
@@ -193,5 +193,5 @@ export default {
     shadowBrandFocus: 0x000000b3,
     shadowBrandElevated: 0x000000b3,
     shadowBrandText: 0x0000000
-  },
-}
+  }
+};

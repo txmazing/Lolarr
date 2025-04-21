@@ -1,9 +1,8 @@
+import "solid-devtools";
+import { setElementInterface } from "solid-devtools/setup";
+import { elementInterface } from "@lightningtv/solid/devtools";
 
-import 'solid-devtools';
-import {setElementInterface} from 'solid-devtools/setup';
-import {elementInterface} from "@lightningtv/solid/devtools";
-
-setElementInterface(elementInterface)
+setElementInterface(elementInterface);
 
 import { createRenderer, Config, loadFonts } from "@lightningtv/solid";
 import {
@@ -120,16 +119,19 @@ import {
   RoundedWithBorderAndShadow,
   RadialGradient,
   LinearGradient,
-  HolePunch,
-} from '@lightningjs/renderer/webgl/shaders';
+  HolePunch
+} from "@lightningjs/renderer/webgl/shaders";
 const shManager = renderer.stage.shManager;
-shManager.registerShaderType('rounded', Rounded)
-shManager.registerShaderType('roundedWithBorder', RoundedWithBorder)
-shManager.registerShaderType('roundedWithShadow', RoundedWithShadow)
-shManager.registerShaderType('roundedWithBorderWithShadow', RoundedWithBorderAndShadow)
-shManager.registerShaderType('radialGradient', RadialGradient)
-shManager.registerShaderType('linearGradient', LinearGradient)
-shManager.registerShaderType('holePunch', HolePunch)
+shManager.registerShaderType("rounded", Rounded);
+shManager.registerShaderType("roundedWithBorder", RoundedWithBorder);
+shManager.registerShaderType("roundedWithShadow", RoundedWithShadow);
+shManager.registerShaderType(
+  "roundedWithBorderWithShadow",
+  RoundedWithBorderAndShadow
+);
+shManager.registerShaderType("radialGradient", RadialGradient);
+shManager.registerShaderType("linearGradient", LinearGradient);
+shManager.registerShaderType("holePunch", HolePunch);
 render(() => (
   <FocusStackProvider>
     <HashRouter root={(props) => <App {...props} />}>
@@ -139,7 +141,11 @@ render(() => (
           <Route path="/" />
           <Route path="tmdb" component={TMDB} preload={tmdbData} />
         </Route>
-        <Route path="browse/:filter" component={Browse} preload={browsePreload} />
+        <Route
+          path="browse/:filter"
+          component={Browse}
+          preload={browsePreload}
+        />
         <Route path="loops" component={Loops} preload={tmdbData} />
         <Route path="infinite" component={Infinite} preload={tmdbData} />
         <Route path="tmdbgrid" component={TMDBGrid} preload={tmdbData} />
@@ -164,12 +170,22 @@ render(() => (
         <Route path="flexcolumnsize" component={FlexColumnSizePage} />
         <Route path="flexcolumn" component={FlexColumnPage} />
         <Route path="flexgrow" component={FlexGrowPage} />
-        <Route path="keepalive" component={lazy(() => import('./pages/KeepAlive.jsx'))} />
-        <Route path="suspense" component={lazy(() => import('./pages/suspense.jsx'))} />
+        <Route
+          path="keepalive"
+          component={lazy(() => import("./pages/KeepAlive.jsx"))}
+        />
+        <Route
+          path="suspense"
+          component={lazy(() => import("./pages/suspense.jsx"))}
+        />
         <Route path="superflex" component={SuperFlexPage} />
         <Route path="buttonsmaterial" component={ButtonsMaterialPage} />
         <Route path="entity/people/:id" component={People} />
-        <Route path="entity/:type/:id" component={Entity} preload={entityPreload} />
+        <Route
+          path="entity/:type/:id"
+          component={Entity}
+          preload={entityPreload}
+        />
         <Route path="*all" component={NotFound} />
       </Route>
       <Route path="player">
