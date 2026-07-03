@@ -43,6 +43,7 @@ export async function authRoutes(
   })
 
   app.post('/api/auth/qc/initiate', async (request) => {
+    prune(pendingQuickConnects)
     const { deviceId } = qcInitiateRequestSchema.parse(request.body)
     const { code, secret } = await initiateQuickConnect(config, deviceId)
     const pollToken = randomUUID()
@@ -60,10 +61,21 @@ export async function authRoutes(
     }
 
     // Claim before await: a poll token is single-use. Delete immediately to prevent concurrent
-    // polls from both seeing authenticated:true. If the check is still pending, we re-insert it below.
+    // polls from both seeing authenticated:true. If the check is still pending — or the state
+    // check itself throws (e.g. a transient Jellyfin error) — we re-insert it below so the
+    // token isn't lost while the underlying Quick Connect code is still valid.
     pendingQuickConnects.delete(pollToken)
 
-    const state = await getQuickConnectState(config, pending.secret, pending.deviceId)
+    let state: Awaited<ReturnType<typeof getQuickConnectState>>
+    try {
+      state = await getQuickConnectState(config, pending.secret, pending.deviceId)
+    } catch (error) {
+      // Transient failure checking state — re-insert so the client can retry with the same
+      // pollToken instead of losing the in-flight Quick Connect code.
+      pendingQuickConnects.set(pollToken, pending)
+      throw error
+    }
+
     if (!state.authenticated) {
       // Not authenticated yet — re-insert the token so the client can poll again
       pendingQuickConnects.set(pollToken, pending)

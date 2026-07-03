@@ -98,4 +98,36 @@ describe('quick connect login', () => {
     expect(responses[0].json().status).toBe('authenticated')
     expect(responses[1].statusCode).toBe(404)
   })
+
+  it('re-inserts the poll token when the state check throws, so a retry with the same token still works', async () => {
+    ctx.jellyfin
+      .intercept({ path: '/QuickConnect/Initiate', method: 'POST' })
+      .reply(200, { Code: '123456', Secret: 'jf-qc-secret' }, { headers: { 'content-type': 'application/json' } })
+
+    const app = createServer(ctx.config)
+
+    const initiate = await app.inject({
+      method: 'POST',
+      url: '/api/auth/qc/initiate',
+      payload: { deviceId: 'tv-device-3' },
+    })
+    const { pollToken } = initiate.json()
+
+    // First poll: Jellyfin state check fails transiently (e.g. 503 upstream).
+    ctx.jellyfin
+      .intercept({ path: '/QuickConnect/Connect', method: 'GET', query: { secret: 'jf-qc-secret' } })
+      .reply(503, {})
+
+    const failed = await app.inject({ method: 'GET', url: `/api/auth/qc/state?pollToken=${pollToken}` })
+    expect(failed.statusCode).toBeGreaterThanOrEqual(500)
+
+    // Second poll with the SAME pollToken must not 404 — the token must have been re-inserted.
+    ctx.jellyfin
+      .intercept({ path: '/QuickConnect/Connect', method: 'GET', query: { secret: 'jf-qc-secret' } })
+      .reply(200, { Authenticated: false }, { headers: { 'content-type': 'application/json' } })
+
+    const retried = await app.inject({ method: 'GET', url: `/api/auth/qc/state?pollToken=${pollToken}` })
+    expect(retried.statusCode).toBe(200)
+    expect(retried.json()).toEqual({ status: 'pending' })
+  })
 })
