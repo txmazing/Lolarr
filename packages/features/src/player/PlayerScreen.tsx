@@ -66,6 +66,9 @@ export function PlayerScreen({
       } else if (event.key === 'f' || event.key === 'F') {
         toggleFullscreen()
       } else if (event.key === 'Escape') {
+        if (document.fullscreenElement) {
+          return
+        }
         onExit()
       }
     }
