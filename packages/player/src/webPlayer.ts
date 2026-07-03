@@ -47,7 +47,9 @@ export class WebPlayer implements Player {
       this.video.currentTime = opts.startSeconds
     }
     await this.video.play().catch(() => {
-      // Autoplay-Block: Nutzer startet über Controls; kein Fehlerzustand.
+      // Autoplay blocked: emit a synthetic pause so the session's paused
+      // state matches reality — the user must resume via controls.
+      this.emit('pause')
     })
   }
 
@@ -73,6 +75,10 @@ export class WebPlayer implements Player {
 
   getDuration() {
     return this.video.duration
+  }
+
+  isPaused() {
+    return this.video.paused
   }
 
   on(event: PlayerEvent, handler: (detail?: unknown) => void) {

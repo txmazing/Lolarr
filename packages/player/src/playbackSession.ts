@@ -83,7 +83,9 @@ export function createPlaybackSession(deps: {
   function reportProgress() {
     const info = progressInfo()
     if (info) {
-      void api.reportPlaybackProgress(session, info).catch(() => {})
+      void api.reportPlaybackProgress(session, info).catch((error: unknown) => {
+        console.warn('Lolarr: failed to report playback progress, will retry on next tick', error)
+      })
     }
   }
 
@@ -93,6 +95,9 @@ export function createPlaybackSession(deps: {
       startTimeTicks: deps.resumeTicks,
       enableDirectPlay,
     })
+    if (stopped) {
+      return false
+    }
     const mediaSource = info.mediaSources.find((source) => source.supportsDirectPlay && enableDirectPlay)
       ?? info.mediaSources.find((source) => source.transcodingUrl)
       ?? info.mediaSources[0]
@@ -107,6 +112,9 @@ export function createPlaybackSession(deps: {
     await player.load(source, {
       startSeconds: deps.resumeTicks ? deps.resumeTicks / TICKS_PER_SECOND : undefined,
     })
+    if (stopped) {
+      return false
+    }
     return true
   }
 
@@ -119,13 +127,21 @@ export function createPlaybackSession(deps: {
       onStateChange('loading')
       try {
         const ok = await negotiate(false)
+        if (stopped) {
+          return
+        }
         if (ok) {
           const info = progressInfo()
           if (info) {
-            void api.reportPlaybackStart(session, info).catch(() => {})
+            void api.reportPlaybackStart(session, info).catch((error: unknown) => {
+              console.warn('Lolarr: failed to report playback start', error)
+            })
           }
         }
       } catch {
+        if (stopped) {
+          return
+        }
         onStateChange('error', { message: 'Playback failed' })
       }
       return
@@ -167,24 +183,32 @@ export function createPlaybackSession(deps: {
 
       try {
         const ok = await negotiate(true)
+        if (stopped) {
+          return
+        }
         if (!ok) {
           return
         }
       } catch {
+        if (stopped) {
+          return
+        }
         onStateChange('error', { message: 'Playback failed' })
         return
       }
 
       const info = progressInfo()
       if (info) {
-        void api.reportPlaybackStart(session, info).catch(() => {})
+        void api.reportPlaybackStart(session, info).catch((error: unknown) => {
+          console.warn('Lolarr: failed to report playback start', error)
+        })
       }
       onStateChange('playing')
       progressTimer = setInterval(reportProgress, PROGRESS_INTERVAL_MS)
     },
 
     togglePause() {
-      if (paused) {
+      if (paused || player.isPaused()) {
         player.play()
       } else {
         player.pause()

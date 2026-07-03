@@ -10,6 +10,7 @@ export interface Player {
   setVolume(volume: number): void
   getPosition(): number
   getDuration(): number
+  isPaused(): boolean
   on(event: PlayerEvent, handler: (detail?: unknown) => void): () => void
   dispose(): void
 }

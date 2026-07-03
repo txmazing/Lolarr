@@ -7,16 +7,22 @@ const session = { url: 'http://jf.test', accessToken: 'tok', userId: 'u1', devic
 function fakePlayer() {
   const handlers = new Map<PlayerEvent, Set<(detail?: unknown) => void>>()
   let position = 0
+  let paused = false
   const player: Player = {
     load: vi.fn().mockResolvedValue(undefined),
-    play: vi.fn(),
-    pause: vi.fn(),
+    play: vi.fn(() => {
+      paused = false
+    }),
+    pause: vi.fn(() => {
+      paused = true
+    }),
     seek: vi.fn((seconds: number) => {
       position = seconds
     }),
     setVolume: vi.fn(),
     getPosition: () => position,
     getDuration: () => 3600,
+    isPaused: () => paused,
     on: (event, handler) => {
       const set = handlers.get(event) ?? new Set()
       set.add(handler)
@@ -28,10 +34,18 @@ function fakePlayer() {
   return {
     player,
     emit(event: PlayerEvent, detail?: unknown) {
+      if (event === 'pause') {
+        paused = true
+      } else if (event === 'playing') {
+        paused = false
+      }
       for (const handler of handlers.get(event) ?? []) handler(detail)
     },
     setPosition(seconds: number) {
       position = seconds
+    },
+    setPaused(value: boolean) {
+      paused = value
     },
   }
 }
@@ -194,5 +208,60 @@ describe('createPlaybackSession', () => {
     })
     await handle.start()
     expect(states).toContain('error')
+  })
+
+  it('does not leak a session when stop() runs while negotiate is in flight', async () => {
+    const fake = fakePlayer()
+    let resolveInfo: ((value: {
+      playSessionId: string
+      mediaSources: Array<{ id: string; container: string; supportsDirectPlay: boolean; supportsDirectStream: boolean }>
+    }) => void) | undefined
+    const getPlaybackInfo = vi.fn().mockReturnValue(
+      new Promise((resolve) => {
+        resolveInfo = resolve
+      }),
+    )
+    const api = fakeApi({ getPlaybackInfo })
+    const states: string[] = []
+    const handle = createPlaybackSession({
+      session, player: fake.player, itemId: 'i1',
+      onStateChange: (s) => states.push(s), api, deviceProfile: {},
+    })
+
+    const startPromise = handle.start()
+    // User backs out while PlaybackInfo is still in flight.
+    await handle.stop()
+
+    resolveInfo?.({
+      playSessionId: 'ps1',
+      mediaSources: [{ id: 'ms1', container: 'mkv', supportsDirectPlay: true, supportsDirectStream: false }],
+    })
+    await startPromise
+
+    expect(fake.player.load).not.toHaveBeenCalled()
+    expect(api.reportPlaybackStart).not.toHaveBeenCalled()
+    expect(states).not.toContain('playing')
+
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(api.reportPlaybackProgress).not.toHaveBeenCalled()
+  })
+
+  it('resumes via play() when autoplay was blocked and togglePause is invoked', async () => {
+    const fake = fakePlayer()
+    const api = fakeApi()
+    const handle = createPlaybackSession({
+      session, player: fake.player, itemId: 'i1',
+      onStateChange: () => {}, api, deviceProfile: {},
+    })
+    await handle.start()
+
+    // Autoplay was blocked: the player never fired 'playing', instead a
+    // synthetic 'pause' is emitted (see WebPlayer.load()).
+    fake.emit('pause')
+
+    handle.togglePause()
+
+    expect(fake.player.play).toHaveBeenCalled()
+    expect(fake.player.pause).not.toHaveBeenCalled()
   })
 })
