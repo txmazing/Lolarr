@@ -57,6 +57,18 @@ export function HomeScreen({
 
   const { requests, requestsError } = useRequests({ apiBaseUrl, enabled: true })
 
+  const enrichedHome = useMemo(() => {
+    const rows = (homeQuery.data?.rows ?? []).map((row) => ({
+      ...row,
+      items: enrichItems(row.items, jellyfinSession),
+    }))
+    const heroSource = homeQuery.data?.hero
+    const hero = heroSource
+      ? { ...heroSource, ...resolveItemImages(heroSource, jellyfinSession) }
+      : undefined
+    return { rows, hero }
+  }, [homeQuery.data, jellyfinSession])
+
   const rows =
     deferredQuery && searchQuery.data
       ? [
@@ -66,14 +78,8 @@ export function HomeScreen({
             items: searchQuery.data.results,
           },
         ]
-      : (homeQuery.data?.rows ?? []).map((row) => ({
-          ...row,
-          items: enrichItems(row.items, jellyfinSession),
-        }))
-  const heroSource = homeQuery.data?.hero
-  const featuredItem = heroSource
-    ? { ...heroSource, ...resolveItemImages(heroSource, jellyfinSession) }
-    : rows[0]?.items[0]
+      : enrichedHome.rows
+  const featuredItem = enrichedHome.hero ?? rows[0]?.items[0]
   const error = homeQuery.error ?? searchQuery.error ?? requestsError
 
   return (
