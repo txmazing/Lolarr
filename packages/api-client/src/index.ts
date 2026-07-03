@@ -2,6 +2,7 @@ import type {
   CreateRequest,
   DiscoverResponse,
   HomeResponse,
+  LibraryDetailResponse,
   LoginRequest,
   LoginResponse,
   MediaDetailResponse,
@@ -91,6 +92,9 @@ export function createLolarrApiClient({
     },
     media(mediaType: MediaType, tmdbId: number) {
       return request<MediaDetailResponse>(`/api/media/${mediaType}/${tmdbId}`)
+    },
+    libraryDetail(itemId: string) {
+      return request<LibraryDetailResponse>(`/api/library/${encodeURIComponent(itemId)}`)
     },
     createRequest(payload: CreateRequest) {
       return request<RequestsResponse>('/api/requests', {

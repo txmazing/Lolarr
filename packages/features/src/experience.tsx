@@ -4,6 +4,7 @@ import type { LoginRequest, LoginResponse } from '@lolarr/domain'
 import type { ActionComponent, TextInputComponent } from '@lolarr/ui'
 import { DetailScreen } from './detail/DetailScreen.js'
 import { HomeScreen } from './home/HomeScreen.js'
+import { LibraryDetailScreen } from './library/LibraryDetailScreen.js'
 import { LoginScreen } from './auth/LoginScreen.js'
 import { QuickConnectScreen } from './auth/QuickConnectScreen.js'
 import { adoptSession, useAuth } from './auth/useAuth.js'
@@ -95,6 +96,22 @@ export function AuthenticatedExperience({
     )
   }
 
+  if (currentScreen.name === 'libraryDetail') {
+    return (
+      <LibraryDetailScreen
+        Action={Action}
+        apiBaseUrl={apiBaseUrl}
+        storage={storage}
+        itemId={currentScreen.itemId}
+        userName={auth.user.name}
+        onSignOut={handleSignOut}
+        canConfigureGateway={canConfigureGateway}
+        onConfigureGateway={onConfigureGateway}
+        onBack={() => useScreenStore.getState().pop()}
+      />
+    )
+  }
+
   return (
     <HomeScreen
       Action={Action}
@@ -105,7 +122,13 @@ export function AuthenticatedExperience({
       onSignOut={handleSignOut}
       canConfigureGateway={canConfigureGateway}
       onConfigureGateway={onConfigureGateway}
-      onOpenItem={(item) => useScreenStore.getState().push({ name: 'detail', item })}
+      onOpenItem={(item) =>
+        useScreenStore.getState().push(
+          item.jellyfin
+            ? { name: 'libraryDetail', itemId: item.jellyfin.itemId }
+            : { name: 'detail', item },
+        )
+      }
     />
   )
 }

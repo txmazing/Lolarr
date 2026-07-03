@@ -1,7 +1,10 @@
 import { create } from 'zustand'
 import type { MediaItem } from '@lolarr/domain'
 
-export type Screen = { name: 'home' } | { name: 'detail'; item: MediaItem }
+export type Screen =
+  | { name: 'home' }
+  | { name: 'detail'; item: MediaItem }
+  | { name: 'libraryDetail'; itemId: string }
 
 type ScreenState = {
   stack: Screen[]
