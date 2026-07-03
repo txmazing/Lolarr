@@ -112,7 +112,10 @@ export class LolarrDatabase {
   }
 
   createRequest(input: RequestInput) {
-    const id = `request-${input.mediaType}-${input.tmdbId}-${Date.now()}`
+    // Includes the requesting user because the unique constraint is now
+    // per-user: two different users can request the same (mediaType, tmdbId)
+    // in the same millisecond, and each needs its own row id.
+    const id = `request-${input.requestedBy.id}-${input.mediaType}-${input.tmdbId}-${Date.now()}`
     const createdAt = new Date().toISOString()
 
     this.database
@@ -120,7 +123,7 @@ export class LolarrDatabase {
         `insert into requests (
            id, user_id, media_type, tmdb_id, title, status, seerr_request_id, created_at
          ) values (?, ?, ?, ?, ?, ?, ?, ?)
-         on conflict(media_type, tmdb_id) do update set
+         on conflict(user_id, media_type, tmdb_id) do update set
            status = excluded.status,
            seerr_request_id = excluded.seerr_request_id`,
       )
@@ -188,7 +191,7 @@ export class LolarrDatabase {
         status text not null,
         seerr_request_id text,
         created_at text not null,
-        unique(media_type, tmdb_id)
+        unique(user_id, media_type, tmdb_id)
       );
     `)
 
@@ -198,6 +201,63 @@ export class LolarrDatabase {
 
     if (!userColumns.some((column) => column.name === 'seerr_cookie')) {
       this.database.exec(`alter table users add column seerr_cookie text`)
+    }
+
+    this.migrateRequestsUniqueConstraintToPerUser()
+  }
+
+  /**
+   * Early Slice 1 databases created `requests` with `unique(media_type, tmdb_id)`,
+   * which is global across all users. With per-user request visibility, a second
+   * user requesting media a different user already requested hits a UNIQUE
+   * violation instead of getting their own row. Rebuild the table with
+   * `unique(user_id, media_type, tmdb_id)` when the old constraint is detected.
+   * SQLite can't alter a table's unique constraint in place, so this recreates
+   * the table, copies the data across, and swaps it in. Guarded by inspecting
+   * `sqlite_master` so re-running migrate() on an already-migrated database is a
+   * no-op (same idempotency pattern as the seerr_cookie column check above).
+   */
+  private migrateRequestsUniqueConstraintToPerUser() {
+    const tableDefinition = this.database
+      .prepare(`select sql from sqlite_master where type = 'table' and name = 'requests'`)
+      .get() as { sql: string } | undefined
+
+    const hasGlobalUniqueConstraint = tableDefinition?.sql
+      .replace(/\s+/g, ' ')
+      .includes('unique(media_type, tmdb_id)')
+
+    if (!hasGlobalUniqueConstraint) {
+      return
+    }
+
+    this.database.exec('begin transaction')
+    try {
+      this.database.exec(`
+        create table requests_new (
+          id text primary key,
+          user_id text not null references users(id),
+          media_type text not null,
+          tmdb_id integer not null,
+          title text not null,
+          status text not null,
+          seerr_request_id text,
+          created_at text not null,
+          unique(user_id, media_type, tmdb_id)
+        );
+
+        insert into requests_new (
+          id, user_id, media_type, tmdb_id, title, status, seerr_request_id, created_at
+        )
+        select id, user_id, media_type, tmdb_id, title, status, seerr_request_id, created_at
+        from requests;
+
+        drop table requests;
+        alter table requests_new rename to requests;
+      `)
+      this.database.exec('commit')
+    } catch (error) {
+      this.database.exec('rollback')
+      throw error
     }
   }
 }
