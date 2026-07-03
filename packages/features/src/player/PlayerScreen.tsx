@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ErrorPanel, PlayerControls, type ActionComponent } from '@lolarr/ui'
 import type { KeyValueStorage } from '../storage.js'
+import { AutoplayNext } from './AutoplayNext.js'
 import { usePlaybackSession } from './usePlaybackSession.js'
 
 const CONTROLS_HIDE_MS = 3000
@@ -11,14 +12,18 @@ export function PlayerScreen({
   itemId,
   title,
   resumeTicks,
+  seriesId,
   onExit,
+  onPlayNext,
 }: {
   Action: ActionComponent
   storage: KeyValueStorage
   itemId: string
   title?: string
   resumeTicks?: number
+  seriesId?: string
   onExit: () => void
+  onPlayNext: (itemId: string) => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { videoRef, state, errorMessage, progress, handle } = usePlaybackSession({
@@ -68,6 +73,12 @@ export function PlayerScreen({
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [showControls, onExit, handle])
 
+  useEffect(() => {
+    if (state === 'ended' && !seriesId) {
+      onExit()
+    }
+  }, [state, seriesId, onExit])
+
   function toggleFullscreen() {
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {
@@ -113,6 +124,15 @@ export function PlayerScreen({
         onFullscreen={toggleFullscreen}
         onBack={onExit}
       />
+      {state === 'ended' && seriesId ? (
+        <AutoplayNext
+          Action={Action}
+          storage={storage}
+          seriesId={seriesId}
+          onPlayNext={onPlayNext}
+          onDone={onExit}
+        />
+      ) : null}
     </div>
   )
 }

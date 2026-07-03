@@ -90,10 +90,14 @@ export function AuthenticatedExperience({
         storage={storage}
         itemId={currentScreen.itemId}
         resumeTicks={currentScreen.resumeTicks}
+        seriesId={currentScreen.seriesId}
         onExit={() => {
           void queryClient.invalidateQueries({ queryKey: ['home'] })
           useScreenStore.getState().pop()
         }}
+        onPlayNext={(nextItemId) =>
+          useScreenStore.getState().replace({ name: 'player', itemId: nextItemId, seriesId: currentScreen.seriesId })
+        }
       />
     )
   }
@@ -126,6 +130,9 @@ export function AuthenticatedExperience({
         canConfigureGateway={canConfigureGateway}
         onConfigureGateway={onConfigureGateway}
         onBack={() => useScreenStore.getState().pop()}
+        onPlay={({ itemId, resumeTicks, seriesId }) =>
+          useScreenStore.getState().push({ name: 'player', itemId, resumeTicks, seriesId })
+        }
       />
     )
   }
@@ -146,6 +153,16 @@ export function AuthenticatedExperience({
             ? { name: 'libraryDetail', itemId: item.jellyfin.itemId }
             : { name: 'detail', item },
         )
+      }
+      onPlayItem={(item) =>
+        item.jellyfin
+          ? useScreenStore.getState().push({
+              name: 'player',
+              itemId: item.jellyfin.itemId,
+              resumeTicks: item.jellyfin.resumePositionTicks,
+              seriesId: item.jellyfin.seriesId,
+            })
+          : useScreenStore.getState().push({ name: 'detail', item })
       }
     />
   )

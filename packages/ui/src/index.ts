@@ -6,6 +6,7 @@ export type {
   TextInputProps,
 } from './components/types'
 export { AppFrame } from './components/AppFrame'
+export { AutoplayOverlay } from './components/AutoplayOverlay'
 export { DefaultAction } from './components/DefaultAction'
 export { DefaultTextInput } from './components/DefaultTextInput'
 export { DetailPanel } from './components/DetailPanel'

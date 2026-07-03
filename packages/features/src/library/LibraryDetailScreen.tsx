@@ -23,6 +23,7 @@ export function LibraryDetailScreen({
   canConfigureGateway,
   onConfigureGateway,
   onBack,
+  onPlay,
 }: {
   Action: ActionComponent
   apiBaseUrl: string
@@ -33,6 +34,7 @@ export function LibraryDetailScreen({
   canConfigureGateway: boolean
   onConfigureGateway: () => void
   onBack: () => void
+  onPlay: (opts: { itemId: string; resumeTicks?: number; seriesId?: string }) => void
 }) {
   const detailQuery = useLibraryDetail({ apiBaseUrl, itemId })
   const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
@@ -78,10 +80,32 @@ export function LibraryDetailScreen({
           <p className="library-detail-meta">{item.year ?? ''}</p>
           <p>{item.overview}</p>
           <div className="library-detail-actions">
-            <Action onPress={() => {}} disabled focusKey="library-play" ariaLabel="Play (coming soon)">
-              ▶ Play (coming soon)
+            <Action
+              onPress={() =>
+                onPlay({
+                  itemId: item.jellyfin?.itemId ?? itemId,
+                  resumeTicks: item.jellyfin?.resumePositionTicks,
+                  seriesId: item.jellyfin?.seriesId,
+                })
+              }
+              focusKey="library-play"
+              ariaLabel="Play"
+            >
+              ▶ Play
             </Action>
-            <Action onPress={onBack} focusKey="library-back">Back</Action>
+            {item.jellyfin?.resumePositionTicks ? (
+              <Action
+                onPress={() =>
+                  onPlay({ itemId: item.jellyfin?.itemId ?? itemId, seriesId: item.jellyfin?.seriesId })
+                }
+                focusKey="library-play-restart"
+              >
+                Start from beginning
+              </Action>
+            ) : null}
+            <Action onPress={onBack} focusKey="library-back">
+              Back
+            </Action>
           </div>
         </div>
       </section>
@@ -93,7 +117,17 @@ export function LibraryDetailScreen({
             selectedId={season.id}
             onSelect={setSelectedSeasonId}
           />
-          <EpisodeList episodes={season.episodes} />
+          <EpisodeList
+            episodes={season.episodes}
+            Action={Action}
+            onPlay={(episode) =>
+              onPlay({
+                itemId: episode.jellyfinItemId,
+                resumeTicks: episode.resumePositionTicks,
+                seriesId: itemId,
+              })
+            }
+          />
         </>
       ) : null}
     </AppFrame>

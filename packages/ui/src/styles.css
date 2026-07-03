@@ -630,11 +630,25 @@ button:disabled {
   background: rgba(255, 255, 255, 0.04);
   border-radius: 8px;
 }
+.episode-play { flex-shrink: 0; }
 .episode-number { font-weight: 700; min-width: 2ch; opacity: 0.8; }
 .episode-info { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
 .episode-overview { font-size: 0.85rem; opacity: 0.7; }
 .episode-played { color: #46d369; }
 .episode-runtime { font-size: 0.85rem; opacity: 0.6; white-space: nowrap; }
+
+.autoplay-overlay {
+  position: absolute;
+  right: 2rem;
+  bottom: 2.5rem;
+  background: rgba(10, 10, 14, 0.92);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  max-width: 320px;
+}
+.autoplay-label { opacity: 0.7; font-size: 0.85rem; }
+.autoplay-title { font-weight: 600; margin: 0.25rem 0 0.75rem; }
+.autoplay-actions { display: flex; gap: 0.75rem; }
 
 .player-screen {
   position: fixed;

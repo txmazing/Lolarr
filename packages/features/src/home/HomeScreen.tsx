@@ -30,6 +30,7 @@ export function HomeScreen({
   canConfigureGateway,
   onConfigureGateway,
   onOpenItem,
+  onPlayItem,
 }: {
   Action: ActionComponent
   TextInput: TextInputComponent
@@ -40,6 +41,7 @@ export function HomeScreen({
   canConfigureGateway: boolean
   onConfigureGateway: () => void
   onOpenItem: (item: MediaItem) => void
+  onPlayItem: (item: MediaItem) => void
 }) {
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query.trim())
@@ -90,7 +92,11 @@ export function HomeScreen({
       onSignOut={onSignOut}
     >
       {error ? <ErrorPanel message={readErrorMessage(error)} /> : null}
-      <HeroPanel item={featuredItem} onOpen={onOpenItem} Action={Action} />
+      <HeroPanel
+        item={featuredItem}
+        onOpen={featuredItem?.jellyfin ? onPlayItem : onOpenItem}
+        Action={Action}
+      />
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
       {homeQuery.isLoading || searchQuery.isLoading ? <LoadingPanel /> : null}
       {rows.map((row) => (
@@ -99,7 +105,7 @@ export function HomeScreen({
           id={row.id}
           title={row.title}
           items={row.items}
-          onOpen={onOpenItem}
+          onOpen={row.id === 'continue-watching' ? onPlayItem : onOpenItem}
           Action={Action}
         />
       ))}
