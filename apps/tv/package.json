@@ -1,0 +1,22 @@
+{
+  "name": "@lolarr/tv",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "build:tizen": "tsc -b && vite build --config vite.tizen.config.ts",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "tizen:sync": "pnpm run build:tizen && rm -rf tizen/assets && cp -R public/. tizen/ && cp tizen-index.html tizen/index.html && cp -R dist-tizen/assets tizen/assets",
+    "typecheck": "tsc -b"
+  },
+  "dependencies": {
+    "@lolarr/ui": "workspace:*",
+    "@noriginmedia/norigin-spatial-navigation-core": "^4.0.0",
+    "@noriginmedia/norigin-spatial-navigation-react": "^3.2.1",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  }
+}

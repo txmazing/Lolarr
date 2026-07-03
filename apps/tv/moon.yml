@@ -1,0 +1,59 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'application'
+stack: 'frontend'
+dependsOn:
+  - 'ui'
+tags:
+  - 'react'
+  - 'vite'
+  - 'tv'
+  - 'norigin'
+  - 'tizen'
+
+tasks:
+  dev:
+    command: 'pnpm run dev'
+    preset: 'server'
+  build:
+    command: 'pnpm run build'
+    deps:
+      - 'ui:build'
+    inputs:
+      - 'index.html'
+      - 'package.json'
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+    outputs:
+      - 'dist/**/*'
+  lint:
+    command: 'pnpm run lint'
+    inputs:
+      - 'src/**/*'
+      - '/eslint.config.js'
+  tizen-sync:
+    command: 'pnpm run tizen:sync'
+    deps:
+      - 'ui:build'
+    inputs:
+      - 'package.json'
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'tizen-index.html'
+      - 'tsconfig*.json'
+      - 'vite.tizen.config.ts'
+    outputs:
+      - 'dist-tizen/**/*'
+      - 'tizen/index.html'
+      - 'tizen/assets/**/*'
+      - 'tizen/favicon.svg'
+  typecheck:
+    command: 'pnpm run typecheck'
+    deps:
+      - 'ui:typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig*.json'

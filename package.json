@@ -3,21 +3,25 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@noriginmedia/norigin-spatial-navigation-core": "^4.0.0",
-    "@noriginmedia/norigin-spatial-navigation-react": "^3.2.1",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "dev:web": "moon run web:dev",
+    "dev:tv": "moon run tv:dev",
+    "build": "moon run :build",
+    "build:web": "moon run web:build",
+    "build:tv": "moon run tv:build",
+    "lint": "moon run :lint",
+    "typecheck": "moon run :typecheck",
+    "tizen:sync": "moon run tv:tizen-sync"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@eslint/js": "^10.0.1",
+    "@moonrepo/cli": "^2.3.5",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
     "@types/node": "^24.13.2",

@@ -1,0 +1,13 @@
+$schema: 'https://moonrepo.dev/schemas/workspace.json'
+
+projects:
+  web: 'apps/web'
+  tv: 'apps/tv'
+  mobile: 'apps/mobile'
+  desktop: 'apps/desktop'
+  ui: 'packages/ui'
+
+defaultProject: 'web'
+
+vcs:
+  client: 'git'

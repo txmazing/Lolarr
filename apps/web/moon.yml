@@ -1,0 +1,41 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'application'
+stack: 'frontend'
+dependsOn:
+  - 'ui'
+tags:
+  - 'react'
+  - 'vite'
+  - 'web'
+
+tasks:
+  dev:
+    command: 'pnpm run dev'
+    preset: 'server'
+  build:
+    command: 'pnpm run build'
+    deps:
+      - 'ui:build'
+    inputs:
+      - 'index.html'
+      - 'package.json'
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+    outputs:
+      - 'dist/**/*'
+  lint:
+    command: 'pnpm run lint'
+    inputs:
+      - 'src/**/*'
+      - '/eslint.config.js'
+  typecheck:
+    command: 'pnpm run typecheck'
+    deps:
+      - 'ui:typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig*.json'

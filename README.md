@@ -1,77 +1,37 @@
-# React + TypeScript + Vite
+# Lolarr
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Moonrepo monorepo for the Lolarr clients.
 
-Currently, two official plugins are available:
+## Apps
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `apps/web` - React + Vite web app.
+- `apps/tv` - React + Vite TV app with Norigin spatial navigation and Tizen packaging output.
+- `apps/mobile` - Placeholder for a future Capacitor shell that reuses the web build.
+- `apps/desktop` - Placeholder for a future Tauri shell that reuses the web build.
+- `packages/ui` - Shared React UI, assets, and styles used by all clients.
 
-## React Compiler
+## Commands
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+pnpm install
+pnpm run dev:web
+pnpm run dev:tv
+pnpm run build
+pnpm run lint
+pnpm run typecheck
+pnpm run tizen:sync
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Targeted Moon commands:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```sh
+npx moon run web:build
+npx moon run tv:build
+npx moon run tv:tizen-sync
 ```
+
+## Tizen
+
+`pnpm run tizen:sync` builds the TV app with the Tizen-specific Vite config and syncs the generated files into `apps/tv/tizen`.
+
+Open `apps/tv/tizen` in Tizen Studio, refresh the project, clean/build a signed package, then install the new `.wgt` on the TV.

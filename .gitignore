@@ -9,8 +9,14 @@ lerna-debug.log*
 
 node_modules
 dist
+dist-tizen
 dist-ssr
 *.local
+*.code-workspace
+*.wgt
+**/tizen/Debug
+.moon/cache
+.moon/docker
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +28,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+/tizen/Debug
