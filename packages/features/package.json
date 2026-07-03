@@ -9,6 +9,7 @@
   "scripts": {
     "build": "pnpm run typecheck",
     "lint": "eslint .",
+    "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
@@ -22,5 +23,8 @@
   },
   "peerDependencies": {
     "react": "^19.2.7"
+  },
+  "devDependencies": {
+    "vitest": "^3"
   }
 }
