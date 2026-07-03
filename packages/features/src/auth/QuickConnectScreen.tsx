@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
 import { QuickConnectPanel, type ActionComponent } from '@lolarr/ui'
 import type { LoginResponse } from '@lolarr/domain'
 import { useApi } from '../api.js'
 import { readErrorMessage } from '../lib/errors.js'
+import { generateUuid } from '../storage.js'
 
 type QuickConnectScreenProps = {
   Action: ActionComponent
@@ -18,9 +20,15 @@ export function QuickConnectScreen({
   onCancel,
 }: QuickConnectScreenProps) {
   const api = useApi()
+  const alreadyHandledRef = useRef(false)
+
+  // Per-mount nonce: without it, `['qc-initiate', deviceId]` with staleTime:
+  // Infinity would survive a cancel + re-open of this screen and hand back a
+  // cached pollToken whose Quick Connect code has already expired server-side.
+  const [mountNonce] = useState(() => generateUuid())
 
   const initiateQuery = useQuery({
-    queryKey: ['qc-initiate', deviceId],
+    queryKey: ['qc-initiate', deviceId, mountNonce],
     queryFn: () => api.qcInitiate({ deviceId }),
     staleTime: Infinity,
     retry: false,
@@ -33,16 +41,18 @@ export function QuickConnectScreen({
     enabled: Boolean(pollToken),
     refetchInterval: (query) => (query.state.status === 'error' ? false : 5000),
     retry: false,
-    queryFn: async () => {
-      const state = await api.qcState(pollToken as string)
-      if (state.status === 'authenticated') {
-        onAuthenticated(state)
-      }
-      return state
-    },
+    queryFn: () => api.qcState(pollToken as string),
   })
 
-  const error = initiateQuery.error ?? pollQuery.error ? readErrorMessage(initiateQuery.error ?? pollQuery.error) : undefined
+  useEffect(() => {
+    if (pollQuery.data?.status === 'authenticated' && !alreadyHandledRef.current) {
+      alreadyHandledRef.current = true
+      onAuthenticated(pollQuery.data)
+    }
+  }, [pollQuery.data, onAuthenticated])
+
+  const combinedError = initiateQuery.error ?? pollQuery.error
+  const error = combinedError ? readErrorMessage(combinedError) : undefined
 
   return (
     <QuickConnectPanel
