@@ -5,6 +5,7 @@ export type MediaType = z.infer<typeof mediaTypeSchema>
 
 export const availabilitySchema = z.enum([
   'available',
+  'partiallyAvailable',
   'requestable',
   'requested',
   'processing',

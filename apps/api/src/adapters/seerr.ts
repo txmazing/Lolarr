@@ -124,7 +124,7 @@ function mapSeerrItem(value: unknown, fallbackType?: MediaType): MediaItem | und
     backdropUrl: imageUrl(readString(value, ['backdropPath', 'backdropUrl']), 'w1280'),
     tmdbId,
     seerrMediaId: readNumber(mediaInfo, ['id']),
-    availability: mapAvailability(status),
+    availability: mapSeerrAvailability(status),
   }
 }
 
@@ -182,20 +182,23 @@ function imageUrl(path: string | undefined, size = 'w500') {
   return `https://image.tmdb.org/t/p/${size}${path}`
 }
 
-function mapAvailability(status: number | undefined): MediaItem['availability'] {
-  if (status === 5) {
-    return 'available'
+export function mapSeerrAvailability(
+  status: number | undefined,
+): MediaItem['availability'] {
+  switch (status) {
+    case 2:
+      return 'requested'
+    case 3:
+      return 'processing'
+    case 4:
+      return 'partiallyAvailable'
+    case 5:
+      return 'available'
+    case 6:
+      return 'unavailable'
+    default:
+      return 'requestable'
   }
-
-  if (status === 3 || status === 4) {
-    return 'processing'
-  }
-
-  if (status === 2) {
-    return 'requested'
-  }
-
-  return 'requestable'
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

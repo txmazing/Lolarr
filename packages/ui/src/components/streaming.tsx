@@ -489,7 +489,7 @@ function requestLabel(availability: Availability, isRequesting: boolean) {
     return 'Requesting...'
   }
 
-  if (availability === 'available') {
+  if (availability === 'available' || availability === 'partiallyAvailable') {
     return 'Available in Jellyfin'
   }
 
@@ -508,6 +508,8 @@ function labelForAvailability(availability: Availability) {
   switch (availability) {
     case 'available':
       return 'Available'
+    case 'partiallyAvailable':
+      return 'Partially available'
     case 'processing':
       return 'Processing'
     case 'requested':
