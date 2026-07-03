@@ -8,8 +8,9 @@ import {
 import type { AppConfig } from './config.js'
 import { authenticateWithJellyfin } from './adapters/jellyfin.js'
 import { SeerrAdapter } from './adapters/seerr.js'
+import { registerAuthHook } from './plugins/auth.js'
 import { registerErrorHandler } from './plugins/errors.js'
-import { LolarrDatabase, type StoredSession } from './services/database.js'
+import { LolarrDatabase } from './services/database.js'
 
 export function createServer(config: AppConfig) {
   const app = Fastify({ logger: true })
@@ -21,6 +22,7 @@ export function createServer(config: AppConfig) {
   })
 
   registerErrorHandler(app)
+  registerAuthHook(app, database)
 
   app.get('/health', async () => ({ ok: true }))
 
@@ -38,11 +40,7 @@ export function createServer(config: AppConfig) {
   })
 
   app.get('/api/session/me', async (request) => {
-    const session = authenticateRequest(database, request.headers.authorization)
-
-    return {
-      user: session?.user ?? null,
-    }
+    return { user: request.session.user }
   })
 
   app.get('/api/discover', async () => ({
@@ -76,32 +74,20 @@ export function createServer(config: AppConfig) {
     return { item }
   })
 
-  app.get('/api/requests', async (request, reply) => {
-    const session = authenticateRequest(database, request.headers.authorization)
-
-    if (!session) {
-      return reply.code(401).send({ error: 'Authentication required' })
-    }
-
+  app.get('/api/requests', async () => {
     return {
       requests: database.listRequests(),
     }
   })
 
   app.post('/api/requests', async (request, reply) => {
-    const session = authenticateRequest(database, request.headers.authorization)
-
-    if (!session) {
-      return reply.code(401).send({ error: 'Authentication required' })
-    }
-
     const payload = createRequestSchema.parse(request.body)
 
     try {
       const seerrRequest = await seerr.requestMedia(payload.mediaType, payload.tmdbId)
       const requests = database.createRequest({
         ...payload,
-        requestedBy: session.user,
+        requestedBy: request.session.user,
         status: seerrRequest.status,
         seerrRequestId: seerrRequest.seerrRequestId,
       })
@@ -113,19 +99,6 @@ export function createServer(config: AppConfig) {
   })
 
   return app
-}
-
-function authenticateRequest(
-  database: LolarrDatabase,
-  authorization: string | undefined,
-): StoredSession | undefined {
-  const token = authorization?.match(/^Bearer (.+)$/)?.[1]
-
-  if (!token) {
-    return undefined
-  }
-
-  return database.findSession(token)
 }
 
 function readQuery(query: unknown) {
