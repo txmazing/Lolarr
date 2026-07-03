@@ -10,6 +10,7 @@ projects:
   api-client: 'packages/api-client'
   features: 'packages/features'
   ui: 'packages/ui'
+  jellyfin: 'packages/jellyfin'
 
 defaultProject: 'web'
 

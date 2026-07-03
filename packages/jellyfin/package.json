@@ -1,0 +1,15 @@
+{
+  "name": "@lolarr/jellyfin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "build": "pnpm run typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": { "@lolarr/domain": "workspace:*" },
+  "devDependencies": { "vitest": "^3" }
+}
