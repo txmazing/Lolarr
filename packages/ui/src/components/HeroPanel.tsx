@@ -46,7 +46,7 @@ export function HeroPanel({ item, onOpen, Action }: HeroProps) {
         <Action
           className="primary-action"
           onPress={() => onOpen(item)}
-          focusKey={`hero-${item.id}`}
+          focusKey="hero"
         >
           Open details
         </Action>

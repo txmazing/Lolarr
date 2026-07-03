@@ -28,6 +28,7 @@ export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) 
             item={item}
             onOpen={onOpen}
             Action={Action}
+            focusKeyPrefix={id}
           />
         ))}
       </div>

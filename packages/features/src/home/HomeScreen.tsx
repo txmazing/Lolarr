@@ -45,6 +45,7 @@ export function HomeScreen({
   const deferredQuery = useDeferredValue(query.trim())
 
   const homeQuery = useHome({ apiBaseUrl })
+  // Read once per mount: HomeScreen only mounts after login, when lolarr.jellyfin is already persisted. If this screen ever survives a re-auth, switch to a subscribed read.
   const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
 
   const api = useApi()

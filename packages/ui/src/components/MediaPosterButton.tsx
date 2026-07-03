@@ -6,16 +6,18 @@ export function MediaPosterButton({
   item,
   onOpen,
   Action,
+  focusKeyPrefix,
 }: {
   item: MediaItem
   onOpen: (item: MediaItem) => void
   Action: ActionComponent
+  focusKeyPrefix: string
 }) {
   return (
     <Action
       className="media-card"
       onPress={() => onOpen(item)}
-      focusKey={`card-${item.id}`}
+      focusKey={`${focusKeyPrefix}-${item.id}`}
       ariaLabel={`Open ${item.title}`}
     >
       <span className="poster-frame">
