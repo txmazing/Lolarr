@@ -1,9 +1,0 @@
-{
-  "id": "com.txmazing.lolarr",
-  "version": "1.0.0",
-  "type": "web",
-  "title": "Lolarr",
-  "main": "index.html",
-  "icon": "icon.png",
-  "largeIcon": "largeIcon.png"
-}
