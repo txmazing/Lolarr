@@ -3,9 +3,12 @@ import type { AppConfig } from '../config.js'
 import { UpstreamError } from '../lib/errors.js'
 import type { SeerrSessionService } from '../services/seerrSession.js'
 
+const DISCOVER_CACHE_TTL_MS = 5 * 60 * 1000
+
 export class SeerrAdapter {
   private readonly config: AppConfig
   private readonly sessions: SeerrSessionService
+  private discoverCache: { rows: MediaRow[]; fetchedAt: number } | undefined
 
   constructor(config: AppConfig, sessions: SeerrSessionService) {
     this.config = config
@@ -13,17 +16,24 @@ export class SeerrAdapter {
   }
 
   async discover(): Promise<MediaRow[]> {
+    if (this.discoverCache && Date.now() - this.discoverCache.fetchedAt < DISCOVER_CACHE_TTL_MS) {
+      return this.discoverCache.rows
+    }
+
     const [trending, movies, shows] = await Promise.all([
       this.fetchList('/api/v1/discover/trending'),
       this.fetchList('/api/v1/discover/movies'),
       this.fetchList('/api/v1/discover/tv'),
     ])
 
-    return [
+    const rows = [
       { id: 'trending', title: 'Trending now', items: trending },
       { id: 'popular-movies', title: 'Popular movies', items: movies },
       { id: 'popular-shows', title: 'Popular series', items: shows },
     ].filter((row) => row.items.length > 0)
+
+    this.discoverCache = { rows, fetchedAt: Date.now() }
+    return rows
   }
 
   async search(query: string): Promise<MediaItem[]> {
