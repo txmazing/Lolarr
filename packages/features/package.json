@@ -15,7 +15,8 @@
     "@lolarr/api-client": "workspace:*",
     "@lolarr/domain": "workspace:*",
     "@lolarr/ui": "workspace:*",
-    "@tanstack/react-query": "^5.101.2"
+    "@tanstack/react-query": "^5.101.2",
+    "zustand": "^5.0.14"
   },
   "peerDependencies": {
     "react": "^19.2.7"

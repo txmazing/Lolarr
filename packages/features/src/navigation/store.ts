@@ -1,0 +1,25 @@
+import { create } from 'zustand'
+import type { MediaItem } from '@lolarr/domain'
+
+export type Screen = { name: 'home' } | { name: 'detail'; item: MediaItem }
+
+type ScreenState = {
+  stack: Screen[]
+  push: (screen: Screen) => void
+  pop: () => void
+  reset: () => void
+}
+
+export const useScreenStore = create<ScreenState>((set) => ({
+  stack: [{ name: 'home' }],
+  push: (screen) => set((state) => ({ stack: [...state.stack, screen] })),
+  pop: () =>
+    set((state) => ({
+      stack: state.stack.length > 1 ? state.stack.slice(0, -1) : state.stack,
+    })),
+  reset: () => set({ stack: [{ name: 'home' }] }),
+}))
+
+export function useCurrentScreen(): Screen {
+  return useScreenStore((state) => state.stack[state.stack.length - 1] ?? { name: 'home' })
+}
