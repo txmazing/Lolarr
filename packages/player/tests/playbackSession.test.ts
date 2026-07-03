@@ -99,6 +99,30 @@ describe('createPlaybackSession', () => {
     expect(api.reportPlaybackProgress).toHaveBeenLastCalledWith(session, expect.objectContaining({ isPaused: true }))
   })
 
+  it('reports progress immediately on resume', async () => {
+    const fake = fakePlayer()
+    const api = fakeApi()
+    const handle = createPlaybackSession({
+      session, player: fake.player, itemId: 'i1',
+      onStateChange: () => {}, api, deviceProfile: {},
+    })
+    await handle.start()
+
+    // Pause and clear the recorded calls
+    handle.togglePause()
+    fake.emit('pause')
+    api.reportPlaybackProgress.mockClear()
+
+    // Resume and emit playing event
+    fake.setPosition(25)
+    handle.togglePause()
+    fake.emit('playing')
+
+    expect(api.reportPlaybackProgress).toHaveBeenCalledWith(session, expect.objectContaining({
+      positionTicks: 250_000_000, isPaused: false,
+    }))
+  })
+
   it('retries once with transcoding when direct play errors', async () => {
     const fake = fakePlayer()
     const getPlaybackInfo = vi

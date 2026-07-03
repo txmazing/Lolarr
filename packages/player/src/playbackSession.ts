@@ -147,6 +147,7 @@ export function createPlaybackSession(deps: {
       unsubscribes.push(
         player.on('playing', () => {
           paused = false
+          reportProgress()
           onStateChange('playing')
         }),
         player.on('pause', () => {
