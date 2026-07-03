@@ -80,20 +80,22 @@ export function LibraryDetailScreen({
           <p className="library-detail-meta">{item.year ?? ''}</p>
           <p>{item.overview}</p>
           <div className="library-detail-actions">
-            <Action
-              onPress={() =>
-                onPlay({
-                  itemId: item.jellyfin?.itemId ?? itemId,
-                  resumeTicks: item.jellyfin?.resumePositionTicks,
-                  seriesId: item.jellyfin?.seriesId,
-                })
-              }
-              focusKey="library-play"
-              ariaLabel="Play"
-            >
-              ▶ Play
-            </Action>
-            {item.jellyfin?.resumePositionTicks ? (
+            {item.mediaType === 'movie' ? (
+              <Action
+                onPress={() =>
+                  onPlay({
+                    itemId: item.jellyfin?.itemId ?? itemId,
+                    resumeTicks: item.jellyfin?.resumePositionTicks,
+                    seriesId: item.jellyfin?.seriesId,
+                  })
+                }
+                focusKey="library-play"
+                ariaLabel="Play"
+              >
+                ▶ Play
+              </Action>
+            ) : null}
+            {item.mediaType === 'movie' && item.jellyfin?.resumePositionTicks ? (
               <Action
                 onPress={() =>
                   onPlay({ itemId: item.jellyfin?.itemId ?? itemId, seriesId: item.jellyfin?.seriesId })

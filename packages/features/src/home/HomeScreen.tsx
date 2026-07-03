@@ -94,7 +94,7 @@ export function HomeScreen({
       {error ? <ErrorPanel message={readErrorMessage(error)} /> : null}
       <HeroPanel
         item={featuredItem}
-        onOpen={featuredItem?.jellyfin ? onPlayItem : onOpenItem}
+        onOpen={featuredItem?.jellyfin && featuredItem.mediaType === 'movie' ? onPlayItem : onOpenItem}
         Action={Action}
       />
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
