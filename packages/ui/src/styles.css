@@ -127,6 +127,11 @@ button:disabled {
   background: #3551ff;
 }
 
+.status-partiallyAvailable {
+  color: #07130f;
+  background: #7fd68f;
+}
+
 .status-unavailable {
   color: var(--text);
   background: var(--danger);

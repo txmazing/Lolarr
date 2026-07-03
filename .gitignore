@@ -31,3 +31,6 @@ data
 *.sln
 *.sw?
 /tizen/Debug
+
+# Local Claude Code dev-server config (machine-specific ports/paths)
+.claude/launch.json
