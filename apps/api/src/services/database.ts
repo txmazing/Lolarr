@@ -138,6 +138,32 @@ export class LolarrDatabase {
     return this.listRequests(input.requestedBy.id)
   }
 
+  saveSeerrCookie(userId: string, cookie: string) {
+    this.database
+      .prepare('update users set seerr_cookie = ? where id = ?')
+      .run(encryptText(cookie, this.secret), userId)
+  }
+
+  getSeerrCookie(userId: string): string | undefined {
+    const row = this.database
+      .prepare('select seerr_cookie from users where id = ?')
+      .get(userId) as { seerr_cookie: string | null } | undefined
+
+    if (!row?.seerr_cookie) {
+      return undefined
+    }
+
+    return decryptText(row.seerr_cookie, this.secret)
+  }
+
+  clearSeerrCookie(userId: string) {
+    this.database.prepare('update users set seerr_cookie = null where id = ?').run(userId)
+  }
+
+  deleteSessionsForUser(userId: string) {
+    this.database.prepare('delete from sessions where user_id = ?').run(userId)
+  }
+
   private migrate() {
     this.database.exec(`
       create table if not exists users (
@@ -165,6 +191,14 @@ export class LolarrDatabase {
         unique(media_type, tmdb_id)
       );
     `)
+
+    const userColumns = this.database
+      .prepare(`select name from pragma_table_info('users')`)
+      .all() as Array<{ name: string }>
+
+    if (!userColumns.some((column) => column.name === 'seerr_cookie')) {
+      this.database.exec(`alter table users add column seerr_cookie text`)
+    }
   }
 }
 
