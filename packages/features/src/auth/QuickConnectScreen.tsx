@@ -28,10 +28,10 @@ export function QuickConnectScreen({
 
   const pollToken = initiateQuery.data?.pollToken
 
-  useQuery({
+  const pollQuery = useQuery({
     queryKey: ['qc-state', pollToken],
     enabled: Boolean(pollToken),
-    refetchInterval: 5000,
+    refetchInterval: (query) => (query.state.status === 'error' ? false : 5000),
     retry: false,
     queryFn: async () => {
       const state = await api.qcState(pollToken as string)
@@ -42,7 +42,7 @@ export function QuickConnectScreen({
     },
   })
 
-  const error = initiateQuery.error ? readErrorMessage(initiateQuery.error) : undefined
+  const error = initiateQuery.error ?? pollQuery.error ? readErrorMessage(initiateQuery.error ?? pollQuery.error) : undefined
 
   return (
     <QuickConnectPanel
