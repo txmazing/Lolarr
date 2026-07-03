@@ -11,6 +11,7 @@ projects:
   features: 'packages/features'
   ui: 'packages/ui'
   jellyfin: 'packages/jellyfin'
+  player: 'packages/player'
 
 defaultProject: 'web'
 
