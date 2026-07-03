@@ -68,6 +68,18 @@ export const sessionResponseSchema = z.object({
 })
 export type SessionResponse = z.infer<typeof sessionResponseSchema>
 
+export const qcInitiateRequestSchema = z.object({ deviceId: z.string().min(8) })
+export type QcInitiateRequest = z.infer<typeof qcInitiateRequestSchema>
+
+export const qcInitiateResponseSchema = z.object({ code: z.string(), pollToken: z.string() })
+export type QcInitiateResponse = z.infer<typeof qcInitiateResponseSchema>
+
+export const qcStateResponseSchema = z.discriminatedUnion('status', [
+  z.object({ status: z.literal('pending') }),
+  loginResponseSchema.extend({ status: z.literal('authenticated') }),
+])
+export type QcStateResponse = z.infer<typeof qcStateResponseSchema>
+
 export const discoverResponseSchema = z.object({
   rows: z.array(mediaRowSchema),
 })
