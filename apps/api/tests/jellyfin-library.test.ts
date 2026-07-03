@@ -60,6 +60,21 @@ describe('mapJellyfinItem', () => {
       number: 8,
     })
   })
+
+  it('maps resume position and series id', () => {
+    const item = mapJellyfinItem({
+      Id: 'ep2',
+      Name: 'Episode',
+      Type: 'Episode',
+      SeriesName: 'Show',
+      SeriesId: 'series-9',
+      ParentIndexNumber: 1,
+      IndexNumber: 2,
+      UserData: { PlaybackPositionTicks: 9_000_000_000, PlayedPercentage: 25 },
+    })
+    expect(item.jellyfin?.resumePositionTicks).toBe(9_000_000_000)
+    expect(item.jellyfin?.seriesId).toBe('series-9')
+  })
 })
 
 describe('getResumeItems', () => {

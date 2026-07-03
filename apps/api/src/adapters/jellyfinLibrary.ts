@@ -20,8 +20,9 @@ export type RawJellyfinItem = {
   ImageTags?: { Primary?: string; Thumb?: string }
   BackdropImageTags?: string[]
   ProviderIds?: { Tmdb?: string }
-  UserData?: { PlayedPercentage?: number; Played?: boolean }
+  UserData?: { PlayedPercentage?: number; Played?: boolean; PlaybackPositionTicks?: number }
   SeriesName?: string
+  SeriesId?: string
   ParentIndexNumber?: number
   IndexNumber?: number
   RunTimeTicks?: number
@@ -48,6 +49,8 @@ export function mapJellyfinItem(raw: RawJellyfinItem): MediaItem {
         thumb: raw.ImageTags?.Thumb,
       },
       progressPercent: raw.UserData?.PlayedPercentage,
+      resumePositionTicks: raw.UserData?.PlaybackPositionTicks,
+      seriesId: raw.SeriesId,
       episode:
         isEpisode && raw.SeriesName && raw.ParentIndexNumber !== undefined && raw.IndexNumber !== undefined
           ? {
@@ -167,6 +170,7 @@ export async function getLibraryDetail(
           : undefined,
         played: episode.UserData?.Played === true,
         imageTag: episode.ImageTags?.Primary,
+        resumePositionTicks: episode.UserData?.PlaybackPositionTicks,
       })),
     })
   }

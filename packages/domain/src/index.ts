@@ -33,6 +33,8 @@ export const mediaItemSchema = z.object({
         thumb: z.string().optional(),
       }),
       progressPercent: z.number().min(0).max(100).optional(),
+      resumePositionTicks: z.number().int().optional(),
+      seriesId: z.string().optional(),
       episode: z
         .object({
           seriesTitle: z.string(),
@@ -123,6 +125,7 @@ export const episodeSchema = z.object({
   runtimeMinutes: z.number().int().optional(),
   played: z.boolean(),
   imageTag: z.string().optional(),
+  resumePositionTicks: z.number().int().optional(),
 })
 export type Episode = z.infer<typeof episodeSchema>
 
