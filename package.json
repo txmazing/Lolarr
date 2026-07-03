@@ -19,6 +19,7 @@
     "build:tv": "moon run tv:build",
     "lint": "moon run :lint",
     "typecheck": "moon run :typecheck",
+    "test": "moon run :test",
     "tizen:sync": "moon run tv:tizen-sync"
   },
   "devDependencies": {

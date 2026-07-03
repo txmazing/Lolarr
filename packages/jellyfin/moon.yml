@@ -23,3 +23,8 @@ tasks:
     inputs:
       - 'src/**/*'
       - 'tsconfig.json'
+  test:
+    command: 'pnpm run test'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
