@@ -1,17 +1,17 @@
 import type { FastifyInstance } from 'fastify'
 import { loginRequestSchema } from '@lolarr/domain'
-import { authenticateWithJellyfin } from '../adapters/jellyfin.js'
+import { authenticateByName } from '../adapters/jellyfin.js'
 import type { AppContext } from '../lib/context.js'
 
 export async function authRoutes(app: FastifyInstance, { config, database }: AppContext) {
   app.post('/api/auth/login', async (request) => {
     const credentials = loginRequestSchema.parse(request.body)
 
-    const auth = await authenticateWithJellyfin(
-      config,
-      credentials.username,
-      credentials.password,
-    )
+    const auth = await authenticateByName(config, {
+      username: credentials.username,
+      password: credentials.password,
+      deviceId: 'lolarr-gateway',
+    })
 
     database.upsertUser(auth.user, auth.accessToken)
     return database.createSession(auth.user)
