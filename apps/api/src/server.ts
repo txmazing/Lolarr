@@ -6,6 +6,7 @@ import type { AppContext } from './lib/context.js'
 import { authRoutes } from './modules/auth.js'
 import { discoverRoutes } from './modules/discover.js'
 import { homeRoutes } from './modules/home.js'
+import { libraryRoutes } from './modules/library.js'
 import { mediaRoutes } from './modules/media.js'
 import { requestsRoutes } from './modules/requests.js'
 import { registerAuthHook } from './plugins/auth.js'
@@ -33,6 +34,7 @@ export function createServer(config: AppConfig) {
   app.register(authRoutes, context)
   app.register(discoverRoutes, context)
   app.register(homeRoutes, context)
+  app.register(libraryRoutes, context)
   app.register(mediaRoutes, context)
   app.register(requestsRoutes, context)
 
