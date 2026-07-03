@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import type { FastifyInstance } from 'fastify'
 import { MockAgent, setGlobalDispatcher } from 'undici'
 import type { AppConfig } from '../src/config.js'
 
@@ -43,4 +44,17 @@ export function jellyfinAuthResponse(overrides: Record<string, unknown> = {}) {
     User: { Id: 'jf-user-1', Name: 'Joel' },
     ...overrides,
   }
+}
+
+export async function loginTestUser(app: FastifyInstance, ctx: ReturnType<typeof createTestContext>) {
+  ctx.jellyfin
+    .intercept({ path: '/Users/AuthenticateByName', method: 'POST' })
+    .reply(200, jellyfinAuthResponse(), { headers: { 'content-type': 'application/json' } })
+
+  const response = await app.inject({
+    method: 'POST',
+    url: '/api/auth/login',
+    payload: { username: 'joel', password: 'pw', deviceId: 'device-12345' },
+  })
+  return response.json() as { token: string }
 }
