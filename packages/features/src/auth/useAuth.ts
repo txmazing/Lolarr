@@ -20,6 +20,11 @@ export function writeStoredToken(storage: KeyValueStorage, token: string | undef
   }
 }
 
+export function clearStoredSession(storage: KeyValueStorage) {
+  storage.remove(tokenStorageKey)
+  storage.remove(jellyfinStorageKey)
+}
+
 /**
  * Auth state/mutations. Token itself is owned by the caller (LolarrExperience)
  * because the ApiProvider needs it before useAuth can run inside that provider's
@@ -71,8 +76,7 @@ export function useAuth({
   }
 
   function signOut() {
-    writeStoredToken(storage, undefined)
-    storage.remove(jellyfinStorageKey)
+    clearStoredSession(storage)
     setToken(undefined)
     queryClient.clear()
   }

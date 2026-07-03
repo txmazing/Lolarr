@@ -16,7 +16,7 @@ import {
   writeStoredApiBaseUrl,
 } from './auth/gateway.js'
 import { GatewayScreen } from './auth/GatewayScreen.js'
-import { readStoredToken, writeStoredToken } from './auth/useAuth.js'
+import { clearStoredSession, readStoredToken } from './auth/useAuth.js'
 import { AuthenticatedExperience } from './experience.js'
 import { useScreenStore } from './navigation/store.js'
 import { localStorageAdapter, type KeyValueStorage } from './storage.js'
@@ -88,7 +88,7 @@ function LolarrExperience({
 
     setGatewayError(undefined)
     writeStoredApiBaseUrl(storage, nextApiBaseUrl)
-    writeStoredToken(storage, undefined)
+    clearStoredSession(storage)
     setApiBaseUrl(nextApiBaseUrl)
     setToken(undefined)
     useScreenStore.getState().reset()
@@ -124,7 +124,7 @@ function LolarrExperience({
       baseUrl={apiBaseUrl}
       token={token}
       onUnauthorized={() => {
-        writeStoredToken(storage, undefined)
+        clearStoredSession(storage)
         setToken(undefined)
       }}
     >
