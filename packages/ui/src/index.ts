@@ -4,19 +4,18 @@ export type {
   ShellProps,
   TextInputComponent,
   TextInputProps,
-} from './components/streaming'
-export {
-  AppFrame,
-  DefaultAction,
-  DefaultTextInput,
-  DetailPanel,
-  ErrorPanel,
-  GatewayPanel,
-  HeroPanel,
-  LoadingPanel,
-  LoginPanel,
-  MediaRail,
-  RequestList,
-  SearchBar,
-  StatusBadge,
-} from './components/streaming'
+} from './components/types'
+export { AppFrame } from './components/AppFrame'
+export { DefaultAction } from './components/DefaultAction'
+export { DefaultTextInput } from './components/DefaultTextInput'
+export { DetailPanel } from './components/DetailPanel'
+export { ErrorPanel } from './components/ErrorPanel'
+export { GatewayPanel } from './components/GatewayPanel'
+export { HeroPanel } from './components/HeroPanel'
+export { LoadingPanel } from './components/LoadingPanel'
+export { LoginPanel } from './components/LoginPanel'
+export { MediaPosterButton } from './components/MediaPosterButton'
+export { MediaRail } from './components/MediaRail'
+export { RequestList } from './components/RequestList'
+export { SearchBar } from './components/SearchBar'
+export { StatusBadge } from './components/StatusBadge'
