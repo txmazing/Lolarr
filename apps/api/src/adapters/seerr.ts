@@ -62,6 +62,7 @@ export class SeerrAdapter {
     })
 
     const requestId = readNumber(response, ['id', 'requestId'])
+    this.discoverCache = undefined
     return {
       status: 'pending',
       seerrRequestId: requestId ? String(requestId) : undefined,

@@ -25,7 +25,7 @@ export function useRequests({ apiBaseUrl, enabled }: { apiBaseUrl: string; enabl
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['requests'] })
-      void queryClient.invalidateQueries({ queryKey: ['discover'] })
+      void queryClient.invalidateQueries({ queryKey: ['home'] })
       void queryClient.invalidateQueries({ queryKey: ['search'] })
       void queryClient.invalidateQueries({ queryKey: ['media'] })
     },
