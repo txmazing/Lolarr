@@ -95,7 +95,7 @@ export class LolarrDatabase {
     return decryptText(row.jellyfin_token, this.secret)
   }
 
-  listRequests(): MediaRequest[] {
+  listRequests(userId: string): MediaRequest[] {
     const rows = this.database
       .prepare(
         `select requests.id, requests.media_type, requests.tmdb_id, requests.title,
@@ -103,9 +103,10 @@ export class LolarrDatabase {
                 users.name as user_name
          from requests
          inner join users on users.id = requests.user_id
+         where requests.user_id = ?
          order by requests.created_at desc`,
       )
-      .all() as StoredRequestRow[]
+      .all(userId) as StoredRequestRow[]
 
     return rows.map(mapRequestRow)
   }
@@ -134,7 +135,7 @@ export class LolarrDatabase {
         createdAt,
       )
 
-    return this.listRequests()
+    return this.listRequests(input.requestedBy.id)
   }
 
   private migrate() {
