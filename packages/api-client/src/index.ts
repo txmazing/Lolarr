@@ -5,6 +5,8 @@ import type {
   LoginResponse,
   MediaDetailResponse,
   MediaType,
+  QcInitiateResponse,
+  QcStateResponse,
   RequestsResponse,
   SearchResponse,
   SessionResponse,
@@ -94,6 +96,16 @@ export function createLolarrApiClient({
     },
     requests() {
       return request<RequestsResponse>('/api/requests')
+    },
+    qcInitiate(payload: { deviceId: string }) {
+      return request<QcInitiateResponse>('/api/auth/qc/initiate', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+    },
+    qcState(pollToken: string) {
+      const searchParams = new URLSearchParams({ pollToken })
+      return request<QcStateResponse>(`/api/auth/qc/state?${searchParams}`)
     },
   }
 }

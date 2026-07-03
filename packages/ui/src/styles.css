@@ -180,7 +180,8 @@ button:disabled {
 .login-panel,
 .gateway-panel,
 .loading-panel,
-.error-panel {
+.error-panel,
+.quick-connect-panel {
   width: min(100%, 560px);
   margin: 10vh auto 0;
   border: 1px solid var(--line);
@@ -192,7 +193,8 @@ button:disabled {
 
 .login-panel h2,
 .gateway-panel h2,
-.error-panel h2 {
+.error-panel h2,
+.quick-connect-panel h2 {
   margin: 8px 0 10px;
   font-size: clamp(28px, 4vw, 48px);
   line-height: 1;
@@ -202,7 +204,8 @@ button:disabled {
 .login-panel p,
 .gateway-panel p,
 .error-panel p,
-.loading-panel p {
+.loading-panel p,
+.quick-connect-panel p {
   color: var(--muted);
 }
 
@@ -243,9 +246,21 @@ button:disabled {
   box-shadow: 0 0 0 4px rgba(244, 197, 66, 0.18);
 }
 
-.form-error {
+.form-error,
+.error-text {
   margin: 0 0 16px;
   color: var(--danger) !important;
+}
+
+.quick-connect-code {
+  font-size: 3rem;
+  letter-spacing: 0.3em;
+}
+
+.login-alt-action {
+  width: min(100%, 560px);
+  margin: 16px auto 0;
+  text-align: center;
 }
 
 .hero-panel {

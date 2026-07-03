@@ -1,11 +1,14 @@
-import type { LoginRequest } from '@lolarr/domain'
+import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import type { LoginRequest, LoginResponse } from '@lolarr/domain'
 import type { ActionComponent, TextInputComponent } from '@lolarr/ui'
 import { DetailScreen } from './detail/DetailScreen.js'
 import { HomeScreen } from './home/HomeScreen.js'
 import { LoginScreen } from './auth/LoginScreen.js'
-import { useAuth } from './auth/useAuth.js'
+import { QuickConnectScreen } from './auth/QuickConnectScreen.js'
+import { adoptSession, useAuth } from './auth/useAuth.js'
 import { useCurrentScreen, useScreenStore } from './navigation/store.js'
-import type { KeyValueStorage } from './storage.js'
+import { getOrCreateDeviceId, type KeyValueStorage } from './storage.js'
 
 /**
  * Renders the post-gateway experience: login, then home/detail based on the
@@ -33,6 +36,8 @@ export function AuthenticatedExperience({
 }) {
   const auth = useAuth({ storage, apiBaseUrl, token, setToken })
   const currentScreen = useCurrentScreen()
+  const queryClient = useQueryClient()
+  const [loginMode, setLoginMode] = useState<'password' | 'quickconnect'>('password')
 
   function handleSignOut() {
     auth.signOut()
@@ -43,7 +48,23 @@ export function AuthenticatedExperience({
     auth.login(payload)
   }
 
+  function handleQuickConnectAuthenticated(response: LoginResponse) {
+    adoptSession(response, { storage, apiBaseUrl, setToken, queryClient })
+    setLoginMode('password')
+  }
+
   if (!auth.user) {
+    if (loginMode === 'quickconnect') {
+      return (
+        <QuickConnectScreen
+          Action={Action}
+          deviceId={getOrCreateDeviceId(storage)}
+          onAuthenticated={handleQuickConnectAuthenticated}
+          onCancel={() => setLoginMode('password')}
+        />
+      )
+    }
+
     return (
       <LoginScreen
         Action={Action}
@@ -52,6 +73,7 @@ export function AuthenticatedExperience({
         loginError={auth.loginError}
         isLoggingIn={auth.isLoggingIn}
         onLogin={handleLogin}
+        onQuickConnect={() => setLoginMode('quickconnect')}
         canConfigureGateway={canConfigureGateway}
         onConfigureGateway={onConfigureGateway}
       />

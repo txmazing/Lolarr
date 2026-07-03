@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import type { LoginRequest } from '@lolarr/domain'
+import type { LoginRequest, LoginResponse } from '@lolarr/domain'
 import { useApi } from '../api.js'
 import { readErrorMessage } from '../lib/errors.js'
 import { getOrCreateDeviceId, type KeyValueStorage } from '../storage.js'
@@ -23,6 +23,35 @@ export function writeStoredToken(storage: KeyValueStorage, token: string | undef
 export function clearStoredSession(storage: KeyValueStorage) {
   storage.remove(tokenStorageKey)
   storage.remove(jellyfinStorageKey)
+}
+
+/**
+ * Applies a successful login/quick-connect response: persists the token +
+ * Jellyfin session to storage, updates the in-memory token, and seeds the
+ * session query cache so the home screen doesn't refetch before rendering.
+ * Shared by the password login mutation and the quick-connect poller so both
+ * paths adopt a session identically.
+ */
+export function adoptSession(
+  response: LoginResponse,
+  {
+    storage,
+    apiBaseUrl,
+    setToken,
+    queryClient,
+  }: {
+    storage: KeyValueStorage
+    apiBaseUrl: string
+    setToken: (token: string | undefined) => void
+    queryClient: QueryClient
+  },
+) {
+  writeStoredToken(storage, response.token)
+  storage.set(jellyfinStorageKey, JSON.stringify(response.jellyfin))
+  setToken(response.token)
+  queryClient.setQueryData(['session', apiBaseUrl, response.token], {
+    user: response.user,
+  })
 }
 
 /**
@@ -59,12 +88,7 @@ export function useAuth({
       setLoginError(undefined)
     },
     onSuccess: (response) => {
-      writeStoredToken(storage, response.token)
-      storage.set(jellyfinStorageKey, JSON.stringify(response.jellyfin))
-      setToken(response.token)
-      queryClient.setQueryData(['session', apiBaseUrl, response.token], {
-        user: response.user,
-      })
+      adoptSession(response, { storage, apiBaseUrl, setToken, queryClient })
     },
     onError: (error) => {
       setLoginError(readErrorMessage(error))
