@@ -148,6 +148,9 @@ importers:
       '@lolarr/domain':
         specifier: workspace:*
         version: link:../domain
+      '@lolarr/jellyfin':
+        specifier: workspace:*
+        version: link:../jellyfin
       '@lolarr/ui':
         specifier: workspace:*
         version: link:../ui

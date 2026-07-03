@@ -28,8 +28,16 @@ export function HeroPanel({ item, onOpen, Action }: HeroProps) {
       }}
     >
       <div className="hero-copy">
+        {item.jellyfin?.progressPercent !== undefined || item.jellyfin?.episode ? (
+          <span className="hero-badge">Continue watching</span>
+        ) : null}
         <StatusBadge availability={item.availability} />
         <h2>{item.title}</h2>
+        {item.jellyfin?.episode ? (
+          <p className="poster-subtitle">
+            {`${item.jellyfin.episode.seriesTitle} · S${item.jellyfin.episode.season} · E${item.jellyfin.episode.number}`}
+          </p>
+        ) : null}
         <p>{item.overview}</p>
         <div className="hero-meta">
           {item.year ? <span>{item.year}</span> : null}
@@ -38,7 +46,7 @@ export function HeroPanel({ item, onOpen, Action }: HeroProps) {
         <Action
           className="primary-action"
           onPress={() => onOpen(item)}
-          focusKey={`hero-${item.mediaType}-${item.tmdbId}`}
+          focusKey={`hero-${item.id}`}
         >
           Open details
         </Action>

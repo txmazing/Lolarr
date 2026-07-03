@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { useDeferredValue, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import type { MediaItem } from '@lolarr/domain'
+import { readJellyfinSession } from '@lolarr/jellyfin'
 import {
   AppFrame,
   ErrorPanel,
@@ -13,12 +14,16 @@ import {
   type TextInputComponent,
 } from '@lolarr/ui'
 import { useApi } from '../api.js'
+import { enrichItems, resolveItemImages } from '../lib/images.js'
 import { readErrorMessage } from '../lib/errors.js'
 import { useRequests } from '../requests/useRequests.js'
+import type { KeyValueStorage } from '../storage.js'
+import { useHome } from './useHome.js'
 
 export function HomeScreen({
   Action,
   TextInput,
+  storage,
   apiBaseUrl,
   userName,
   onSignOut,
@@ -28,6 +33,7 @@ export function HomeScreen({
 }: {
   Action: ActionComponent
   TextInput: TextInputComponent
+  storage: KeyValueStorage
   apiBaseUrl: string
   userName: string
   onSignOut: () => void
@@ -35,15 +41,13 @@ export function HomeScreen({
   onConfigureGateway: () => void
   onOpenItem: (item: MediaItem) => void
 }) {
-  const api = useApi()
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query.trim())
 
-  const discoverQuery = useQuery({
-    queryKey: ['discover', apiBaseUrl],
-    queryFn: () => api.discover(),
-  })
+  const homeQuery = useHome({ apiBaseUrl })
+  const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
 
+  const api = useApi()
   const searchQuery = useQuery({
     queryKey: ['search', apiBaseUrl, deferredQuery],
     queryFn: () => api.search(deferredQuery),
@@ -61,9 +65,15 @@ export function HomeScreen({
             items: searchQuery.data.results,
           },
         ]
-      : discoverQuery.data?.rows ?? []
-  const featuredItem = rows[0]?.items[0]
-  const error = discoverQuery.error ?? searchQuery.error ?? requestsError
+      : (homeQuery.data?.rows ?? []).map((row) => ({
+          ...row,
+          items: enrichItems(row.items, jellyfinSession),
+        }))
+  const heroSource = homeQuery.data?.hero
+  const featuredItem = heroSource
+    ? { ...heroSource, ...resolveItemImages(heroSource, jellyfinSession) }
+    : rows[0]?.items[0]
+  const error = homeQuery.error ?? searchQuery.error ?? requestsError
 
   return (
     <AppFrame
@@ -75,7 +85,7 @@ export function HomeScreen({
       {error ? <ErrorPanel message={readErrorMessage(error)} /> : null}
       <HeroPanel item={featuredItem} onOpen={onOpenItem} Action={Action} />
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
-      {discoverQuery.isLoading || searchQuery.isLoading ? <LoadingPanel /> : null}
+      {homeQuery.isLoading || searchQuery.isLoading ? <LoadingPanel /> : null}
       {rows.map((row) => (
         <MediaRail
           key={row.id}

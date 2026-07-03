@@ -99,6 +99,7 @@ export function AuthenticatedExperience({
     <HomeScreen
       Action={Action}
       TextInput={TextInput}
+      storage={storage}
       apiBaseUrl={apiBaseUrl}
       userName={auth.user.name}
       onSignOut={handleSignOut}

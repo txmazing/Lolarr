@@ -1,6 +1,7 @@
 import type {
   CreateRequest,
   DiscoverResponse,
+  HomeResponse,
   LoginRequest,
   LoginResponse,
   MediaDetailResponse,
@@ -80,6 +81,9 @@ export function createLolarrApiClient({
     },
     discover() {
       return request<DiscoverResponse>('/api/discover')
+    },
+    home() {
+      return request<HomeResponse>('/api/home')
     },
     search(query: string) {
       const searchParams = new URLSearchParams({ q: query })

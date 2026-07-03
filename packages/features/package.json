@@ -14,6 +14,7 @@
   "dependencies": {
     "@lolarr/api-client": "workspace:*",
     "@lolarr/domain": "workspace:*",
+    "@lolarr/jellyfin": "workspace:*",
     "@lolarr/ui": "workspace:*",
     "@tanstack/react-query": "^5.101.2",
     "zustand": "^5.0.14"

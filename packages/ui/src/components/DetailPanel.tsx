@@ -40,7 +40,7 @@ export function DetailPanel({
             <div className="hero-meta">
               {item.year ? <span>{item.year}</span> : null}
               <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
-              <span>TMDB {item.tmdbId}</span>
+              {item.tmdbId !== undefined ? <span>TMDB {item.tmdbId}</span> : null}
             </div>
             <Action
               className="primary-action"

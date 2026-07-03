@@ -24,7 +24,7 @@ export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) 
       <div className="rail-scroll">
         {items.map((item) => (
           <MediaPosterButton
-            key={`${item.mediaType}-${item.tmdbId}`}
+            key={item.id}
             item={item}
             onOpen={onOpen}
             Action={Action}
