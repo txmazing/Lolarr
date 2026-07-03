@@ -126,6 +126,7 @@ function LolarrExperience({
       onUnauthorized={() => {
         clearStoredSession(storage)
         setToken(undefined)
+        queryClient.clear()
       }}
     >
       <AuthenticatedExperience
