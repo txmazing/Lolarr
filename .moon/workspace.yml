@@ -1,10 +1,14 @@
 $schema: 'https://moonrepo.dev/schemas/workspace.json'
 
 projects:
+  api: 'apps/api'
   web: 'apps/web'
   tv: 'apps/tv'
   mobile: 'apps/mobile'
   desktop: 'apps/desktop'
+  domain: 'packages/domain'
+  api-client: 'packages/api-client'
+  features: 'packages/features'
   ui: 'packages/ui'
 
 defaultProject: 'web'

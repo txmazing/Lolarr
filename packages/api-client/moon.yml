@@ -2,12 +2,10 @@ $schema: 'https://moonrepo.dev/schemas/project.json'
 
 language: 'typescript'
 layer: 'library'
-stack: 'frontend'
 dependsOn:
   - 'domain'
 tags:
-  - 'react'
-  - 'ui'
+  - 'api-client'
 
 tasks:
   build:

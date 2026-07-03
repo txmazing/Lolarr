@@ -1,0 +1,29 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4000
+      JELLYFIN_URL: ${JELLYFIN_URL:-}
+      SEERR_URL: ${SEERR_URL:-}
+      SEERR_API_KEY: ${SEERR_API_KEY:-}
+      LOLARR_SECRET: ${LOLARR_SECRET:-development-lolarr-secret}
+      LOLARR_DATABASE_PATH: /data/lolarr.sqlite
+    ports:
+      - '4000:4000'
+    volumes:
+      - lolarr-data:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    depends_on:
+      - api
+    ports:
+      - '8080:80'
+
+volumes:
+  lolarr-data:

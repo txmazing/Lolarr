@@ -1,34 +1,27 @@
 $schema: 'https://moonrepo.dev/schemas/project.json'
 
 language: 'typescript'
-layer: 'application'
+layer: 'library'
 stack: 'frontend'
 dependsOn:
-  - 'features'
+  - 'api-client'
+  - 'domain'
   - 'ui'
 tags:
   - 'react'
-  - 'vite'
-  - 'web'
+  - 'features'
 
 tasks:
-  dev:
-    command: 'pnpm run dev'
-    preset: 'server'
   build:
     command: 'pnpm run build'
     deps:
-      - 'features:build'
+      - 'api-client:build'
+      - 'domain:build'
       - 'ui:build'
     inputs:
-      - 'index.html'
       - 'package.json'
       - 'src/**/*'
-      - 'public/**/*'
-      - 'tsconfig*.json'
-      - 'vite.config.ts'
-    outputs:
-      - 'dist/**/*'
+      - 'tsconfig.json'
   lint:
     command: 'pnpm run lint'
     inputs:
@@ -37,8 +30,9 @@ tasks:
   typecheck:
     command: 'pnpm run typecheck'
     deps:
-      - 'features:typecheck'
+      - 'api-client:typecheck'
+      - 'domain:typecheck'
       - 'ui:typecheck'
     inputs:
       - 'src/**/*'
-      - 'tsconfig*.json'
+      - 'tsconfig.json'

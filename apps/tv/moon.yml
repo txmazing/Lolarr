@@ -4,6 +4,7 @@ language: 'typescript'
 layer: 'application'
 stack: 'frontend'
 dependsOn:
+  - 'features'
   - 'ui'
 tags:
   - 'react'
@@ -19,6 +20,7 @@ tasks:
   build:
     command: 'pnpm run build'
     deps:
+      - 'features:build'
       - 'ui:build'
     inputs:
       - 'index.html'
@@ -37,6 +39,7 @@ tasks:
   tizen-sync:
     command: 'pnpm run tizen:sync'
     deps:
+      - 'features:build'
       - 'ui:build'
     inputs:
       - 'package.json'
@@ -53,6 +56,7 @@ tasks:
   typecheck:
     command: 'pnpm run typecheck'
     deps:
+      - 'features:typecheck'
       - 'ui:typecheck'
     inputs:
       - 'src/**/*'

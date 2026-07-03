@@ -1,0 +1,22 @@
+FROM node:25-bookworm
+
+WORKDIR /app
+
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY .moon ./.moon
+COPY apps/api/package.json ./apps/api/package.json
+COPY packages/domain/package.json ./packages/domain/package.json
+
+RUN pnpm install --frozen-lockfile
+
+COPY apps/api ./apps/api
+COPY packages/domain ./packages/domain
+COPY tsconfig.node.json ./tsconfig.node.json
+COPY tsconfig.react-app.json ./tsconfig.react-app.json
+COPY eslint.config.js ./eslint.config.js
+
+EXPOSE 4000
+
+CMD ["pnpm", "--filter", "@lolarr/api", "start"]

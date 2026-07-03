@@ -2,18 +2,13 @@ $schema: 'https://moonrepo.dev/schemas/project.json'
 
 language: 'typescript'
 layer: 'library'
-stack: 'frontend'
-dependsOn:
-  - 'domain'
 tags:
-  - 'react'
-  - 'ui'
+  - 'domain'
+  - 'types'
 
 tasks:
   build:
     command: 'pnpm run build'
-    deps:
-      - 'domain:build'
     inputs:
       - 'package.json'
       - 'src/**/*'
@@ -25,8 +20,6 @@ tasks:
       - '/eslint.config.js'
   typecheck:
     command: 'pnpm run typecheck'
-    deps:
-      - 'domain:typecheck'
     inputs:
       - 'src/**/*'
       - 'tsconfig.json'

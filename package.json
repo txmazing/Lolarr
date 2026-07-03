@@ -9,9 +9,12 @@
     "packages/*"
   ],
   "scripts": {
+    "dev:api": "moon run api:dev",
     "dev:web": "moon run web:dev",
     "dev:tv": "moon run tv:dev",
+    "dev": "moon run api:dev web:dev",
     "build": "moon run :build",
+    "build:api": "moon run api:build",
     "build:web": "moon run web:build",
     "build:tv": "moon run tv:build",
     "lint": "moon run :lint",
