@@ -8,6 +8,7 @@ import {
 import type { AppConfig } from './config.js'
 import { authenticateWithJellyfin } from './adapters/jellyfin.js'
 import { SeerrAdapter } from './adapters/seerr.js'
+import { registerErrorHandler } from './plugins/errors.js'
 import { LolarrDatabase, type StoredSession } from './services/database.js'
 
 export function createServer(config: AppConfig) {
@@ -19,23 +20,21 @@ export function createServer(config: AppConfig) {
     origin: true,
   })
 
+  registerErrorHandler(app)
+
   app.get('/health', async () => ({ ok: true }))
 
-  app.post('/api/auth/login', async (request, reply) => {
+  app.post('/api/auth/login', async (request) => {
     const credentials = loginRequestSchema.parse(request.body)
 
-    try {
-      const auth = await authenticateWithJellyfin(
-        config,
-        credentials.username,
-        credentials.password,
-      )
+    const auth = await authenticateWithJellyfin(
+      config,
+      credentials.username,
+      credentials.password,
+    )
 
-      database.upsertUser(auth.user, auth.accessToken)
-      return database.createSession(auth.user)
-    } catch {
-      return reply.code(401).send({ error: 'Invalid Jellyfin credentials' })
-    }
+    database.upsertUser(auth.user, auth.accessToken)
+    return database.createSession(auth.user)
   })
 
   app.get('/api/session/me', async (request) => {

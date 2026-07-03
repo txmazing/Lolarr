@@ -1,5 +1,6 @@
 import type { MediaItem, MediaRow, MediaType, RequestStatus } from '@lolarr/domain'
 import type { AppConfig } from '../config.js'
+import { UpstreamError } from '../lib/errors.js'
 
 export class SeerrAdapter {
   private readonly config: AppConfig
@@ -67,13 +68,18 @@ export class SeerrAdapter {
       headers.set('Content-Type', 'application/json')
     }
 
-    const response = await fetch(`${this.config.SEERR_URL}${path}`, {
-      ...init,
-      headers,
-    })
+    let response: Response
+    try {
+      response = await fetch(`${this.config.SEERR_URL}${path}`, {
+        ...init,
+        headers,
+      })
+    } catch (error) {
+      throw new UpstreamError('seerr', undefined, `Seerr unreachable: ${String(error)}`)
+    }
 
     if (!response.ok) {
-      throw new Error(`Seerr request failed: ${response.status}`)
+      throw new UpstreamError('seerr', response.status, `Seerr request failed: ${response.status}`)
     }
 
     return response.json() as Promise<unknown>
