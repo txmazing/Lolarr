@@ -151,6 +151,9 @@ importers:
       '@lolarr/jellyfin':
         specifier: workspace:*
         version: link:../jellyfin
+      '@lolarr/player':
+        specifier: workspace:*
+        version: link:../player
       '@lolarr/ui':
         specifier: workspace:*
         version: link:../ui

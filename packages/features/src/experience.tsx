@@ -7,6 +7,7 @@ import { HomeScreen } from './home/HomeScreen.js'
 import { LibraryDetailScreen } from './library/LibraryDetailScreen.js'
 import { LoginScreen } from './auth/LoginScreen.js'
 import { QuickConnectScreen } from './auth/QuickConnectScreen.js'
+import { PlayerScreen } from './player/PlayerScreen.js'
 import { adoptSession, useAuth } from './auth/useAuth.js'
 import { useCurrentScreen, useScreenStore } from './navigation/store.js'
 import { getOrCreateDeviceId, type KeyValueStorage } from './storage.js'
@@ -77,6 +78,22 @@ export function AuthenticatedExperience({
         onQuickConnect={() => setLoginMode('quickconnect')}
         canConfigureGateway={canConfigureGateway}
         onConfigureGateway={onConfigureGateway}
+      />
+    )
+  }
+
+  if (currentScreen.name === 'player') {
+    return (
+      <PlayerScreen
+        key={currentScreen.itemId}
+        Action={Action}
+        storage={storage}
+        itemId={currentScreen.itemId}
+        resumeTicks={currentScreen.resumeTicks}
+        onExit={() => {
+          void queryClient.invalidateQueries({ queryKey: ['home'] })
+          useScreenStore.getState().pop()
+        }}
       />
     )
   }
