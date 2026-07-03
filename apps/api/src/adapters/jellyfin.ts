@@ -96,7 +96,7 @@ export async function authorizeQuickConnect(
   assertOk(response, 'Quick Connect authorize failed')
 }
 
-async function jellyfinFetch(
+export async function jellyfinFetch(
   config: AppConfig,
   path: string,
   options: { method: string; deviceId: string; token?: string; body?: unknown },
