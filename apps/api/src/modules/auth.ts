@@ -59,12 +59,19 @@ export async function authRoutes(
       return reply.code(404).send({ error: 'Unknown or expired poll token' })
     }
 
+    // Claim before await: a poll token is single-use. Delete immediately to prevent concurrent
+    // polls from both seeing authenticated:true. If the check is still pending, we re-insert it below.
+    pendingQuickConnects.delete(pollToken)
+
     const state = await getQuickConnectState(config, pending.secret, pending.deviceId)
     if (!state.authenticated) {
+      // Not authenticated yet — re-insert the token so the client can poll again
+      pendingQuickConnects.set(pollToken, pending)
       return { status: 'pending' }
     }
 
-    pendingQuickConnects.delete(pollToken)
+    // Token is claimed and authentication succeeded. If authenticateWithQuickConnect fails below,
+    // the token is lost and the client must re-initiate (acceptable trade-off for simplicity).
     const auth = await authenticateWithQuickConnect(config, pending.secret, pending.deviceId)
     database.upsertUser(auth.user, auth.accessToken)
 
