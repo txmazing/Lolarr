@@ -99,6 +99,7 @@ export function AuthenticatedExperience({
   if (currentScreen.name === 'libraryDetail') {
     return (
       <LibraryDetailScreen
+        key={currentScreen.itemId}
         Action={Action}
         apiBaseUrl={apiBaseUrl}
         storage={storage}
