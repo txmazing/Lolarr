@@ -10,13 +10,16 @@ import { requestsRoutes } from './modules/requests.js'
 import { registerAuthHook } from './plugins/auth.js'
 import { registerErrorHandler } from './plugins/errors.js'
 import { LolarrDatabase } from './services/database.js'
+import { SeerrSessionService } from './services/seerrSession.js'
 
 export function createServer(config: AppConfig) {
   const app = Fastify({ logger: true })
+  const database = new LolarrDatabase(config.LOLARR_DATABASE_PATH, config.LOLARR_SECRET)
   const context: AppContext = {
     config,
-    database: new LolarrDatabase(config.LOLARR_DATABASE_PATH, config.LOLARR_SECRET),
+    database,
     seerr: new SeerrAdapter(config),
+    seerrSession: new SeerrSessionService(config, database),
   }
 
   app.register(cors, { origin: true })

@@ -39,7 +39,7 @@ export function AuthenticatedExperience({
     useScreenStore.getState().reset()
   }
 
-  function handleLogin(payload: LoginRequest) {
+  function handleLogin(payload: Omit<LoginRequest, 'deviceId'>) {
     auth.login(payload)
   }
 

@@ -44,12 +44,22 @@ export type LolarrUser = z.infer<typeof userSchema>
 export const loginRequestSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
+  deviceId: z.string().min(8),
 })
 export type LoginRequest = z.infer<typeof loginRequestSchema>
+
+export const jellyfinSessionSchema = z.object({
+  url: z.string(),
+  accessToken: z.string(),
+  userId: z.string(),
+  deviceId: z.string(),
+})
+export type JellyfinSession = z.infer<typeof jellyfinSessionSchema>
 
 export const loginResponseSchema = z.object({
   token: z.string(),
   user: userSchema,
+  jellyfin: jellyfinSessionSchema,
 })
 export type LoginResponse = z.infer<typeof loginResponseSchema>
 

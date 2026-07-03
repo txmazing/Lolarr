@@ -3,9 +3,10 @@ import { useState } from 'react'
 import type { LoginRequest } from '@lolarr/domain'
 import { useApi } from '../api.js'
 import { readErrorMessage } from '../lib/errors.js'
-import type { KeyValueStorage } from '../storage.js'
+import { getOrCreateDeviceId, type KeyValueStorage } from '../storage.js'
 
 const tokenStorageKey = 'lolarr.session-token'
+const jellyfinStorageKey = 'lolarr.jellyfin'
 
 export function readStoredToken(storage: KeyValueStorage) {
   return storage.get(tokenStorageKey) ?? undefined
@@ -47,12 +48,14 @@ export function useAuth({
   })
 
   const loginMutation = useMutation({
-    mutationFn: (payload: LoginRequest) => api.login(payload),
+    mutationFn: (payload: Omit<LoginRequest, 'deviceId'>) =>
+      api.login({ ...payload, deviceId: getOrCreateDeviceId(storage) }),
     onMutate: () => {
       setLoginError(undefined)
     },
     onSuccess: (response) => {
       writeStoredToken(storage, response.token)
+      storage.set(jellyfinStorageKey, JSON.stringify(response.jellyfin))
       setToken(response.token)
       queryClient.setQueryData(['session', apiBaseUrl, response.token], {
         user: response.user,
@@ -63,12 +66,13 @@ export function useAuth({
     },
   })
 
-  function login(payload: LoginRequest) {
+  function login(payload: Omit<LoginRequest, 'deviceId'>) {
     loginMutation.mutate(payload)
   }
 
   function signOut() {
     writeStoredToken(storage, undefined)
+    storage.remove(jellyfinStorageKey)
     setToken(undefined)
     queryClient.clear()
   }

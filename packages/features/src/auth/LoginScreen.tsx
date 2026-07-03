@@ -23,7 +23,7 @@ export function LoginScreen({
   isSessionLoading: boolean
   loginError: string | undefined
   isLoggingIn: boolean
-  onLogin: (payload: LoginRequest) => void
+  onLogin: (payload: Omit<LoginRequest, 'deviceId'>) => void
   canConfigureGateway: boolean
   onConfigureGateway: () => void
 }) {
