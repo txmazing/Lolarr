@@ -13,16 +13,6 @@ export async function authenticateWithJellyfin(
   username: string,
   password: string,
 ): Promise<JellyfinAuthResult> {
-  if (!config.JELLYFIN_URL) {
-    return {
-      user: {
-        id: `demo-${username}`,
-        name: username,
-      },
-      accessToken: `demo-token-${username}`,
-    }
-  }
-
   const response = await fetch(`${config.JELLYFIN_URL}/Users/AuthenticateByName`, {
     method: 'POST',
     headers: {

@@ -3,19 +3,26 @@ import { z } from 'zod'
 const envSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
   PORT: z.coerce.number().int().positive().default(4000),
-  JELLYFIN_URL: z.string().url().optional(),
-  SEERR_URL: z.string().url().optional(),
-  SEERR_API_KEY: z.string().optional(),
-  LOLARR_SECRET: z.string().min(16).default('development-lolarr-secret'),
+  JELLYFIN_URL: z.string().url(),
+  SEERR_URL: z.string().url(),
+  SEERR_API_KEY: z.string().min(1),
+  LOLARR_SECRET: z.string().min(16),
   LOLARR_DATABASE_PATH: z.string().default('./data/lolarr.sqlite'),
 })
 
 export type AppConfig = z.infer<typeof envSchema>
 
-export function loadConfig(): AppConfig {
-  return envSchema.parse(process.env)
-}
+export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
+  const result = envSchema.safeParse(env)
 
-export function hasExternalServices(config: AppConfig) {
-  return Boolean(config.JELLYFIN_URL && config.SEERR_URL && config.SEERR_API_KEY)
+  if (!result.success) {
+    const missing = result.error.issues
+      .map((issue) => issue.path.join('.'))
+      .join(', ')
+    throw new Error(
+      `Lolarr API misconfigured — check these environment variables: ${missing}`,
+    )
+  }
+
+  return result.data
 }

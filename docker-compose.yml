@@ -6,10 +6,10 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 4000
-      JELLYFIN_URL: ${JELLYFIN_URL:-}
-      SEERR_URL: ${SEERR_URL:-}
-      SEERR_API_KEY: ${SEERR_API_KEY:-}
-      LOLARR_SECRET: ${LOLARR_SECRET:-development-lolarr-secret}
+      JELLYFIN_URL: ${JELLYFIN_URL:?}
+      SEERR_URL: ${SEERR_URL:?}
+      SEERR_API_KEY: ${SEERR_API_KEY:?}
+      LOLARR_SECRET: ${LOLARR_SECRET:?LOLARR_SECRET is required}
       LOLARR_DATABASE_PATH: /data/lolarr.sqlite
     ports:
       - '4000:4000'

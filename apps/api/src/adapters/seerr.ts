@@ -1,12 +1,4 @@
-import {
-  demoRows,
-  findDemoItem,
-  searchDemoItems,
-  type MediaItem,
-  type MediaRow,
-  type MediaType,
-  type RequestStatus,
-} from '@lolarr/domain'
+import type { MediaItem, MediaRow, MediaType, RequestStatus } from '@lolarr/domain'
 import type { AppConfig } from '../config.js'
 
 export class SeerrAdapter {
@@ -17,61 +9,33 @@ export class SeerrAdapter {
   }
 
   async discover(): Promise<MediaRow[]> {
-    if (!this.isConfigured()) {
-      return demoRows
-    }
+    const [trending, movies, shows] = await Promise.all([
+      this.fetchList('/api/v1/discover/trending'),
+      this.fetchList('/api/v1/discover/movies'),
+      this.fetchList('/api/v1/discover/tv'),
+    ])
 
-    try {
-      const [trending, movies, shows] = await Promise.all([
-        this.fetchList('/api/v1/discover/trending'),
-        this.fetchList('/api/v1/discover/movies'),
-        this.fetchList('/api/v1/discover/tv'),
-      ])
-
-      return [
-        { id: 'trending', title: 'Trending now', items: trending },
-        { id: 'popular-movies', title: 'Popular movies', items: movies },
-        { id: 'popular-shows', title: 'Popular series', items: shows },
-      ].filter((row) => row.items.length > 0)
-    } catch {
-      return demoRows
-    }
+    return [
+      { id: 'trending', title: 'Trending now', items: trending },
+      { id: 'popular-movies', title: 'Popular movies', items: movies },
+      { id: 'popular-shows', title: 'Popular series', items: shows },
+    ].filter((row) => row.items.length > 0)
   }
 
   async search(query: string): Promise<MediaItem[]> {
-    if (!this.isConfigured()) {
-      return searchDemoItems(query)
-    }
-
-    try {
-      const response = await this.request(`/api/v1/search?query=${encodeURIComponent(query)}`)
-      return extractItems(response)
-    } catch {
-      return searchDemoItems(query)
-    }
+    const response = await this.request(`/api/v1/search?query=${encodeURIComponent(query)}`)
+    return extractItems(response)
   }
 
   async media(mediaType: MediaType, tmdbId: number): Promise<MediaItem | undefined> {
-    if (!this.isConfigured()) {
-      return findDemoItem(mediaType, tmdbId)
-    }
-
-    try {
-      const response = await this.request(`/api/v1/media/${mediaType}/${tmdbId}`)
-      return mapSeerrItem(response, mediaType)
-    } catch {
-      return findDemoItem(mediaType, tmdbId)
-    }
+    const response = await this.request(`/api/v1/media/${mediaType}/${tmdbId}`)
+    return mapSeerrItem(response, mediaType)
   }
 
   async requestMedia(mediaType: MediaType, tmdbId: number): Promise<{
     status: RequestStatus
     seerrRequestId?: string
   }> {
-    if (!this.isConfigured()) {
-      return { status: 'pending' }
-    }
-
     const payload =
       mediaType === 'movie'
         ? { mediaType, mediaId: tmdbId }
@@ -90,10 +54,6 @@ export class SeerrAdapter {
     }
   }
 
-  private isConfigured() {
-    return Boolean(this.config.SEERR_URL && this.config.SEERR_API_KEY)
-  }
-
   private async fetchList(path: string) {
     const response = await this.request(path)
     return extractItems(response)
@@ -101,7 +61,7 @@ export class SeerrAdapter {
 
   private async request(path: string, init: RequestInit = {}) {
     const headers = new Headers(init.headers)
-    headers.set('X-Api-Key', this.config.SEERR_API_KEY ?? '')
+    headers.set('X-Api-Key', this.config.SEERR_API_KEY)
 
     if (init.body) {
       headers.set('Content-Type', 'application/json')
