@@ -13,12 +13,16 @@ export function useRequests({ apiBaseUrl, enabled }: { apiBaseUrl: string; enabl
   })
 
   const requestMutation = useMutation({
-    mutationFn: (item: MediaItem) =>
-      api.createRequest({
+    mutationFn: (item: MediaItem) => {
+      if (item.tmdbId === undefined) {
+        return Promise.reject(new Error('Cannot create a request for an item without a tmdbId'))
+      }
+      return api.createRequest({
         mediaType: item.mediaType,
         tmdbId: item.tmdbId,
         title: item.title,
-      }),
+      })
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['requests'] })
       void queryClient.invalidateQueries({ queryKey: ['discover'] })

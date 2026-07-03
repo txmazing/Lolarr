@@ -25,9 +25,12 @@ export function DetailScreen({
 }) {
   const api = useApi()
 
+  const tmdbId = selectedItem.tmdbId
+
   const detailQuery = useQuery({
-    queryKey: ['media', apiBaseUrl, selectedItem.mediaType, selectedItem.tmdbId],
-    queryFn: () => api.media(selectedItem.mediaType, selectedItem.tmdbId),
+    queryKey: ['media', apiBaseUrl, selectedItem.mediaType, tmdbId],
+    queryFn: () => api.media(selectedItem.mediaType, tmdbId as number),
+    enabled: tmdbId !== undefined,
   })
 
   const { createRequest, isRequesting } = useRequests({ apiBaseUrl, enabled: true })

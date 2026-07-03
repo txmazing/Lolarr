@@ -21,10 +21,27 @@ export const mediaItemSchema = z.object({
   overview: z.string(),
   posterUrl: z.string().optional(),
   backdropUrl: z.string().optional(),
-  tmdbId: z.number().int(),
-  jellyfinItemId: z.string().optional(),
+  tmdbId: z.number().int().optional(),
   seerrMediaId: z.number().int().optional(),
   availability: availabilitySchema,
+  jellyfin: z
+    .object({
+      itemId: z.string(),
+      imageTags: z.object({
+        primary: z.string().optional(),
+        backdrop: z.string().optional(),
+        thumb: z.string().optional(),
+      }),
+      progressPercent: z.number().min(0).max(100).optional(),
+      episode: z
+        .object({
+          seriesTitle: z.string(),
+          season: z.number().int(),
+          number: z.number().int(),
+        })
+        .optional(),
+    })
+    .optional(),
 })
 export type MediaItem = z.infer<typeof mediaItemSchema>
 
@@ -95,6 +112,38 @@ export const mediaDetailResponseSchema = z.object({
   item: mediaItemSchema,
 })
 export type MediaDetailResponse = z.infer<typeof mediaDetailResponseSchema>
+
+export const episodeSchema = z.object({
+  id: z.string(),
+  jellyfinItemId: z.string(),
+  title: z.string(),
+  seasonNumber: z.number().int(),
+  episodeNumber: z.number().int(),
+  overview: z.string(),
+  runtimeMinutes: z.number().int().optional(),
+  played: z.boolean(),
+  imageTag: z.string().optional(),
+})
+export type Episode = z.infer<typeof episodeSchema>
+
+export const seasonSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  episodes: z.array(episodeSchema),
+})
+export type Season = z.infer<typeof seasonSchema>
+
+export const homeResponseSchema = z.object({
+  hero: mediaItemSchema.optional(),
+  rows: z.array(mediaRowSchema),
+})
+export type HomeResponse = z.infer<typeof homeResponseSchema>
+
+export const libraryDetailResponseSchema = z.object({
+  item: mediaItemSchema,
+  seasons: z.array(seasonSchema).optional(),
+})
+export type LibraryDetailResponse = z.infer<typeof libraryDetailResponseSchema>
 
 export const requestStatusSchema = z.enum([
   'pending',
