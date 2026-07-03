@@ -5,8 +5,9 @@ import {
   JellyfinTokenInvalidError,
   UpstreamError,
 } from '../lib/errors.js'
+import type { LolarrDatabase } from '../services/database.js'
 
-export function registerErrorHandler(app: FastifyInstance) {
+export function registerErrorHandler(app: FastifyInstance, database: LolarrDatabase) {
   app.setErrorHandler((error, request, reply) => {
     if (error instanceof ZodError) {
       return reply.code(400).send({
@@ -23,6 +24,7 @@ export function registerErrorHandler(app: FastifyInstance) {
     }
 
     if (error instanceof JellyfinTokenInvalidError) {
+      database.deleteSessionsForUser(error.userId)
       return reply.code(401).send({ error: 'session_expired' })
     }
 

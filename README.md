@@ -2,6 +2,14 @@
 
 Moonrepo monorepo for the Lolarr clients.
 
+## Requirements
+
+- **Jellyfin** 10.10+ with **Quick Connect enabled** (Dashboard → General)
+- **Seerr ≥ v3.4.0** (until released: the `develop`/preview image) with:
+  - *Enable Jellyfin Sign-In* turned on
+  - *Enable New Jellyfin Sign-In* turned on (users log in without prior import)
+- Environment: see `.env.example` — all variables are required; the API refuses to start otherwise.
+
 ## Apps
 
 - `apps/api` - Fastify gateway for Jellyfin login, Seerr discovery, requests, and SQLite persistence.

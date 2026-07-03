@@ -15,15 +15,16 @@ import { SeerrSessionService } from './services/seerrSession.js'
 export function createServer(config: AppConfig) {
   const app = Fastify({ logger: true })
   const database = new LolarrDatabase(config.LOLARR_DATABASE_PATH, config.LOLARR_SECRET)
+  const seerrSession = new SeerrSessionService(config, database)
   const context: AppContext = {
     config,
     database,
-    seerr: new SeerrAdapter(config),
-    seerrSession: new SeerrSessionService(config, database),
+    seerr: new SeerrAdapter(config, seerrSession),
+    seerrSession,
   }
 
   app.register(cors, { origin: true })
-  registerErrorHandler(app)
+  registerErrorHandler(app, database)
   registerAuthHook(app, context.database)
 
   app.get('/health', async () => ({ ok: true }))

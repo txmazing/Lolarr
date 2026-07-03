@@ -1,12 +1,15 @@
 import type { MediaItem, MediaRow, MediaType, RequestStatus } from '@lolarr/domain'
 import type { AppConfig } from '../config.js'
 import { UpstreamError } from '../lib/errors.js'
+import type { SeerrSessionService } from '../services/seerrSession.js'
 
 export class SeerrAdapter {
   private readonly config: AppConfig
+  private readonly sessions: SeerrSessionService
 
-  constructor(config: AppConfig) {
+  constructor(config: AppConfig, sessions: SeerrSessionService) {
     this.config = config
+    this.sessions = sessions
   }
 
   async discover(): Promise<MediaRow[]> {
@@ -33,22 +36,22 @@ export class SeerrAdapter {
     return mapSeerrItem(response, mediaType)
   }
 
-  async requestMedia(mediaType: MediaType, tmdbId: number): Promise<{
-    status: RequestStatus
-    seerrRequestId?: string
-  }> {
+  async requestMedia(
+    userId: string,
+    mediaType: MediaType,
+    tmdbId: number,
+  ): Promise<{ status: RequestStatus; seerrRequestId?: string }> {
     const payload =
       mediaType === 'movie'
         ? { mediaType, mediaId: tmdbId }
         : { mediaType, mediaId: tmdbId, seasons: 'all' }
 
-    const response = await this.request('/api/v1/request', {
+    const response = await this.sessions.fetchWithSession(userId, '/api/v1/request', {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: payload,
     })
 
     const requestId = readNumber(response, ['id', 'requestId'])
-
     return {
       status: 'pending',
       seerrRequestId: requestId ? String(requestId) : undefined,

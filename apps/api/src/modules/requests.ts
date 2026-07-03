@@ -9,21 +9,21 @@ export async function requestsRoutes(app: FastifyInstance, { database, seerr }: 
     }
   })
 
-  app.post('/api/requests', async (request, reply) => {
+  app.post('/api/requests', async (request) => {
     const payload = createRequestSchema.parse(request.body)
 
-    try {
-      const seerrRequest = await seerr.requestMedia(payload.mediaType, payload.tmdbId)
-      const requests = database.createRequest({
-        ...payload,
-        requestedBy: request.session.user,
-        status: seerrRequest.status,
-        seerrRequestId: seerrRequest.seerrRequestId,
-      })
+    const seerrRequest = await seerr.requestMedia(
+      request.session.user.id,
+      payload.mediaType,
+      payload.tmdbId,
+    )
+    const requests = database.createRequest({
+      ...payload,
+      requestedBy: request.session.user,
+      status: seerrRequest.status,
+      seerrRequestId: seerrRequest.seerrRequestId,
+    })
 
-      return { requests }
-    } catch {
-      return reply.code(502).send({ error: 'Seerr request failed' })
-    }
+    return { requests }
   })
 }
