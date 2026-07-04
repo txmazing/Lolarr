@@ -10,6 +10,7 @@ import { homeRoutes } from './modules/home.js'
 import { libraryRoutes } from './modules/library.js'
 import { mediaRoutes } from './modules/media.js'
 import { requestsRoutes } from './modules/requests.js'
+import { webhooksRoutes } from './modules/webhooks.js'
 import { registerAuthHook } from './plugins/auth.js'
 import { registerErrorHandler } from './plugins/errors.js'
 import { LolarrDatabase } from './services/database.js'
@@ -44,6 +45,7 @@ export function createServer(config: AppConfig) {
   app.register(libraryRoutes, context)
   app.register(mediaRoutes, context)
   app.register(requestsRoutes, context)
+  app.register(webhooksRoutes, context)
 
   return app
 }

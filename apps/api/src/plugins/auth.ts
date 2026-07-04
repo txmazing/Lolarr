@@ -7,7 +7,7 @@ declare module 'fastify' {
   }
 }
 
-const PUBLIC_PREFIXES = ['/api/auth/']
+const PUBLIC_PREFIXES = ['/api/auth/', '/api/webhooks/']
 const PUBLIC_PATHS = ['/health']
 
 export function registerAuthHook(app: FastifyInstance, database: LolarrDatabase) {

@@ -6,6 +6,7 @@ const validEnv = {
   SEERR_URL: 'http://seerr.test',
   SEERR_API_KEY: 'test-api-key',
   LOLARR_SECRET: 'test-secret-at-least-16-chars',
+  LOLARR_WEBHOOK_SECRET: 'test-webhook-secret-1234',
 }
 
 describe('loadConfig', () => {
@@ -14,7 +15,7 @@ describe('loadConfig', () => {
     expect(config.JELLYFIN_URL).toBe('http://jellyfin.test')
   })
 
-  it.each(['JELLYFIN_URL', 'SEERR_URL', 'SEERR_API_KEY', 'LOLARR_SECRET'])(
+  it.each(['JELLYFIN_URL', 'SEERR_URL', 'SEERR_API_KEY', 'LOLARR_SECRET', 'LOLARR_WEBHOOK_SECRET'])(
     'throws when %s is missing',
     (key) => {
       const env = { ...validEnv }

@@ -19,6 +19,7 @@ export function createTestContext() {
     SEERR_URL,
     SEERR_API_KEY: 'test-api-key',
     LOLARR_SECRET: 'test-secret-at-least-16-chars',
+    LOLARR_WEBHOOK_SECRET: 'test-webhook-secret-1234',
     LOLARR_DATABASE_PATH: databasePath,
   }
 
