@@ -11,6 +11,15 @@ const MEDIA_KEYS = [
   'MediaFastForward',
 ]
 
+/**
+ * True only on a real Tizen device, where the native AVPlay runtime exists.
+ * Running the TV app in a desktop browser (`pnpm --filter @lolarr/tv dev`) has
+ * no `webapis`, so callers should fall back to `webPlatform` there.
+ */
+export function isTizenPlayerAvailable(): boolean {
+  return typeof webapis !== 'undefined' && typeof webapis.avplay !== 'undefined'
+}
+
 export const tizenPlatform: PlayerPlatform = {
   createPlayer(host: PlayerHost) {
     return new AVPlayPlayer(host)
@@ -18,6 +27,9 @@ export const tizenPlatform: PlayerPlatform = {
   buildDeviceProfile: () => buildTizenDeviceProfile(),
   supportsVolume: false,
   registerMediaKeys() {
+    if (typeof tizen === 'undefined') {
+      return () => {}
+    }
     const supported = new Set(tizen.tvinputdevice.getSupportedKeys().map((key) => key.name))
     const registered: string[] = []
     for (const name of MEDIA_KEYS) {

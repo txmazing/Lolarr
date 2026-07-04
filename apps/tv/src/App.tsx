@@ -6,7 +6,7 @@ import {
 } from '@noriginmedia/norigin-spatial-navigation-react'
 import { LolarrApp } from '@lolarr/features'
 import type { ActionProps, TextInputProps } from '@lolarr/ui'
-import { tizenPlatform } from '@lolarr/player'
+import { isTizenPlayerAvailable, tizenPlatform, webPlatform } from '@lolarr/player'
 
 function TvAction({
   ariaLabel,
@@ -187,13 +187,18 @@ function TvShell({ children }: { children: ReactNode }) {
   )
 }
 
+// On a real Tizen device this is `tizenPlatform`; in a desktop browser dev
+// session (no AVPlay runtime) it falls back to the HTML5 `webPlatform` so the
+// app boots instead of throwing a ReferenceError on `webapis`/`tizen`.
+const playerPlatform = isTizenPlayerAvailable() ? tizenPlatform : webPlatform
+
 function App() {
   return (
     <LolarrApp
       Action={TvAction}
       TextInput={TvTextInput}
       Shell={TvShell}
-      playerPlatform={tizenPlatform}
+      playerPlatform={playerPlatform}
     />
   )
 }
