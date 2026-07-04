@@ -45,7 +45,17 @@ export function registerErrorHandler(app: FastifyInstance, database: LolarrDatab
       return reply.code(502).send({ error: `${error.service}_unreachable` })
     }
 
+    // @fastify/rate-limit signals throttling by throwing a 429 — pass it
+    // through instead of collapsing it into a 500.
+    if (isRecord(error) && error.statusCode === 429) {
+      return reply.code(429).send({ error: 'rate_limited' })
+    }
+
     request.log.error({ err: error }, 'unhandled error')
     return reply.code(500).send({ error: 'internal_error' })
   })
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
 }

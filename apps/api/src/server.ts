@@ -1,4 +1,5 @@
 import cors from '@fastify/cors'
+import rateLimit from '@fastify/rate-limit'
 import Fastify from 'fastify'
 import type { AppConfig } from './config.js'
 import { SeerrAdapter } from './adapters/seerr.js'
@@ -25,7 +26,13 @@ export function createServer(config: AppConfig) {
     seerrSession,
   }
 
-  app.register(cors, { origin: true })
+  const corsOrigin = config.LOLARR_CORS_ORIGIN
+    ? config.LOLARR_CORS_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
+    : true
+  app.register(cors, { origin: corsOrigin })
+  // global: false — only routes that opt in via config.rateLimit (the public
+  // auth endpoints) are limited; everything else already sits behind a session.
+  app.register(rateLimit, { global: false })
   registerErrorHandler(app, database)
   registerAuthHook(app, context.database)
 
