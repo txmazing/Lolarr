@@ -84,12 +84,15 @@ export function PlayerScreen({
         onExit() // MediaStop
       } else if (event.key === 'f' || event.key === 'F') {
         toggleFullscreen()
-      } else if (event.key === 'Escape' || event.keyCode === 10009) {
-        if (event.key === 'Escape' && document.fullscreenElement) {
-          return
-        }
+      } else if (event.keyCode === 10009) {
+        // Tizen Back: cascade — hide controls first, exit on the next press.
         if (controlsVisibleRef.current) {
           setControlsVisible(false)
+          return
+        }
+        onExit()
+      } else if (event.key === 'Escape') {
+        if (document.fullscreenElement) {
           return
         }
         onExit()
