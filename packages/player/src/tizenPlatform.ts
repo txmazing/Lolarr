@@ -1,3 +1,8 @@
+// The Tizen runtime globals (webapis/tizen) live in an ambient .d.ts with no
+// exports, so `import` cannot carry them; a path reference makes every consumer
+// of this module see the globals without a per-consumer tsconfig entry.
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./tizen.d.ts" />
 import { AVPlayPlayer } from './avplayPlayer.js'
 import { buildTizenDeviceProfile } from './tizenDeviceProfile.js'
 import type { PlayerHost, PlayerPlatform } from './types.js'
