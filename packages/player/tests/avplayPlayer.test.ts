@@ -187,6 +187,31 @@ describe('AVPlayPlayer', () => {
     expect(player.getDuration()).toBe(3600)
   })
 
+  it('resets a lingering avplay session (stop + close) before the second open', async () => {
+    const { player } = makePlayer()
+    await player.load(directSource, {}) // drives state to PLAYING via fake.avplay.play()
+    fake.calls.length = 0
+
+    void player.load(directSource, {})
+    await Promise.resolve()
+
+    const stopIndex = fake.calls.indexOf('stop')
+    const closeIndex = fake.calls.indexOf('close')
+    const secondOpenIndex = fake.calls.indexOf(`open:${directSource.url}`)
+    expect(stopIndex).toBeGreaterThanOrEqual(0)
+    expect(closeIndex).toBeGreaterThan(stopIndex)
+    expect(secondOpenIndex).toBeGreaterThan(closeIndex)
+  })
+
+  it('cancels the deferred hls resume-seek on dispose', async () => {
+    const { player } = makePlayer()
+    void player.load(hlsSource, { startSeconds: 30 })
+    await Promise.resolve()
+    player.dispose()
+    vi.advanceTimersByTime(1500)
+    expect(fake.calls).not.toContain('seek:30000')
+  })
+
   it('pauses when the app is hidden and resumes when visible again', async () => {
     const { player } = makePlayer()
     await player.load(directSource, {}) // state PLAYING

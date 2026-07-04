@@ -13,6 +13,7 @@ export class AVPlayPlayer implements Player {
   private readonly handlers = new Map<PlayerEvent, Set<(detail?: unknown) => void>>()
   private readonly onVisibility: () => void
   private pollTimer: ReturnType<typeof setInterval> | undefined
+  private resumeSeekTimer: ReturnType<typeof setTimeout> | undefined
   private lastPaused = true
   private stopped = false
   private wasPlayingBeforeHidden = false
@@ -22,7 +23,6 @@ export class AVPlayPlayer implements Player {
     this.element.type = 'application/avplayer'
     this.element.className = 'avplay-surface'
     host.container.appendChild(this.element)
-    webapis.avplay.setDisplayRect(0, 0, 1920, 1080)
     this.onVisibility = () => this.handleVisibilityChange()
     document.addEventListener('visibilitychange', this.onVisibility)
   }
@@ -43,7 +43,22 @@ export class AVPlayPlayer implements Player {
   }
 
   async load(source: StreamSource, opts: { startSeconds?: number }) {
+    const state = webapis.avplay.getState()
+    if (state !== 'NONE' && state !== 'IDLE') {
+      try {
+        webapis.avplay.stop()
+      } catch {
+        // ignore stop failures when resetting a lingering session
+      }
+      try {
+        webapis.avplay.close()
+      } catch {
+        // ignore close failures when resetting a lingering session
+      }
+    }
+
     webapis.avplay.open(source.url)
+    webapis.avplay.setDisplayRect(0, 0, 1920, 1080)
     webapis.avplay.setListener({
       onbufferingstart: () => this.emit('waiting'),
       onbufferingcomplete: () => this.emit('playing'),
@@ -75,7 +90,7 @@ export class AVPlayPlayer implements Player {
     if (source.kind === 'hls') {
       webapis.avplay.play()
       if (startSeconds > 0) {
-        setTimeout(() => this.seek(startSeconds), HLS_RESUME_SEEK_DELAY_MS)
+        this.resumeSeekTimer = setTimeout(() => this.seek(startSeconds), HLS_RESUME_SEEK_DELAY_MS)
       }
     } else {
       if (startSeconds > 0) {
@@ -131,6 +146,10 @@ export class AVPlayPlayer implements Player {
     this.stopped = true
     document.removeEventListener('visibilitychange', this.onVisibility)
     this.stopPolling()
+    if (this.resumeSeekTimer !== undefined) {
+      clearTimeout(this.resumeSeekTimer)
+      this.resumeSeekTimer = undefined
+    }
     const state = webapis.avplay.getState()
     if (state !== 'NONE' && state !== 'IDLE') {
       try {
@@ -179,6 +198,9 @@ export class AVPlayPlayer implements Player {
   }
 
   private seekWithRetry(ms: number, attempt: number) {
+    if (this.stopped) {
+      return
+    }
     try {
       webapis.avplay.seekTo(ms)
     } catch (error) {
