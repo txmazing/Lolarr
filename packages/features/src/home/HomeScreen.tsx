@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import type { MediaItem } from '@lolarr/domain'
 import { readJellyfinSession } from '@lolarr/jellyfin'
 import {
@@ -9,11 +8,8 @@ import {
   LoadingPanel,
   MediaRail,
   RequestList,
-  SearchBar,
   type ActionComponent,
-  type TextInputComponent,
 } from '@lolarr/ui'
-import { useApi } from '../api.js'
 import { enrichItems, resolveItemImages } from '../lib/images.js'
 import { readErrorMessage } from '../lib/errors.js'
 import { useRequests } from '../requests/useRequests.js'
@@ -22,7 +18,6 @@ import { useHome } from './useHome.js'
 
 export function HomeScreen({
   Action,
-  TextInput,
   storage,
   apiBaseUrl,
   userName,
@@ -31,9 +26,10 @@ export function HomeScreen({
   onConfigureGateway,
   onOpenItem,
   onPlayItem,
+  onOpenSearch,
+  onOpenRequests,
 }: {
   Action: ActionComponent
-  TextInput: TextInputComponent
   storage: KeyValueStorage
   apiBaseUrl: string
   userName: string
@@ -42,20 +38,12 @@ export function HomeScreen({
   onConfigureGateway: () => void
   onOpenItem: (item: MediaItem) => void
   onPlayItem: (item: MediaItem) => void
+  onOpenSearch: () => void
+  onOpenRequests: () => void
 }) {
-  const [query, setQuery] = useState('')
-  const deferredQuery = useDeferredValue(query.trim())
-
   const homeQuery = useHome({ apiBaseUrl })
   // Read once per mount: HomeScreen only mounts after login, when lolarr.jellyfin is already persisted. If this screen ever survives a re-auth, switch to a subscribed read.
   const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
-
-  const api = useApi()
-  const searchQuery = useQuery({
-    queryKey: ['search', apiBaseUrl, deferredQuery],
-    queryFn: () => api.search(deferredQuery),
-    enabled: Boolean(deferredQuery),
-  })
 
   const { requests, requestsError } = useRequests({ apiBaseUrl, enabled: true })
 
@@ -71,18 +59,8 @@ export function HomeScreen({
     return { rows, hero }
   }, [homeQuery.data, jellyfinSession])
 
-  const rows =
-    deferredQuery && searchQuery.data
-      ? [
-          {
-            id: 'search-results',
-            title: `Search results for "${deferredQuery}"`,
-            items: searchQuery.data.results,
-          },
-        ]
-      : enrichedHome.rows
+  const rows = enrichedHome.rows
   const featuredItem = enrichedHome.hero ?? rows[0]?.items[0]
-  const error = homeQuery.error ?? searchQuery.error ?? requestsError
 
   return (
     <AppFrame
@@ -91,14 +69,25 @@ export function HomeScreen({
       userName={userName}
       onSignOut={onSignOut}
     >
-      {error ? <ErrorPanel message={readErrorMessage(error)} /> : null}
+      <div className="home-header-row">
+        <Action className="ghost-action" onPress={onOpenSearch} focusKey="home-search">
+          Search
+        </Action>
+        <Action className="ghost-action" onPress={onOpenRequests} focusKey="home-requests">
+          Requests
+        </Action>
+      </div>
+      {homeQuery.error ? <ErrorPanel message={readErrorMessage(homeQuery.error)} /> : null}
       <HeroPanel
         item={featuredItem}
-        onOpen={featuredItem?.jellyfin && (featuredItem.mediaType === 'movie' || featuredItem.jellyfin.episode) ? onPlayItem : onOpenItem}
+        onOpen={
+          featuredItem?.jellyfin && (featuredItem.mediaType === 'movie' || featuredItem.jellyfin.episode)
+            ? onPlayItem
+            : onOpenItem
+        }
         Action={Action}
       />
-      <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
-      {homeQuery.isLoading || searchQuery.isLoading ? <LoadingPanel /> : null}
+      {homeQuery.isLoading ? <LoadingPanel /> : null}
       {rows.map((row) => (
         <MediaRail
           key={row.id}
@@ -109,7 +98,9 @@ export function HomeScreen({
           Action={Action}
         />
       ))}
-      <RequestList requests={requests} Action={Action} />
+      {requestsError ? null : (
+        <RequestList requests={requests} Action={Action} limit={3} onViewAll={onOpenRequests} />
+      )}
     </AppFrame>
   )
 }

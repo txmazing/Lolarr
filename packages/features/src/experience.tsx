@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import type { LoginRequest, LoginResponse } from '@lolarr/domain'
+import type { LoginRequest, LoginResponse, MediaItem } from '@lolarr/domain'
 import type { ActionComponent, TextInputComponent } from '@lolarr/ui'
 import { DetailScreen } from './detail/DetailScreen.js'
 import { HomeScreen } from './home/HomeScreen.js'
@@ -8,6 +8,8 @@ import { LibraryDetailScreen } from './library/LibraryDetailScreen.js'
 import { LoginScreen } from './auth/LoginScreen.js'
 import { QuickConnectScreen } from './auth/QuickConnectScreen.js'
 import { PlayerScreen } from './player/PlayerScreen.js'
+import { RequestsScreen } from './requests/RequestsScreen.js'
+import { SearchScreen } from './search/SearchScreen.js'
 import { adoptSession, useAuth } from './auth/useAuth.js'
 import { useCurrentScreen, useScreenStore } from './navigation/store.js'
 import { getOrCreateDeviceId, type KeyValueStorage } from './storage.js'
@@ -53,6 +55,14 @@ export function AuthenticatedExperience({
   function handleQuickConnectAuthenticated(response: LoginResponse) {
     adoptSession(response, { storage, apiBaseUrl, setToken, queryClient })
     setLoginMode('password')
+  }
+
+  function openItem(item: MediaItem) {
+    useScreenStore.getState().push(
+      item.jellyfin
+        ? { name: 'libraryDetail', itemId: item.jellyfin.itemId }
+        : { name: 'detail', item },
+    )
   }
 
   if (!auth.user) {
@@ -137,23 +147,46 @@ export function AuthenticatedExperience({
     )
   }
 
+  if (currentScreen.name === 'search') {
+    return (
+      <SearchScreen
+        Action={Action}
+        TextInput={TextInput}
+        apiBaseUrl={apiBaseUrl}
+        userName={auth.user.name}
+        onSignOut={handleSignOut}
+        canConfigureGateway={canConfigureGateway}
+        onConfigureGateway={onConfigureGateway}
+        onBack={() => useScreenStore.getState().pop()}
+        onOpenItem={openItem}
+      />
+    )
+  }
+
+  if (currentScreen.name === 'requests') {
+    return (
+      <RequestsScreen
+        Action={Action}
+        apiBaseUrl={apiBaseUrl}
+        userName={auth.user.name}
+        onSignOut={handleSignOut}
+        canConfigureGateway={canConfigureGateway}
+        onConfigureGateway={onConfigureGateway}
+        onBack={() => useScreenStore.getState().pop()}
+      />
+    )
+  }
+
   return (
     <HomeScreen
       Action={Action}
-      TextInput={TextInput}
       storage={storage}
       apiBaseUrl={apiBaseUrl}
       userName={auth.user.name}
       onSignOut={handleSignOut}
       canConfigureGateway={canConfigureGateway}
       onConfigureGateway={onConfigureGateway}
-      onOpenItem={(item) =>
-        useScreenStore.getState().push(
-          item.jellyfin
-            ? { name: 'libraryDetail', itemId: item.jellyfin.itemId }
-            : { name: 'detail', item },
-        )
-      }
+      onOpenItem={openItem}
       onPlayItem={(item) =>
         item.jellyfin
           ? useScreenStore.getState().push({
@@ -164,6 +197,8 @@ export function AuthenticatedExperience({
             })
           : useScreenStore.getState().push({ name: 'detail', item })
       }
+      onOpenSearch={() => useScreenStore.getState().push({ name: 'search' })}
+      onOpenRequests={() => useScreenStore.getState().push({ name: 'requests' })}
     />
   )
 }
