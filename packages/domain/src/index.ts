@@ -93,6 +93,11 @@ export type QcInitiateRequest = z.infer<typeof qcInitiateRequestSchema>
 export const qcInitiateResponseSchema = z.object({ code: z.string(), pollToken: z.string() })
 export type QcInitiateResponse = z.infer<typeof qcInitiateResponseSchema>
 
+// POST body instead of query param: poll tokens must never appear in request
+// URLs, because Fastify's request logging records req.url.
+export const qcStateRequestSchema = z.object({ pollToken: z.string().min(1) })
+export type QcStateRequest = z.infer<typeof qcStateRequestSchema>
+
 export const qcStateResponseSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal('pending') }),
   loginResponseSchema.extend({ status: z.literal('authenticated') }),

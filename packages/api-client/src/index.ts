@@ -117,8 +117,11 @@ export function createLolarrApiClient({
       })
     },
     qcState(pollToken: string) {
-      const searchParams = new URLSearchParams({ pollToken })
-      return request<QcStateResponse>(`/api/auth/qc/state?${searchParams}`)
+      // POST keeps the token out of the URL, which the API logs verbatim.
+      return request<QcStateResponse>('/api/auth/qc/state', {
+        method: 'POST',
+        body: JSON.stringify({ pollToken }),
+      })
     },
   }
 }
