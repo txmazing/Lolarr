@@ -53,9 +53,10 @@ Copy `.env.example` to `.env` for Docker or export these values locally:
 
 - `JELLYFIN_URL` - Jellyfin server URL.
 - `SEERR_URL` - Seerr server URL.
-- `SEERR_API_KEY` - Seerr admin API key used by the gateway.
+- `SEERR_API_KEY` - Seerr admin API key. Used only for user-independent reads (discover, search, media details); requests are created/deleted via per-user Seerr sessions.
 - `LOLARR_SECRET` - Secret used to encrypt stored Jellyfin tokens.
 - `LOLARR_DATABASE_PATH` - SQLite database path.
+- `LOLARR_CORS_ORIGIN` - Optional comma-separated list of allowed CORS origins. Unset allows any origin (self-hosting default).
 
 If Jellyfin or Seerr are not configured, `apps/api` serves demo data so the UI can be developed locally.
 
