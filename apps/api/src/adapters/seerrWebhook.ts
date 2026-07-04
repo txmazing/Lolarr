@@ -7,21 +7,21 @@ import { z } from 'zod'
 export const seerrWebhookSchema = z
   .object({
     notification_type: z.string(),
-    subject: z.string().optional(),
+    subject: z.string().nullish(),
     media: z
       .object({
-        media_type: z.string().optional(),
-        tmdbId: z.union([z.string(), z.number()]).optional(),
-        status: z.string().optional(),
+        media_type: z.string().nullish(),
+        tmdbId: z.union([z.string(), z.number()]).nullish(),
+        status: z.string().nullish(),
       })
-      .optional(),
+      .nullish(),
     request: z
       .object({
-        request_id: z.string().optional(),
-        requestedBy_username: z.string().optional(),
-        requestedBy_email: z.string().optional(),
+        request_id: z.string().nullish(),
+        requestedBy_username: z.string().nullish(),
+        requestedBy_email: z.string().nullish(),
       })
-      .optional(),
+      .nullish(),
   })
   .passthrough()
 
@@ -65,14 +65,17 @@ export function mapWebhookToNotification(payload: SeerrWebhookPayload): MappedNo
   }
 }
 
-function normalizeMediaType(value: string | undefined): 'movie' | 'tv' | undefined {
+function normalizeMediaType(value: unknown): 'movie' | 'tv' | undefined {
   return value === 'movie' || value === 'tv' ? value : undefined
 }
 
-function coerceTmdbId(value: string | number | undefined): number | undefined {
-  if (value === undefined || value === '') {
-    return undefined
+function coerceTmdbId(value: unknown): number | undefined {
+  if (typeof value === 'number') {
+    return Number.isInteger(value) && value > 0 ? value : undefined
   }
-  const parsed = typeof value === 'number' ? value : Number(value)
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+  if (typeof value === 'string' && value !== '') {
+    const parsed = Number(value)
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+  }
+  return undefined
 }

@@ -14,6 +14,10 @@ export async function webhooksRoutes(app: FastifyInstance, { config, database }:
 
     const parsed = seerrWebhookSchema.safeParse(request.body)
     if (!parsed.success) {
+      request.log.warn(
+        { body: request.body, issues: parsed.error.issues },
+        'seerr webhook payload rejected',
+      )
       return reply.code(400).send({ error: 'Malformed webhook payload' })
     }
 

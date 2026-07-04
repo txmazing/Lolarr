@@ -63,6 +63,24 @@ describe('mapWebhookToNotification', () => {
     ).toBeNull()
   })
 
+  it('tolerates null media/request/subject/tmdb values without throwing', () => {
+    expect(
+      mapWebhookToNotification(
+        seerrWebhookSchema.parse({ notification_type: 'MEDIA_AVAILABLE', subject: null, media: null, request: null }),
+      ),
+    ).toBeNull()
+    expect(
+      mapWebhookToNotification(
+        seerrWebhookSchema.parse({
+          notification_type: 'MEDIA_AVAILABLE',
+          subject: 'X',
+          media: { media_type: null, tmdbId: null },
+          request: { requestedBy_username: null },
+        }),
+      ),
+    ).toBeNull()
+  })
+
   it.each(['constructor', 'toString', '__proto__'])(
     'returns null for the prototype-chain key %s instead of resolving an inherited member',
     (type) => {
