@@ -16,6 +16,7 @@ export class AVPlayPlayer implements Player {
   private resumeSeekTimer: ReturnType<typeof setTimeout> | undefined
   private lastPaused = true
   private stopped = false
+  private pausedIntentionally = false
   private wasPlayingBeforeHidden = false
 
   constructor(host: PlayerHost) {
@@ -107,6 +108,7 @@ export class AVPlayPlayer implements Player {
   }
 
   play() {
+    this.pausedIntentionally = false
     const state = webapis.avplay.getState()
     if (state === 'PAUSED' || state === 'READY') {
       webapis.avplay.play()
@@ -114,6 +116,7 @@ export class AVPlayPlayer implements Player {
   }
 
   pause() {
+    this.pausedIntentionally = true
     if (webapis.avplay.getState() === 'PLAYING') {
       webapis.avplay.pause()
     }
@@ -236,7 +239,9 @@ export class AVPlayPlayer implements Player {
   }
 
   private emitError() {
-    if (!this.stopped) {
+    // Suppress errors during teardown and while the user has intentionally
+    // paused — AVPlay can surface spurious errors in the paused state.
+    if (!this.stopped && !this.pausedIntentionally) {
       this.emit('error')
     }
   }

@@ -189,6 +189,19 @@ describe('AVPlayPlayer', () => {
     expect(events).toEqual(['ended', 'error'])
   })
 
+  it('suppresses error events while intentionally paused, then re-enables after play', async () => {
+    const { player } = makePlayer()
+    const events: string[] = []
+    player.on('error', () => events.push('error'))
+    await player.load(directSource, {}) // state PLAYING
+    player.pause() // intentional pause -> state PAUSED
+    fake.emit('onerror', 'PLAYER_ERROR')
+    expect(events).toEqual([])
+    player.play() // clears the intentional-pause flag -> state PLAYING
+    fake.emit('onerror', 'PLAYER_ERROR')
+    expect(events).toEqual(['error'])
+  })
+
   it('suppresses error events after dispose and tears down', async () => {
     const { container, player } = makePlayer()
     const events: string[] = []
