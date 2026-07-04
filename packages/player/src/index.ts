@@ -1,5 +1,6 @@
 export { AVPlayPlayer } from './avplayPlayer.js'
 export { buildDeviceProfile, type DeviceProfile } from './deviceProfile.js'
+export { buildTizenDeviceProfile, detectTizenYear, type TizenInfoSource } from './tizenDeviceProfile.js'
 export { createPlaybackSession, type PlaybackApi, type PlaybackSessionHandle, type PlaybackSessionState } from './playbackSession.js'
 export type { Player, PlayerEvent, PlayerHost, PlayerPlatform } from './types.js'
 export { WebPlayer } from './webPlayer.js'
