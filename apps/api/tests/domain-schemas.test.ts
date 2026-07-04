@@ -5,6 +5,8 @@ import {
   mediaDetailResponseSchema,
   mediaItemSchema,
   mediaRequestSchema,
+  notificationSchema,
+  notificationsResponseSchema,
   requestStatusSchema,
 } from '@lolarr/domain'
 
@@ -81,5 +83,39 @@ describe('slice 4 request schemas', () => {
       seasons: [{ seasonNumber: 1, name: 'Season 1', availability: 'available' }],
     })
     expect(parsed.seasons?.[0]?.availability).toBe('available')
+  })
+})
+
+describe('notification schemas', () => {
+  it('parses a valid notification', () => {
+    const parsed = notificationSchema.parse({
+      id: 'n1',
+      kind: 'available',
+      tmdbId: 550,
+      mediaType: 'movie',
+      title: 'Fight Club',
+      createdAt: '2026-07-04T10:00:00.000Z',
+      read: false,
+    })
+    expect(parsed.kind).toBe('available')
+  })
+
+  it('rejects an unknown kind', () => {
+    expect(() =>
+      notificationSchema.parse({
+        id: 'n1',
+        kind: 'archived',
+        tmdbId: 550,
+        mediaType: 'movie',
+        title: 'Fight Club',
+        createdAt: '2026-07-04T10:00:00.000Z',
+        read: false,
+      }),
+    ).toThrow()
+  })
+
+  it('parses a notifications response with an unread count', () => {
+    const parsed = notificationsResponseSchema.parse({ notifications: [], unreadCount: 3 })
+    expect(parsed.unreadCount).toBe(3)
   })
 })

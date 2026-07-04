@@ -197,6 +197,26 @@ export const requestsResponseSchema = z.object({
 })
 export type RequestsResponse = z.infer<typeof requestsResponseSchema>
 
+export const notificationKindSchema = z.enum(['available', 'approved', 'declined', 'failed'])
+export type NotificationKind = z.infer<typeof notificationKindSchema>
+
+export const notificationSchema = z.object({
+  id: z.string(),
+  kind: notificationKindSchema,
+  tmdbId: z.number().int(),
+  mediaType: mediaTypeSchema,
+  title: z.string(),
+  createdAt: z.string(),
+  read: z.boolean(),
+})
+export type Notification = z.infer<typeof notificationSchema>
+
+export const notificationsResponseSchema = z.object({
+  notifications: z.array(notificationSchema),
+  unreadCount: z.number().int(),
+})
+export type NotificationsResponse = z.infer<typeof notificationsResponseSchema>
+
 export const errorResponseSchema = z.object({
   error: z.string(),
 })

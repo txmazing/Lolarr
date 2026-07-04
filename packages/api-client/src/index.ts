@@ -7,6 +7,7 @@ import type {
   LoginResponse,
   MediaDetailResponse,
   MediaType,
+  NotificationsResponse,
   QcInitiateResponse,
   QcStateResponse,
   RequestsResponse,
@@ -109,6 +110,12 @@ export function createLolarrApiClient({
       return request<RequestsResponse>(`/api/requests/${encodeURIComponent(requestId)}`, {
         method: 'DELETE',
       })
+    },
+    notifications() {
+      return request<NotificationsResponse>('/api/notifications')
+    },
+    markNotificationsRead() {
+      return request<{ unreadCount: number }>('/api/notifications/read', { method: 'POST' })
     },
     qcInitiate(payload: { deviceId: string }) {
       return request<QcInitiateResponse>('/api/auth/qc/initiate', {
