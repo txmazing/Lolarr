@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { AppFrame, ErrorPanel, LoadingPanel, RequestList, type ActionComponent } from '@lolarr/ui'
 import { readErrorMessage } from '../lib/errors.js'
+import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 import { useRequests } from './useRequests.js'
 
 export function RequestsScreen({
@@ -28,6 +30,11 @@ export function RequestsScreen({
     cancelingId,
     cancelError,
   } = useRequests({ apiBaseUrl, enabled: true })
+
+  const { markRead } = useNotificationsContext()
+  useEffect(() => {
+    markRead()
+  }, [markRead])
 
   return (
     <AppFrame

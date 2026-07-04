@@ -34,6 +34,18 @@ Run after each `tizen:sync` deploy — none of this is exercised in CI:
 - [ ] **Back cascade** — the Back/Return key (10009) first hides the controls, then exits the player.
 - [ ] **Media keys** — Play/Pause/Stop and Rewind/Fast-Forward on the remote drive the player.
 
+## Notifications
+
+Lolarr surfaces request-lifecycle updates (available / approved / declined / failed) as a
+one-time toast plus an unread badge on the Requests entry. It relies on Seerr's webhook agent:
+
+- Set `LOLARR_WEBHOOK_SECRET` (16+ chars) in the API environment.
+- In Seerr: **Settings → Notifications → Webhook** → enable it, set the Webhook URL to
+  `http://<lolarr-api-host>:4000/api/webhooks/seerr`, put the same secret in the
+  **Authorization Header** field, and tick the *Available*, *Approved*, *Declined*, and
+  *Request Automatically Approved/Failed* notification types.
+- Matching is by Jellyfin username; a user only sees notifications for their own requests.
+
 ## Apps
 
 - `apps/api` - Fastify gateway for Jellyfin login, Seerr discovery, requests, and SQLite persistence.

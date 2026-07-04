@@ -8,6 +8,8 @@ import { HomeScreen } from './home/HomeScreen.js'
 import { LibraryDetailScreen } from './library/LibraryDetailScreen.js'
 import { LoginScreen } from './auth/LoginScreen.js'
 import { QuickConnectScreen } from './auth/QuickConnectScreen.js'
+import { NotificationsProvider } from './notifications/NotificationsProvider.js'
+import { ToastProvider } from './notifications/ToastProvider.js'
 import { PlayerScreen } from './player/PlayerScreen.js'
 import { RequestsScreen } from './requests/RequestsScreen.js'
 import { SearchScreen } from './search/SearchScreen.js'
@@ -95,121 +97,131 @@ export function AuthenticatedExperience({
     )
   }
 
-  if (currentScreen.name === 'player') {
+  function renderScreen() {
+    if (currentScreen.name === 'player') {
+      return (
+        <PlayerScreen
+          key={currentScreen.itemId}
+          Action={Action}
+          storage={storage}
+          platform={playerPlatform}
+          itemId={currentScreen.itemId}
+          title={currentScreen.title}
+          resumeTicks={currentScreen.resumeTicks}
+          seriesId={currentScreen.seriesId}
+          onExit={() => {
+            void queryClient.invalidateQueries({ queryKey: ['home'] })
+            useScreenStore.getState().pop()
+          }}
+          onPlayNext={(nextItemId, nextTitle) =>
+            useScreenStore.getState().replace({
+              name: 'player',
+              itemId: nextItemId,
+              title: nextTitle,
+              seriesId: currentScreen.seriesId,
+            })
+          }
+        />
+      )
+    }
+
+    if (currentScreen.name === 'detail') {
+      return (
+        <DetailScreen
+          Action={Action}
+          apiBaseUrl={apiBaseUrl}
+          item={currentScreen.item}
+          userName={auth.user!.name}
+          onSignOut={handleSignOut}
+          canConfigureGateway={canConfigureGateway}
+          onConfigureGateway={onConfigureGateway}
+          onBack={() => useScreenStore.getState().pop()}
+        />
+      )
+    }
+
+    if (currentScreen.name === 'libraryDetail') {
+      return (
+        <LibraryDetailScreen
+          key={currentScreen.itemId}
+          Action={Action}
+          apiBaseUrl={apiBaseUrl}
+          storage={storage}
+          itemId={currentScreen.itemId}
+          userName={auth.user!.name}
+          onSignOut={handleSignOut}
+          canConfigureGateway={canConfigureGateway}
+          onConfigureGateway={onConfigureGateway}
+          onBack={() => useScreenStore.getState().pop()}
+          onPlay={({ itemId, title, resumeTicks, seriesId }) =>
+            useScreenStore.getState().push({ name: 'player', itemId, title, resumeTicks, seriesId })
+          }
+        />
+      )
+    }
+
+    if (currentScreen.name === 'search') {
+      return (
+        <SearchScreen
+          Action={Action}
+          TextInput={TextInput}
+          apiBaseUrl={apiBaseUrl}
+          userName={auth.user!.name}
+          onSignOut={handleSignOut}
+          canConfigureGateway={canConfigureGateway}
+          onConfigureGateway={onConfigureGateway}
+          onBack={() => useScreenStore.getState().pop()}
+          onOpenItem={openItem}
+        />
+      )
+    }
+
+    if (currentScreen.name === 'requests') {
+      return (
+        <RequestsScreen
+          Action={Action}
+          apiBaseUrl={apiBaseUrl}
+          userName={auth.user!.name}
+          onSignOut={handleSignOut}
+          canConfigureGateway={canConfigureGateway}
+          onConfigureGateway={onConfigureGateway}
+          onBack={() => useScreenStore.getState().pop()}
+        />
+      )
+    }
+
     return (
-      <PlayerScreen
-        key={currentScreen.itemId}
+      <HomeScreen
         Action={Action}
         storage={storage}
-        platform={playerPlatform}
-        itemId={currentScreen.itemId}
-        title={currentScreen.title}
-        resumeTicks={currentScreen.resumeTicks}
-        seriesId={currentScreen.seriesId}
-        onExit={() => {
-          void queryClient.invalidateQueries({ queryKey: ['home'] })
-          useScreenStore.getState().pop()
-        }}
-        onPlayNext={(nextItemId, nextTitle) =>
-          useScreenStore.getState().replace({
-            name: 'player',
-            itemId: nextItemId,
-            title: nextTitle,
-            seriesId: currentScreen.seriesId,
-          })
-        }
-      />
-    )
-  }
-
-  if (currentScreen.name === 'detail') {
-    return (
-      <DetailScreen
-        Action={Action}
         apiBaseUrl={apiBaseUrl}
-        item={currentScreen.item}
-        userName={auth.user.name}
+        userName={auth.user!.name}
         onSignOut={handleSignOut}
         canConfigureGateway={canConfigureGateway}
         onConfigureGateway={onConfigureGateway}
-        onBack={() => useScreenStore.getState().pop()}
-      />
-    )
-  }
-
-  if (currentScreen.name === 'libraryDetail') {
-    return (
-      <LibraryDetailScreen
-        key={currentScreen.itemId}
-        Action={Action}
-        apiBaseUrl={apiBaseUrl}
-        storage={storage}
-        itemId={currentScreen.itemId}
-        userName={auth.user.name}
-        onSignOut={handleSignOut}
-        canConfigureGateway={canConfigureGateway}
-        onConfigureGateway={onConfigureGateway}
-        onBack={() => useScreenStore.getState().pop()}
-        onPlay={({ itemId, title, resumeTicks, seriesId }) =>
-          useScreenStore.getState().push({ name: 'player', itemId, title, resumeTicks, seriesId })
-        }
-      />
-    )
-  }
-
-  if (currentScreen.name === 'search') {
-    return (
-      <SearchScreen
-        Action={Action}
-        TextInput={TextInput}
-        apiBaseUrl={apiBaseUrl}
-        userName={auth.user.name}
-        onSignOut={handleSignOut}
-        canConfigureGateway={canConfigureGateway}
-        onConfigureGateway={onConfigureGateway}
-        onBack={() => useScreenStore.getState().pop()}
         onOpenItem={openItem}
-      />
-    )
-  }
-
-  if (currentScreen.name === 'requests') {
-    return (
-      <RequestsScreen
-        Action={Action}
-        apiBaseUrl={apiBaseUrl}
-        userName={auth.user.name}
-        onSignOut={handleSignOut}
-        canConfigureGateway={canConfigureGateway}
-        onConfigureGateway={onConfigureGateway}
-        onBack={() => useScreenStore.getState().pop()}
+        onPlayItem={(item) =>
+          item.jellyfin
+            ? useScreenStore.getState().push({
+                name: 'player',
+                itemId: item.jellyfin.itemId,
+                title: item.title,
+                resumeTicks: item.jellyfin.resumePositionTicks,
+                seriesId: item.jellyfin.seriesId,
+              })
+            : useScreenStore.getState().push({ name: 'detail', item })
+        }
+        onOpenSearch={() => useScreenStore.getState().push({ name: 'search' })}
+        onOpenRequests={() => useScreenStore.getState().push({ name: 'requests' })}
       />
     )
   }
 
   return (
-    <HomeScreen
-      Action={Action}
-      storage={storage}
-      apiBaseUrl={apiBaseUrl}
-      userName={auth.user.name}
-      onSignOut={handleSignOut}
-      canConfigureGateway={canConfigureGateway}
-      onConfigureGateway={onConfigureGateway}
-      onOpenItem={openItem}
-      onPlayItem={(item) =>
-        item.jellyfin
-          ? useScreenStore.getState().push({
-              name: 'player',
-              itemId: item.jellyfin.itemId,
-              title: item.title,
-              resumeTicks: item.jellyfin.resumePositionTicks,
-              seriesId: item.jellyfin.seriesId,
-            })
-          : useScreenStore.getState().push({ name: 'detail', item })
-      }
-      onOpenSearch={() => useScreenStore.getState().push({ name: 'search' })}
-      onOpenRequests={() => useScreenStore.getState().push({ name: 'requests' })}
-    />
+    <ToastProvider>
+      <NotificationsProvider apiBaseUrl={apiBaseUrl} enabled={Boolean(token)}>
+        {renderScreen()}
+      </NotificationsProvider>
+    </ToastProvider>
   )
 }

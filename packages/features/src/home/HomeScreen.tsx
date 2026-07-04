@@ -12,6 +12,7 @@ import {
 } from '@lolarr/ui'
 import { enrichItems, resolveItemImages } from '../lib/images.js'
 import { readErrorMessage } from '../lib/errors.js'
+import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 import { useRequests } from '../requests/useRequests.js'
 import type { KeyValueStorage } from '../storage.js'
 import { useHome } from './useHome.js'
@@ -46,6 +47,7 @@ export function HomeScreen({
   const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
 
   const { requests, requestsError } = useRequests({ apiBaseUrl, enabled: true })
+  const { unreadCount } = useNotificationsContext()
 
   const enrichedHome = useMemo(() => {
     const rows = (homeQuery.data?.rows ?? []).map((row) => ({
@@ -74,7 +76,7 @@ export function HomeScreen({
           Search
         </Action>
         <Action className="ghost-action" onPress={onOpenRequests} focusKey="home-requests">
-          Requests
+          Requests{unreadCount > 0 ? <span className="nav-badge">{unreadCount}</span> : null}
         </Action>
       </div>
       {homeQuery.error ? (
