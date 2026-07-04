@@ -56,9 +56,13 @@ describe('SeerrAdapter discover cache', () => {
     // invalidate the discover cache on success.
     ctx.seerr
       .intercept({ path: '/api/v1/request', method: 'POST' })
-      .reply(201, { id: 42 }, { headers: { 'content-type': 'application/json' } })
+      .reply(
+        201,
+        { id: 42, status: 1, media: { mediaType: 'movie', tmdbId: 550, status: 2, title: 'Fight Club' } },
+        { headers: { 'content-type': 'application/json' } },
+      )
 
-    await seerr.requestMedia(userId, 'movie', 550)
+    await seerr.requestMedia(userId, { mediaType: 'movie', tmdbId: 550, title: 'Fight Club' })
 
     // Fresh single-shot intercepts with a different title: without the cache bust, discover()
     // would still be serving the stale cached rows and these intercepts would go unconsumed
