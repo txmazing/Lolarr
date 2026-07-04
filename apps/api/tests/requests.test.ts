@@ -94,7 +94,7 @@ describe('requests routes (seerr as source of truth)', () => {
 
     expect(response.json().requests[0].title).toBe('Fight Club')
 
-    // Zweiter Abruf: kein neuer /api/v1/movie/550-Intercept nötig (Cache).
+    // Second fetch: no new /api/v1/movie/550 intercept needed (cache).
     interceptRequestList(ctx, [
       seerrRequest({ media: { mediaType: 'movie', tmdbId: 550, status: 1 } }),
     ])
@@ -104,6 +104,27 @@ describe('requests routes (seerr as source of truth)', () => {
       headers: { authorization: `Bearer ${token}` },
     })
     expect(second.json().requests[0].title).toBe('Fight Club')
+  })
+
+  it('seeds the title cache from the payload on POST, skipping the detail fetch', async () => {
+    ctx.seerr
+      .intercept({ path: '/api/v1/request', method: 'POST' })
+      .reply(201, seerrRequest({ media: { mediaType: 'movie', tmdbId: 550, status: 1 } }), { headers: { 'content-type': 'application/json' } })
+    // No /api/v1/movie/550 intercept: the list refetch must resolve the title
+    // from the seeded cache instead of a detail round-trip.
+    interceptRequestList(ctx, [
+      seerrRequest({ media: { mediaType: 'movie', tmdbId: 550, status: 1 } }),
+    ])
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/requests',
+      headers: { authorization: `Bearer ${token}` },
+      payload: { mediaType: 'movie', tmdbId: 550, title: 'Fight Club' },
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json().requests[0].title).toBe('Fight Club')
   })
 
   it('sends selected seasons on POST and returns the fresh list', async () => {
@@ -218,6 +239,21 @@ describe('requests routes (seerr as source of truth)', () => {
       { seasonNumber: 2, name: 'Season 2', availability: 'requested' },
       { seasonNumber: 3, name: 'Season 3', availability: 'requestable' },
     ])
+  })
+
+  it('returns 404 media not found when seerr does not know the title', async () => {
+    ctx.seerr
+      .intercept({ path: '/api/v1/movie/999999', method: 'GET' })
+      .reply(404, { message: 'Not found' }, { headers: { 'content-type': 'application/json' } })
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/media/movie/999999',
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(response.statusCode).toBe(404)
+    expect(response.json().error).toBe('Media item not found')
   })
 
   it('returns movie media detail from the canonical endpoint without seasons', async () => {
