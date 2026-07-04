@@ -831,6 +831,7 @@ button:disabled {
 .toast-approved { border-left-color: #3b82f6; }
 .toast-declined { border-left-color: #f59e0b; }
 .toast-failed { border-left-color: #ef4444; }
+.toast-requested { border-left-color: #8b5cf6; }
 
 .nav-badge {
   display: inline-block;

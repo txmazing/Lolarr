@@ -10,7 +10,7 @@ export type StoredSession = {
   user: LolarrUser
 }
 
-export type NotificationKindRow = 'available' | 'approved' | 'declined' | 'failed'
+export type NotificationKindRow = 'available' | 'approved' | 'declined' | 'failed' | 'requested'
 
 export type NotificationRow = {
   id: string

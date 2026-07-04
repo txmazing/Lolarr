@@ -85,7 +85,7 @@ describe('POST /api/webhooks/seerr', () => {
   })
 
   it('acks but drops a no-op notification type (200, no row)', async () => {
-    const response = await postWebhook(app, webhookBody({ notification_type: 'MEDIA_PENDING' }))
+    const response = await postWebhook(app, webhookBody({ notification_type: 'TEST_NOTIFICATION' }))
     expect(response.statusCode).toBe(200)
     expect(storedNotifications()).toHaveLength(0)
   })

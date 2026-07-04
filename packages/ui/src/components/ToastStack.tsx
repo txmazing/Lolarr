@@ -1,4 +1,4 @@
-export type ToastKind = 'available' | 'approved' | 'declined' | 'failed'
+export type ToastKind = 'available' | 'approved' | 'declined' | 'failed' | 'requested'
 
 export type ToastItem = {
   id: string
@@ -11,6 +11,7 @@ const MESSAGE: Record<ToastKind, (title: string) => string> = {
   approved: (title) => `${title} was approved`,
   declined: (title) => `${title} was declined`,
   failed: (title) => `${title} failed to process`,
+  requested: (title) => `${title} was requested`,
 }
 
 // Purely presentational and non-interactive: removal is timer-driven by the

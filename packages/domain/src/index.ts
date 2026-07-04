@@ -197,7 +197,7 @@ export const requestsResponseSchema = z.object({
 })
 export type RequestsResponse = z.infer<typeof requestsResponseSchema>
 
-export const notificationKindSchema = z.enum(['available', 'approved', 'declined', 'failed'])
+export const notificationKindSchema = z.enum(['available', 'approved', 'declined', 'failed', 'requested'])
 export type NotificationKind = z.infer<typeof notificationKindSchema>
 
 export const notificationSchema = z.object({

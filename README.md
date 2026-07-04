@@ -50,7 +50,7 @@ startup — **restart the API after changing it.**
 | Webhook URL | `http://<lolarr-api-host>:4000/api/webhooks/seerr` — the host must be reachable **from the Seerr server** (not `localhost` unless Seerr runs on the same machine) |
 | Authorization Header | the **exact** `LOLARR_WEBHOOK_SECRET` value — no `Bearer` prefix, no trailing whitespace |
 | Custom Headers | leave empty (only needed if your Seerr build has no dedicated Authorization Header field, then use `{"Authorization": "<secret>"}`) |
-| Notification Types | tick only **Request Available**, **Request Approved**, **Request Declined**, and **Request Processing Failed**. Leave *Pending* and *Automatically Approved* off — the API treats them as no-ops. |
+| Notification Types | tick **Request Pending Approval**, **Request Automatically Approved**, **Request Approved**, **Request Available**, **Request Declined**, and **Request Processing Failed**. Each maps to a toast kind (pending → *requested*, both approvals → *approved*, plus available/declined/failed). Issue types are ignored. |
 | JSON Payload | keep Seerr's **default** — it already carries `notification_type`, `subject`, `media.media_type`, `media.tmdbId`, and `request.requestedBy_username` (all the API reads; extra fields are ignored). Its conditional `{{media}}`/`{{request}}` blocks also let the **Test** button (which has no media) return 200. |
 
 Matching is by Jellyfin username (`requestedBy_username` == the Jellyfin user name, case-insensitive,

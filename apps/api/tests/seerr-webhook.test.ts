@@ -19,14 +19,16 @@ describe('mapWebhookToNotification', () => {
 
   it.each([
     ['MEDIA_APPROVED', 'approved'],
+    ['MEDIA_AUTO_APPROVED', 'approved'],
     ['MEDIA_DECLINED', 'declined'],
     ['MEDIA_FAILED', 'failed'],
+    ['MEDIA_PENDING', 'requested'],
   ])('maps %s to %s', (type, kind) => {
     const result = mapWebhookToNotification(seerrWebhookSchema.parse(payload({ notification_type: type })))
     expect(result?.kind).toBe(kind)
   })
 
-  it.each(['MEDIA_AUTO_APPROVED', 'MEDIA_PENDING', 'TEST_NOTIFICATION', 'SOMETHING_ELSE'])(
+  it.each(['TEST_NOTIFICATION', 'SOMETHING_ELSE'])(
     'returns null for the no-op type %s',
     (type) => {
       expect(mapWebhookToNotification(seerrWebhookSchema.parse(payload({ notification_type: type })))).toBeNull()

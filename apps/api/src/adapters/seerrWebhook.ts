@@ -27,7 +27,7 @@ export const seerrWebhookSchema = z
 
 export type SeerrWebhookPayload = z.infer<typeof seerrWebhookSchema>
 
-type NotificationKind = 'available' | 'approved' | 'declined' | 'failed'
+type NotificationKind = 'available' | 'approved' | 'declined' | 'failed' | 'requested'
 
 export type MappedNotification = {
   kind: NotificationKind
@@ -37,13 +37,15 @@ export type MappedNotification = {
   username: string
 }
 
-// MEDIA_AUTO_APPROVED is intentionally omitted: an auto-approved request needs
-// no "approved" toast because MEDIA_AVAILABLE follows once it downloads.
+// MEDIA_AUTO_APPROVED shares the 'approved' kind — the user does not need to
+// know whether approval was manual or automatic.
 const TYPE_TO_KIND: Record<string, NotificationKind | undefined> = {
   MEDIA_AVAILABLE: 'available',
   MEDIA_APPROVED: 'approved',
+  MEDIA_AUTO_APPROVED: 'approved',
   MEDIA_DECLINED: 'declined',
   MEDIA_FAILED: 'failed',
+  MEDIA_PENDING: 'requested',
 }
 
 export function mapWebhookToNotification(payload: SeerrWebhookPayload): MappedNotification | null {
