@@ -171,7 +171,12 @@ export function createPlaybackSession(deps: {
           onStateChange('paused')
           reportProgress()
         }),
-        player.on('ended', () => onStateChange('ended')),
+        player.on('ended', () => {
+          // The media element does not fire 'pause' on ended, but progress
+          // reports during the autoplay countdown must not claim playback.
+          paused = true
+          onStateChange('ended')
+        }),
         player.on('error', () => {
           void handlePlayerError()
         }),

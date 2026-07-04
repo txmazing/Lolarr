@@ -125,7 +125,7 @@ describe('createPlaybackSession', () => {
     // Pause and clear the recorded calls
     handle.togglePause()
     fake.emit('pause')
-    api.reportPlaybackProgress.mockClear()
+    vi.mocked(api.reportPlaybackProgress).mockClear()
 
     // Resume and emit playing event
     fake.setPosition(25)
@@ -134,6 +134,23 @@ describe('createPlaybackSession', () => {
 
     expect(api.reportPlaybackProgress).toHaveBeenCalledWith(session, expect.objectContaining({
       positionTicks: 250_000_000, isPaused: false,
+    }))
+  })
+
+  it('reports progress as paused after playback ended', async () => {
+    const fake = fakePlayer()
+    const api = fakeApi()
+    const handle = createPlaybackSession({
+      session, player: fake.player, itemId: 'i1',
+      onStateChange: () => {}, api, deviceProfile: {},
+    })
+    await handle.start()
+
+    fake.emit('ended')
+    await vi.advanceTimersByTimeAsync(10_000)
+
+    expect(api.reportPlaybackProgress).toHaveBeenLastCalledWith(session, expect.objectContaining({
+      isPaused: true,
     }))
   })
 
