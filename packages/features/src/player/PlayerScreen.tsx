@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { ErrorPanel, PlayerControls, type ActionComponent } from '@lolarr/ui'
+import type { PlaybackSessionHandle } from '@lolarr/player'
 import type { KeyValueStorage } from '../storage.js'
 import { AutoplayNext } from './AutoplayNext.js'
 import { usePlaybackSession } from './usePlaybackSession.js'
 
 const CONTROLS_HIDE_MS = 3000
+const PROGRESS_POLL_MS = 500
 
 export function PlayerScreen({
   Action,
@@ -23,16 +25,15 @@ export function PlayerScreen({
   resumeTicks?: number
   seriesId?: string
   onExit: () => void
-  onPlayNext: (itemId: string) => void
+  onPlayNext: (itemId: string, title?: string) => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { videoRef, state, errorMessage, progress, handle } = usePlaybackSession({
+  const { videoRef, state, errorMessage, handle } = usePlaybackSession({
     storage,
     itemId,
     resumeTicks,
   })
   const [controlsVisible, setControlsVisible] = useState(true)
-  const [volume, setVolume] = useState(1)
   const hideTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const showControls = useCallback(() => {
@@ -107,23 +108,13 @@ export function PlayerScreen({
     <div ref={containerRef} className="player-screen" onMouseMove={showControls}>
       <video ref={videoRef} className="player-video" />
       {state === 'loading' ? <div className="player-spinner" aria-label="Loading" /> : null}
-      <PlayerControls
+      <PlayerControlsContainer
         Action={Action}
         visible={controlsVisible}
         isPaused={state === 'paused'}
-        position={progress.position}
-        duration={progress.duration}
-        volume={volume}
         title={title}
-        onTogglePause={() => handle.current?.togglePause()}
-        onSeekTo={(seconds) => handle.current?.seekTo(seconds)}
-        onSeekBy={(seconds) => handle.current?.seekBy(seconds)}
-        onVolume={(value) => {
-          setVolume(value)
-          if (videoRef.current) {
-            videoRef.current.volume = value
-          }
-        }}
+        handle={handle}
+        videoRef={videoRef}
         onFullscreen={toggleFullscreen}
         onBack={onExit}
       />
@@ -137,5 +128,65 @@ export function PlayerScreen({
         />
       ) : null}
     </div>
+  )
+}
+
+/**
+ * Owns the position poll and volume state so their frequent updates re-render
+ * only the controls, not the whole player screen.
+ */
+function PlayerControlsContainer({
+  Action,
+  visible,
+  isPaused,
+  title,
+  handle,
+  videoRef,
+  onFullscreen,
+  onBack,
+}: {
+  Action: ActionComponent
+  visible: boolean
+  isPaused: boolean
+  title?: string
+  handle: RefObject<PlaybackSessionHandle | null>
+  videoRef: RefObject<HTMLVideoElement | null>
+  onFullscreen: () => void
+  onBack: () => void
+}) {
+  const [progress, setProgress] = useState({ position: 0, duration: Number.NaN })
+  const [volume, setVolume] = useState(1)
+
+  useEffect(() => {
+    const progressPoll = setInterval(() => {
+      const session = handle.current
+      if (session) {
+        setProgress(session.getProgress())
+      }
+    }, PROGRESS_POLL_MS)
+    return () => clearInterval(progressPoll)
+  }, [handle])
+
+  return (
+    <PlayerControls
+      Action={Action}
+      visible={visible}
+      isPaused={isPaused}
+      position={progress.position}
+      duration={progress.duration}
+      volume={volume}
+      title={title}
+      onTogglePause={() => handle.current?.togglePause()}
+      onSeekTo={(seconds) => handle.current?.seekTo(seconds)}
+      onSeekBy={(seconds) => handle.current?.seekBy(seconds)}
+      onVolume={(value) => {
+        setVolume(value)
+        if (videoRef.current) {
+          videoRef.current.volume = value
+        }
+      }}
+      onFullscreen={onFullscreen}
+      onBack={onBack}
+    />
   )
 }

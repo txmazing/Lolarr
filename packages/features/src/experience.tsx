@@ -99,14 +99,20 @@ export function AuthenticatedExperience({
         Action={Action}
         storage={storage}
         itemId={currentScreen.itemId}
+        title={currentScreen.title}
         resumeTicks={currentScreen.resumeTicks}
         seriesId={currentScreen.seriesId}
         onExit={() => {
           void queryClient.invalidateQueries({ queryKey: ['home'] })
           useScreenStore.getState().pop()
         }}
-        onPlayNext={(nextItemId) =>
-          useScreenStore.getState().replace({ name: 'player', itemId: nextItemId, seriesId: currentScreen.seriesId })
+        onPlayNext={(nextItemId, nextTitle) =>
+          useScreenStore.getState().replace({
+            name: 'player',
+            itemId: nextItemId,
+            title: nextTitle,
+            seriesId: currentScreen.seriesId,
+          })
         }
       />
     )
@@ -140,8 +146,8 @@ export function AuthenticatedExperience({
         canConfigureGateway={canConfigureGateway}
         onConfigureGateway={onConfigureGateway}
         onBack={() => useScreenStore.getState().pop()}
-        onPlay={({ itemId, resumeTicks, seriesId }) =>
-          useScreenStore.getState().push({ name: 'player', itemId, resumeTicks, seriesId })
+        onPlay={({ itemId, title, resumeTicks, seriesId }) =>
+          useScreenStore.getState().push({ name: 'player', itemId, title, resumeTicks, seriesId })
         }
       />
     )
@@ -192,6 +198,7 @@ export function AuthenticatedExperience({
           ? useScreenStore.getState().push({
               name: 'player',
               itemId: item.jellyfin.itemId,
+              title: item.title,
               resumeTicks: item.jellyfin.resumePositionTicks,
               seriesId: item.jellyfin.seriesId,
             })

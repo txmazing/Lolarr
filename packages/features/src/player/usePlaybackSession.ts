@@ -21,7 +21,6 @@ export function usePlaybackSession({
   const handleRef = useRef<PlaybackSessionHandle | null>(null)
   const [state, setState] = useState<PlaybackSessionState>('loading')
   const [errorMessage, setErrorMessage] = useState<string>()
-  const [progress, setProgress] = useState({ position: 0, duration: Number.NaN })
 
   useEffect(() => {
     const jellyfinSession = readJellyfinSession(storage)
@@ -48,16 +47,11 @@ export function usePlaybackSession({
     handleRef.current = handle
     void handle.start()
 
-    const progressPoll = setInterval(() => {
-      setProgress(handle.getProgress())
-    }, 500)
-
     return () => {
-      clearInterval(progressPoll)
       handleRef.current = null
       void handle.stop()
     }
   }, [storage, itemId, resumeTicks])
 
-  return { videoRef, state, errorMessage, progress, handle: handleRef }
+  return { videoRef, state, errorMessage, handle: handleRef }
 }

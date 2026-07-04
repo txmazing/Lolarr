@@ -15,11 +15,11 @@ export function AutoplayNext({
   Action: ActionComponent
   storage: KeyValueStorage
   seriesId: string
-  onPlayNext: (itemId: string) => void
+  onPlayNext: (itemId: string, title?: string) => void
   onDone: () => void
 }) {
   const session = useMemo(() => readJellyfinSession(storage), [storage])
-  const [next, setNext] = useState<NextUpEpisode | null>()
+  const [next, setNext] = useState<NextUpEpisode | null>(null)
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_SECONDS)
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function AutoplayNext({
       return
     }
     if (secondsLeft <= 0) {
-      onPlayNext(next.itemId)
+      onPlayNext(next.itemId, next.title)
       return
     }
     const timer = setTimeout(() => setSecondsLeft((value) => value - 1), 1000)
@@ -68,7 +68,7 @@ export function AutoplayNext({
       Action={Action}
       title={next.title}
       secondsLeft={secondsLeft}
-      onPlayNow={() => onPlayNext(next.itemId)}
+      onPlayNow={() => onPlayNext(next.itemId, next.title)}
       onCancel={onDone}
     />
   )

@@ -34,7 +34,7 @@ export function LibraryDetailScreen({
   canConfigureGateway: boolean
   onConfigureGateway: () => void
   onBack: () => void
-  onPlay: (opts: { itemId: string; resumeTicks?: number; seriesId?: string }) => void
+  onPlay: (opts: { itemId: string; title?: string; resumeTicks?: number; seriesId?: string }) => void
 }) {
   const detailQuery = useLibraryDetail({ apiBaseUrl, itemId })
   const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
@@ -85,6 +85,7 @@ export function LibraryDetailScreen({
                 onPress={() =>
                   onPlay({
                     itemId: item.jellyfin?.itemId ?? itemId,
+                    title: item.title,
                     resumeTicks: item.jellyfin?.resumePositionTicks,
                     seriesId: item.jellyfin?.seriesId,
                   })
@@ -98,7 +99,7 @@ export function LibraryDetailScreen({
             {item.mediaType === 'movie' && item.jellyfin?.resumePositionTicks ? (
               <Action
                 onPress={() =>
-                  onPlay({ itemId: item.jellyfin?.itemId ?? itemId, seriesId: item.jellyfin?.seriesId })
+                  onPlay({ itemId: item.jellyfin?.itemId ?? itemId, title: item.title, seriesId: item.jellyfin?.seriesId })
                 }
                 focusKey="library-play-restart"
               >
@@ -125,6 +126,7 @@ export function LibraryDetailScreen({
             onPlay={(episode) =>
               onPlay({
                 itemId: episode.jellyfinItemId,
+                title: episode.title,
                 resumeTicks: episode.resumePositionTicks,
                 seriesId: itemId,
               })

@@ -5,7 +5,7 @@ export type Screen =
   | { name: 'home' }
   | { name: 'detail'; item: MediaItem }
   | { name: 'libraryDetail'; itemId: string }
-  | { name: 'player'; itemId: string; resumeTicks?: number; seriesId?: string }
+  | { name: 'player'; itemId: string; title?: string; resumeTicks?: number; seriesId?: string }
   | { name: 'search' }
   | { name: 'requests' }
 
