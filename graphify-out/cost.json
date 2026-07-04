@@ -1,0 +1,19 @@
+{
+  "runs": [
+    {
+      "date": "2026-07-04T21:24:47.749417+00:00",
+      "input_tokens": 0,
+      "output_tokens": 271111,
+      "files": 218
+    },
+    {
+      "date": "rebuild-no-bundle",
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "files": 218,
+      "note": "excluded apps/tv/tizen/assets/lolarr-tizen.js, semantic from cache"
+    }
+  ],
+  "total_input_tokens": 0,
+  "total_output_tokens": 271111
+}
