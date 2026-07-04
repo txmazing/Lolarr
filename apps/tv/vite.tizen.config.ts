@@ -8,6 +8,7 @@ export default defineLolarrReactConfig({
     emptyOutDir: true,
     outDir: 'dist-tizen',
     target: 'es2017',
+    cssTarget: 'chrome120',
     cssCodeSplit: false,
     lib: {
       entry: 'src/main.tsx',
