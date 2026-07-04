@@ -30,7 +30,11 @@ describe('pruneSelection', () => {
     expect(pruneSelection([1, 2, 3], [2, 3])).toEqual([2, 3])
   })
 
-  it('returns empty array when all seasons are pruned', () => {
+  it('keeps an empty selection empty', () => {
     expect(pruneSelection([], [1])).toEqual([])
+  })
+
+  it('returns empty array when no selected season is selectable', () => {
+    expect(pruneSelection([1, 2], [3])).toEqual([])
   })
 })
