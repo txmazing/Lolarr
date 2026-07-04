@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ActionComponent } from './types'
 
 type PlayerControlsProps = {
@@ -32,6 +33,17 @@ export function PlayerControls({
   onBack,
 }: PlayerControlsProps) {
   const hasDuration = Number.isFinite(duration) && duration > 0
+  // Seek only when the drag ends — seeking per drag increment would fire a
+  // network progress report for every tick of the slider.
+  const [pendingSeek, setPendingSeek] = useState<number | null>(null)
+
+  function commitSeek(value: number) {
+    if (pendingSeek === null) {
+      return
+    }
+    setPendingSeek(null)
+    onSeekTo(value)
+  }
 
   return (
     <div className={visible ? 'player-controls visible' : 'player-controls'}>
@@ -45,8 +57,11 @@ export function PlayerControls({
           type="range"
           min={0}
           max={hasDuration ? Math.floor(duration) : 0}
-          value={Math.floor(position)}
-          onChange={(event) => onSeekTo(Number(event.currentTarget.value))}
+          value={pendingSeek ?? Math.floor(position)}
+          onChange={(event) => setPendingSeek(Number(event.currentTarget.value))}
+          onPointerUp={(event) => commitSeek(Number(event.currentTarget.value))}
+          onKeyUp={(event) => commitSeek(Number(event.currentTarget.value))}
+          onBlur={(event) => commitSeek(Number(event.currentTarget.value))}
           aria-label="Seek"
         />
         <div className="player-buttons">
