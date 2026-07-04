@@ -14,3 +14,14 @@ export interface Player {
   on(event: PlayerEvent, handler: (detail?: unknown) => void): () => void
   dispose(): void
 }
+
+export type PlayerHost = { container: HTMLElement; token: string; serverUrl: string }
+
+export type DeviceProfileValue = import('./deviceProfile.js').DeviceProfile
+
+export type PlayerPlatform = {
+  createPlayer(host: PlayerHost): Player
+  buildDeviceProfile(): DeviceProfileValue
+  supportsVolume: boolean
+  registerMediaKeys?(): () => void
+}

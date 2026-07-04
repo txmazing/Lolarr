@@ -13,12 +13,14 @@ const VIDEO_EVENT_MAP: Array<[string, PlayerEvent]> = [
 
 export class WebPlayer implements Player {
   private readonly video: HTMLVideoElement
+  private readonly onDispose: (() => void) | undefined
   private hls: Hls | undefined
   private readonly handlers = new Map<PlayerEvent, Set<(detail?: unknown) => void>>()
   private readonly domCleanups: Array<() => void> = []
 
-  constructor(video: HTMLVideoElement) {
+  constructor(video: HTMLVideoElement, onDispose?: () => void) {
     this.video = video
+    this.onDispose = onDispose
     for (const [domEvent, playerEvent] of VIDEO_EVENT_MAP) {
       const listener = () => this.emit(playerEvent)
       video.addEventListener(domEvent, listener)
@@ -96,6 +98,7 @@ export class WebPlayer implements Player {
     this.handlers.clear()
     this.video.removeAttribute('src')
     this.video.load()
+    this.onDispose?.()
   }
 
   private teardownHls() {
