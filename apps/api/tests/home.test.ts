@@ -102,6 +102,68 @@ describe('GET /api/home', () => {
     expect(rowIds).toEqual(['continue-watching', 'latest-lib1'])
   })
 
+  it('dedupes continue watching by series id, not title', async () => {
+    const app = createServer(ctx.config)
+    const { token } = await loginTestUser(app, ctx)
+    ctx.jellyfin
+      .intercept({ path: /\/UserItems\/Resume.*/, method: 'GET' })
+      .reply(200, {
+        Items: [{ Id: 'r1', Name: 'Episode 1', Type: 'Episode', SeriesName: 'Some Show', SeriesId: 'show-1', ParentIndexNumber: 1, IndexNumber: 1 }],
+      }, JSON_HEADERS)
+    ctx.jellyfin
+      .intercept({ path: /\/Shows\/NextUp.*/, method: 'GET' })
+      .reply(200, {
+        Items: [
+          // same series as Resume → dropped; same display title but different series → kept
+          { Id: 'n1', Name: 'Episode 2', Type: 'Episode', SeriesName: 'Some Show', SeriesId: 'show-1', ParentIndexNumber: 1, IndexNumber: 2 },
+          { Id: 'n2', Name: 'Pilot', Type: 'Episode', SeriesName: 'Some Show', SeriesId: 'show-2', ParentIndexNumber: 1, IndexNumber: 1 },
+        ],
+      }, JSON_HEADERS)
+    ctx.jellyfin.intercept({ path: /\/UserViews.*/, method: 'GET' }).reply(200, { Items: [] }, JSON_HEADERS)
+    mockSeerrDiscover(ctx)
+
+    const response = await app.inject({ method: 'GET', url: '/api/home', headers: { authorization: `Bearer ${token}` } })
+    expect(response.statusCode).toBe(200)
+    const cw = response.json().rows[0]
+    expect(cw.id).toBe('continue-watching')
+    expect(cw.items.map((i: { id: string }) => i.id)).toEqual(['jf-r1', 'jf-n2'])
+  })
+
+  it('strips progress from "New in …" tiles', async () => {
+    const app = createServer(ctx.config)
+    const { token } = await loginTestUser(app, ctx)
+    ctx.jellyfin.intercept({ path: /\/UserItems\/Resume.*/, method: 'GET' }).reply(200, { Items: [] }, JSON_HEADERS)
+    ctx.jellyfin.intercept({ path: /\/Shows\/NextUp.*/, method: 'GET' }).reply(200, { Items: [] }, JSON_HEADERS)
+    ctx.jellyfin
+      .intercept({ path: /\/UserViews.*/, method: 'GET' })
+      .reply(200, { Items: [{ Id: 'lib1', Name: 'Movies', CollectionType: 'movies' }] }, JSON_HEADERS)
+    ctx.jellyfin
+      .intercept({ path: /\/Items\/Latest.*/, method: 'GET' })
+      .reply(200, [{ Id: 'l1', Name: 'Half Watched Movie', Type: 'Movie', UserData: { PlayedPercentage: 65 } }], JSON_HEADERS)
+    mockSeerrDiscover(ctx)
+
+    const response = await app.inject({ method: 'GET', url: '/api/home', headers: { authorization: `Bearer ${token}` } })
+    expect(response.statusCode).toBe(200)
+    const latest = response.json().rows.find((row: { id: string }) => row.id === 'latest-lib1')
+    expect(latest.items[0].jellyfin.progressPercent).toBeUndefined()
+  })
+
+  it('returns 502 when views resolve but no row can be produced and sources failed', async () => {
+    const app = createServer(ctx.config)
+    const { token } = await loginTestUser(app, ctx)
+    ctx.jellyfin.intercept({ path: /\/UserItems\/Resume.*/, method: 'GET' }).reply(500, {})
+    ctx.jellyfin.intercept({ path: /\/Shows\/NextUp.*/, method: 'GET' }).reply(500, {})
+    ctx.jellyfin
+      .intercept({ path: /\/UserViews.*/, method: 'GET' })
+      .reply(200, { Items: [{ Id: 'lib1', Name: 'Movies', CollectionType: 'movies' }] }, JSON_HEADERS)
+    ctx.jellyfin.intercept({ path: /\/Items\/Latest.*/, method: 'GET' }).reply(500, {})
+    ctx.seerr.intercept({ path: /\/api\/v1\/discover\/.*/, method: 'GET' }).reply(503, {}).times(3)
+
+    const response = await app.inject({ method: 'GET', url: '/api/home', headers: { authorization: `Bearer ${token}` } })
+    expect(response.statusCode).toBe(502)
+    expect(response.json().error).toBe('jellyfin_unreachable')
+  })
+
   it('returns 502 when both sources are down', async () => {
     const app = createServer(ctx.config)
     const { token } = await loginTestUser(app, ctx)

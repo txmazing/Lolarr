@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { SeerrAdapter } from '../src/adapters/seerr.js'
 import { SeerrSessionService } from '../src/services/seerrSession.js'
 import { LolarrDatabase } from '../src/services/database.js'
@@ -31,6 +31,37 @@ describe('SeerrAdapter discover cache', () => {
     const second = await seerr.discover()
     expect(second).toEqual(first)
     expect(first.length).toBeGreaterThan(0)
+  })
+
+  it('refetches from upstream once the 5 minute TTL has expired', async () => {
+    // Fake only Date: MockAgent/fetch must not depend on faked timers
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      for (const path of ['/api/v1/discover/trending', '/api/v1/discover/movies', '/api/v1/discover/tv']) {
+        ctx.seerr
+          .intercept({ path, method: 'GET' })
+          .reply(200, { results: [{ id: 1, mediaType: 'movie', title: 'Dune' }] }, { headers: { 'content-type': 'application/json' } })
+      }
+
+      const database = new LolarrDatabase(ctx.config.LOLARR_DATABASE_PATH, ctx.config.LOLARR_SECRET)
+      const seerr = new SeerrAdapter(ctx.config, new SeerrSessionService(ctx.config, database))
+
+      const first = await seerr.discover()
+      expect(first[0]?.items[0]?.title).toBe('Dune')
+
+      vi.setSystemTime(Date.now() + 5 * 60 * 1000 + 1)
+
+      for (const path of ['/api/v1/discover/trending', '/api/v1/discover/movies', '/api/v1/discover/tv']) {
+        ctx.seerr
+          .intercept({ path, method: 'GET' })
+          .reply(200, { results: [{ id: 2, mediaType: 'movie', title: 'Arrival' }] }, { headers: { 'content-type': 'application/json' } })
+      }
+
+      const second = await seerr.discover()
+      expect(second[0]?.items[0]?.title).toBe('Arrival')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('busts the discover cache after a successful requestMedia so the next discover() hits upstream again', async () => {

@@ -54,7 +54,7 @@ jellyfin?: {
   - Jellyfin mit **User-Token** (aus DB entschlüsselt, `getJellyfinToken`) und DeviceId `lolarr-gateway`: `GET /UserViews`, `GET /UserItems/Resume` (limit 12, mediaTypes Video), `GET /Shows/NextUp` (limit 12), `GET /Items/Latest?parentId=<viewId>` (limit 16, je Movie-/Show-Library eine Row).
   - Seerr-Discover über bestehenden Adapter (Admin-Key), **In-Memory-Cache 5 min** (user-unabhängig, ein Cache für alle).
 - Komposition: `hero` = erstes Resume-Item, sonst erstes NextUp-Item, sonst erstes Trending-Item (dann ohne jellyfin-Feld). Row-Reihenfolge: `continue-watching` (Resume+NextUp gemergt, nach zuletzt gespielt sortiert — Wholphin-Muster), `latest-<library>`…, dann Discover-Rows.
-- Degradation: scheitert eine Jellyfin-Teilabfrage nicht-401, wird die Row weggelassen (warn-log); scheitern alle Jellyfin-Calls, kommt ein Discover-only-Home. Seerr-Ausfall analog (Jellyfin-only-Home). Nur wenn beides scheitert → 502.
+- Degradation: scheitert eine Jellyfin-Teilabfrage nicht-401, wird die Row weggelassen (warn-log); scheitern alle Jellyfin-Calls, kommt ein Discover-only-Home. Seerr-Ausfall analog (Jellyfin-only-Home). 502 nur, wenn keine einzige Row produziert werden konnte und mindestens eine Quelle gescheitert ist (deckt auch den Randfall „Views ok, aber Resume/NextUp/alle Latest und Seerr scheitern" ab).
 - **Jellyfin-401** (Token revoked): Adapter wirft `JellyfinTokenInvalidError(userId)` → bestehende 401-Kaskade (Sessions gelöscht, Client landet am Login).
 
 ### `GET /api/library/:itemId` (Session-pflichtig)
@@ -88,8 +88,8 @@ Neue Funktionen mit einheitlichem Kontext `(config, auth: { accessToken, userId,
 |---|---|
 | Jellyfin-Teilabfrage scheitert (nicht 401) | Row fehlt, warn-log, Home lädt |
 | Jellyfin komplett down | Discover-only-Home |
-| Seerr down | Jellyfin-only-Home (Discover-Rows fehlen) |
-| Beide down | 502 `jellyfin_unreachable` (Jellyfin ist die primäre Quelle des Home) |
+| Seerr down | Jellyfin-only-Home (Discover-Rows fehlen). Ist der Discover-Cache noch warm (<5 min), liefert das Home weiterhin die gecachten Discover-Rows und der Ausfall bleibt unsichtbar — bewusste Semantik: Daten jünger als 5 Minuten gelten als frisch. |
+| Keine Row produzierbar und ≥1 Quelle gescheitert (insb. beide down) | 502 `jellyfin_unreachable` (Jellyfin ist die primäre Quelle des Home) |
 | Jellyfin-401 (User-Token tot) | `JellyfinTokenInvalidError` → 401-Kaskade → Login |
 | `lolarr.jellyfin` fehlt/invalid im Client | Jellyfin-Bilder fallen auf `posterUrl` (falls vorhanden) bzw. Platzhalter zurück — kein Crash |
 | Library-Detail: Item unbekannt | 404 → ErrorPanel mit Back |

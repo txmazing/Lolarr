@@ -1,13 +1,12 @@
 import type { AppConfig } from '../config.js'
 import { authorizeQuickConnect } from '../adapters/jellyfin.js'
+import { GATEWAY_DEVICE_ID } from '../lib/constants.js'
 import {
   InvalidCredentialsError,
   JellyfinTokenInvalidError,
   UpstreamError,
 } from '../lib/errors.js'
 import type { LolarrDatabase } from './database.js'
-
-const GATEWAY_DEVICE_ID = 'lolarr-gateway'
 
 export class SeerrSessionService {
   private cookies: Map<string, string>

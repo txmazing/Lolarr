@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify'
 import type { MediaItem, MediaRow } from '@lolarr/domain'
 import type { AppContext } from '../lib/context.js'
+import { GATEWAY_DEVICE_ID } from '../lib/constants.js'
 import { JellyfinTokenInvalidError, UpstreamError } from '../lib/errors.js'
 import {
   getLatestItems,
@@ -10,7 +11,6 @@ import {
   type JellyfinUserAuth,
 } from '../adapters/jellyfinLibrary.js'
 
-const GATEWAY_DEVICE_ID = 'lolarr-gateway'
 const RESUME_LIMIT = 12
 const NEXT_UP_LIMIT = 12
 const LATEST_LIMIT = 16
@@ -48,9 +48,13 @@ export async function homeRoutes(app: FastifyInstance, { config, database, seerr
     const discoverRows = settledValue(discover) ?? []
     rows.push(...discoverRows)
 
-    const jellyfinDown =
-      resume.status === 'rejected' && nextUp.status === 'rejected' && views.status === 'rejected'
-    if (jellyfinDown && discover.status === 'rejected') {
+    // An empty home is only fine when every source responded cleanly (empty).
+    // Also covers the edge case: views resolved, but Resume/NextUp/all Latest
+    // and Seerr failed — previously this returned 200 {rows:[]}.
+    const anySourceRejected = [resume, nextUp, views, discover].some(
+      (result) => result.status === 'rejected',
+    )
+    if (rows.length === 0 && anySourceRejected) {
       throw new UpstreamError('jellyfin', undefined, 'home sources unavailable')
     }
     logRejections(request, { resume, nextUp, views, discover })
@@ -91,22 +95,40 @@ async function buildLatestRows(
       return
     }
     if (result.value.length > 0) {
-      rows.push({ id: `latest-${library.id}`, title: `New in ${library.name}`, items: result.value })
+      rows.push({
+        id: `latest-${library.id}`,
+        title: `New in ${library.name}`,
+        items: result.value.map(stripProgress),
+      })
     }
   })
   return rows
 }
 
-// Resume zuerst (Server sortiert nach zuletzt gespielt), dann NextUp-Folgen,
-// deren Serie nicht schon in Resume steckt. Bewusste Vereinfachung gegenüber
-// Wholphins Last-Played-Lookup-Merge.
+// "New in …" shows fresh additions, not re-entry points — Jellyfin's Latest
+// returns UserData, but the progress bar belongs on Continue watching only.
+function stripProgress(item: MediaItem): MediaItem {
+  if (item.jellyfin?.progressPercent === undefined) {
+    return item
+  }
+  const jellyfin = { ...item.jellyfin }
+  delete jellyfin.progressPercent
+  return { ...item, jellyfin }
+}
+
+// Resume first (the server sorts by last played), then NextUp episodes whose
+// series is not already in Resume. Dedupe by SeriesId — titles are not unique;
+// movies in Resume have no SeriesId and never collide with NextUp episodes.
+// Deliberate simplification of Wholphin's last-played lookup merge.
 function mergeContinueWatching(resume: MediaItem[], nextUp: MediaItem[]): MediaItem[] {
-  const seenTitles = new Set(resume.map((item) => item.title))
+  const dedupeKey = (item: MediaItem) => item.jellyfin?.seriesId ?? item.id
+  const seen = new Set(resume.map(dedupeKey))
   const merged = [...resume]
   for (const item of nextUp) {
-    if (!seenTitles.has(item.title)) {
+    const key = dedupeKey(item)
+    if (!seen.has(key)) {
       merged.push(item)
-      seenTitles.add(item.title)
+      seen.add(key)
     }
   }
   return merged.slice(0, CONTINUE_WATCHING_LIMIT)

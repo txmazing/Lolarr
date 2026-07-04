@@ -4,7 +4,7 @@ Moonrepo monorepo for the Lolarr clients.
 
 ## Requirements
 
-- **Jellyfin** 10.10+ with **Quick Connect enabled** (Dashboard → General)
+- **Jellyfin** 10.10+ with **Quick Connect enabled** (Dashboard → General) — the gateway uses the `/UserItems/Resume` endpoint introduced in 10.9, so older servers are not supported
 - **Seerr ≥ v3.4.0** (until released: the `develop`/preview image) with:
   - *Enable Jellyfin Sign-In* turned on
   - *Enable New Jellyfin Sign-In* turned on (users log in without prior import)

@@ -60,6 +60,22 @@ describe('GET /api/library/:itemId', () => {
     })
   })
 
+  it('triggers the 401 cascade when the jellyfin token is rejected', async () => {
+    const app = createServer(ctx.config)
+    const { token } = await loginTestUser(app, ctx)
+    ctx.jellyfin
+      .intercept({ path: /\/Items\/movie-1\?.*/, method: 'GET' })
+      .reply(401, {})
+
+    const response = await app.inject({ method: 'GET', url: '/api/library/movie-1', headers: { authorization: `Bearer ${token}` } })
+    expect(response.statusCode).toBe(401)
+    expect(response.json().error).toBe('session_expired')
+
+    // The cascade deletes the session server-side: the follow-up fails without a Jellyfin call
+    const followUp = await app.inject({ method: 'GET', url: '/api/library/movie-1', headers: { authorization: `Bearer ${token}` } })
+    expect(followUp.statusCode).toBe(401)
+  })
+
   it('returns 404 for unknown items', async () => {
     const app = createServer(ctx.config)
     const { token } = await loginTestUser(app, ctx)
