@@ -105,6 +105,11 @@ export function createLolarrApiClient({
     requests() {
       return request<RequestsResponse>('/api/requests')
     },
+    deleteRequest(requestId: string) {
+      return request<RequestsResponse>(`/api/requests/${encodeURIComponent(requestId)}`, {
+        method: 'DELETE',
+      })
+    },
     qcInitiate(payload: { deviceId: string }) {
       return request<QcInitiateResponse>('/api/auth/qc/initiate', {
         method: 'POST',

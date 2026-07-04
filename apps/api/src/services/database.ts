@@ -280,6 +280,7 @@ function mapRequestRow(row: StoredRequestRow): MediaRequest {
     tmdbId: row.tmdb_id,
     title: row.title,
     status: row.status,
+    canCancel: false,
     createdAt: row.created_at,
     requestedBy: {
       id: row.user_id,

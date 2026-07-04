@@ -110,8 +110,16 @@ export const searchResponseSchema = z.object({
 })
 export type SearchResponse = z.infer<typeof searchResponseSchema>
 
+export const seasonAvailabilitySchema = z.object({
+  seasonNumber: z.number().int().positive(),
+  name: z.string().optional(),
+  availability: availabilitySchema,
+})
+export type SeasonAvailability = z.infer<typeof seasonAvailabilitySchema>
+
 export const mediaDetailResponseSchema = z.object({
   item: mediaItemSchema,
+  seasons: z.array(seasonAvailabilitySchema).optional(),
 })
 export type MediaDetailResponse = z.infer<typeof mediaDetailResponseSchema>
 
@@ -151,6 +159,7 @@ export type LibraryDetailResponse = z.infer<typeof libraryDetailResponseSchema>
 export const requestStatusSchema = z.enum([
   'pending',
   'approved',
+  'declined',
   'processing',
   'available',
   'failed',
@@ -161,8 +170,10 @@ export const mediaRequestSchema = z.object({
   id: z.string(),
   mediaType: mediaTypeSchema,
   tmdbId: z.number().int(),
-  title: z.string(),
+  title: z.string().optional(),
   status: requestStatusSchema,
+  seasons: z.array(z.number().int()).optional(),
+  canCancel: z.boolean(),
   requestedBy: userSchema,
   createdAt: z.string(),
 })
@@ -172,6 +183,7 @@ export const createRequestSchema = z.object({
   mediaType: mediaTypeSchema,
   tmdbId: z.number().int(),
   title: z.string().min(1),
+  seasons: z.array(z.number().int().positive()).nonempty().optional(),
 })
 export type CreateRequest = z.infer<typeof createRequestSchema>
 
