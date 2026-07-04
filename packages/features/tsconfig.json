@@ -3,5 +3,5 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo"
   },
-  "include": ["src", "tests"]
+  "include": ["src", "tests", "../player/src/tizen.d.ts"]
 }

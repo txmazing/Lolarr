@@ -6,6 +6,7 @@ import {
   type ShellProps,
   type TextInputComponent,
 } from '@lolarr/ui'
+import { webPlatform, type PlayerPlatform } from '@lolarr/player'
 import { ApiProvider } from './api.js'
 import {
   canUseRuntimeGatewayConfig,
@@ -29,6 +30,7 @@ export type LolarrAppProps = {
   TextInput?: TextInputComponent
   Shell?: ComponentType<ShellProps>
   storage?: KeyValueStorage
+  playerPlatform?: PlayerPlatform
 }
 
 export function LolarrApp({
@@ -36,6 +38,7 @@ export function LolarrApp({
   TextInput = DefaultTextInput,
   Shell = DefaultShell,
   storage = localStorageAdapter,
+  playerPlatform = webPlatform,
 }: LolarrAppProps) {
   const [queryClient] = useState(
     () =>
@@ -53,7 +56,12 @@ export function LolarrApp({
   return (
     <QueryClientProvider client={queryClient}>
       <Shell>
-        <LolarrExperience Action={Action} TextInput={TextInput} storage={storage} />
+        <LolarrExperience
+          Action={Action}
+          TextInput={TextInput}
+          storage={storage}
+          playerPlatform={playerPlatform}
+        />
       </Shell>
     </QueryClientProvider>
   )
@@ -63,10 +71,12 @@ function LolarrExperience({
   Action,
   TextInput,
   storage,
+  playerPlatform,
 }: {
   Action: ActionComponent
   TextInput: TextInputComponent
   storage: KeyValueStorage
+  playerPlatform: PlayerPlatform
 }) {
   const queryClient = useQueryClient()
   const [apiBaseUrl, setApiBaseUrl] = useState(() =>
@@ -133,6 +143,7 @@ function LolarrExperience({
         Action={Action}
         TextInput={TextInput}
         storage={storage}
+        playerPlatform={playerPlatform}
         apiBaseUrl={apiBaseUrl}
         token={token}
         setToken={setToken}

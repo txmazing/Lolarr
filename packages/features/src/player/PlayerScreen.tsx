@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 import { ErrorPanel, PlayerControls, type ActionComponent } from '@lolarr/ui'
-import type { PlaybackSessionHandle } from '@lolarr/player'
+import type { PlaybackSessionHandle, PlayerPlatform } from '@lolarr/player'
 import type { KeyValueStorage } from '../storage.js'
 import { AutoplayNext } from './AutoplayNext.js'
 import { usePlaybackSession } from './usePlaybackSession.js'
@@ -11,6 +11,7 @@ const PROGRESS_POLL_MS = 500
 export function PlayerScreen({
   Action,
   storage,
+  platform,
   itemId,
   title,
   resumeTicks,
@@ -20,6 +21,7 @@ export function PlayerScreen({
 }: {
   Action: ActionComponent
   storage: KeyValueStorage
+  platform: PlayerPlatform
   itemId: string
   title?: string
   resumeTicks?: number
@@ -27,9 +29,10 @@ export function PlayerScreen({
   onExit: () => void
   onPlayNext: (itemId: string, title?: string) => void
 }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { videoRef, state, errorMessage, handle } = usePlaybackSession({
+  const screenRef = useRef<HTMLDivElement>(null)
+  const { containerRef, state, errorMessage, handle } = usePlaybackSession({
     storage,
+    platform,
     itemId,
     resumeTicks,
   })
@@ -54,20 +57,39 @@ export function PlayerScreen({
     }
   }, [showControls])
 
+  const controlsVisibleRef = useRef(true)
+  useEffect(() => {
+    controlsVisibleRef.current = controlsVisible
+  }, [controlsVisible])
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       showControls()
-      if (event.key === ' ') {
+      if (event.key === ' ' || event.keyCode === 10252) {
         event.preventDefault()
         handle.current?.togglePause()
-      } else if (event.key === 'ArrowLeft') {
+      } else if (event.keyCode === 415) {
+        if (state === 'paused') {
+          handle.current?.togglePause() // MediaPlay
+        }
+      } else if (event.keyCode === 19) {
+        if (state !== 'paused') {
+          handle.current?.togglePause() // MediaPause
+        }
+      } else if (event.key === 'ArrowLeft' || event.keyCode === 412) {
         handle.current?.seekBy(-10)
-      } else if (event.key === 'ArrowRight') {
+      } else if (event.key === 'ArrowRight' || event.keyCode === 417) {
         handle.current?.seekBy(10)
+      } else if (event.keyCode === 413) {
+        onExit() // MediaStop
       } else if (event.key === 'f' || event.key === 'F') {
         toggleFullscreen()
-      } else if (event.key === 'Escape') {
-        if (document.fullscreenElement) {
+      } else if (event.key === 'Escape' || event.keyCode === 10009) {
+        if (event.key === 'Escape' && document.fullscreenElement) {
+          return
+        }
+        if (controlsVisibleRef.current) {
+          setControlsVisible(false)
           return
         }
         onExit()
@@ -75,7 +97,12 @@ export function PlayerScreen({
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [showControls, onExit, handle])
+  }, [showControls, onExit, handle, state])
+
+  useEffect(() => {
+    const unregister = platform.registerMediaKeys?.()
+    return () => unregister?.()
+  }, [platform])
 
   useEffect(() => {
     if (state === 'ended' && !seriesId) {
@@ -89,7 +116,7 @@ export function PlayerScreen({
         // ignore error when exiting fullscreen
       })
     } else {
-      containerRef.current?.requestFullscreen().catch(() => {
+      screenRef.current?.requestFullscreen().catch(() => {
         // ignore error when entering fullscreen
       })
     }
@@ -105,8 +132,8 @@ export function PlayerScreen({
   }
 
   return (
-    <div ref={containerRef} className="player-screen" onMouseMove={showControls}>
-      <video ref={videoRef} className="player-video" />
+    <div ref={screenRef} className="player-screen" onMouseMove={showControls}>
+      <div ref={containerRef} className="player-surface" />
       {state === 'loading' ? <div className="player-spinner" aria-label="Loading" /> : null}
       <PlayerControlsContainer
         Action={Action}
@@ -114,7 +141,7 @@ export function PlayerScreen({
         isPaused={state === 'paused'}
         title={title}
         handle={handle}
-        videoRef={videoRef}
+        showVolume={platform.supportsVolume}
         onFullscreen={toggleFullscreen}
         onBack={onExit}
       />
@@ -141,7 +168,7 @@ function PlayerControlsContainer({
   isPaused,
   title,
   handle,
-  videoRef,
+  showVolume,
   onFullscreen,
   onBack,
 }: {
@@ -150,7 +177,7 @@ function PlayerControlsContainer({
   isPaused: boolean
   title?: string
   handle: RefObject<PlaybackSessionHandle | null>
-  videoRef: RefObject<HTMLVideoElement | null>
+  showVolume: boolean
   onFullscreen: () => void
   onBack: () => void
 }) {
@@ -175,15 +202,14 @@ function PlayerControlsContainer({
       position={progress.position}
       duration={progress.duration}
       volume={volume}
+      showVolume={showVolume}
       title={title}
       onTogglePause={() => handle.current?.togglePause()}
       onSeekTo={(seconds) => handle.current?.seekTo(seconds)}
       onSeekBy={(seconds) => handle.current?.seekBy(seconds)}
       onVolume={(value) => {
         setVolume(value)
-        if (videoRef.current) {
-          videoRef.current.volume = value
-        }
+        handle.current?.setVolume(value)
       }}
       onFullscreen={onFullscreen}
       onBack={onBack}

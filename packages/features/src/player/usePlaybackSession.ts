@@ -2,41 +2,48 @@ import { useEffect, useRef, useState } from 'react'
 import { readJellyfinSession } from '@lolarr/jellyfin'
 import {
   createPlaybackSession,
-  WebPlayer,
   type PlaybackSessionHandle,
   type PlaybackSessionState,
+  type PlayerPlatform,
 } from '@lolarr/player'
 import type { KeyValueStorage } from '../storage.js'
 
 export function usePlaybackSession({
   storage,
+  platform,
   itemId,
   resumeTicks,
 }: {
   storage: KeyValueStorage
+  platform: PlayerPlatform
   itemId: string
   resumeTicks?: number
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const handleRef = useRef<PlaybackSessionHandle | null>(null)
   const [state, setState] = useState<PlaybackSessionState>('loading')
   const [errorMessage, setErrorMessage] = useState<string>()
 
   useEffect(() => {
     const jellyfinSession = readJellyfinSession(storage)
-    const video = videoRef.current
-    if (!jellyfinSession || !video) {
+    const container = containerRef.current
+    if (!jellyfinSession || !container) {
       setState('error')
       setErrorMessage(jellyfinSession ? 'Player unavailable' : 'Session missing — please sign in again')
       return
     }
 
-    const player = new WebPlayer(video)
+    const player = platform.createPlayer({
+      container,
+      token: jellyfinSession.accessToken,
+      serverUrl: jellyfinSession.url,
+    })
     const handle = createPlaybackSession({
       session: jellyfinSession,
       player,
       itemId,
       resumeTicks,
+      deviceProfile: platform.buildDeviceProfile(),
       onStateChange: (nextState, detail) => {
         setState(nextState)
         if (detail?.message) {
@@ -51,7 +58,7 @@ export function usePlaybackSession({
       handleRef.current = null
       void handle.stop()
     }
-  }, [storage, itemId, resumeTicks])
+  }, [storage, platform, itemId, resumeTicks])
 
-  return { videoRef, state, errorMessage, handle: handleRef }
+  return { containerRef, state, errorMessage, handle: handleRef }
 }

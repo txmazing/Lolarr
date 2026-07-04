@@ -8,6 +8,7 @@ type PlayerControlsProps = {
   position: number
   duration: number
   volume: number
+  showVolume: boolean
   title?: string
   onTogglePause: () => void
   onSeekTo: (seconds: number) => void
@@ -24,6 +25,7 @@ export function PlayerControls({
   position,
   duration,
   volume,
+  showVolume,
   title,
   onTogglePause,
   onSeekTo,
@@ -73,16 +75,18 @@ export function PlayerControls({
           <span className="player-time">
             {formatTime(position)} / {hasDuration ? formatTime(duration) : '–:––'}
           </span>
-          <input
-            className="player-volume"
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={volume}
-            onChange={(event) => onVolume(Number(event.currentTarget.value))}
-            aria-label="Volume"
-          />
+          {showVolume ? (
+            <input
+              className="player-volume"
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={volume}
+              onChange={(event) => onVolume(Number(event.currentTarget.value))}
+              aria-label="Volume"
+            />
+          ) : null}
           <Action onPress={onFullscreen} focusKey="player-fullscreen" ariaLabel="Fullscreen">⛶</Action>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import type { LoginRequest, LoginResponse, MediaItem } from '@lolarr/domain'
+import type { PlayerPlatform } from '@lolarr/player'
 import type { ActionComponent, TextInputComponent } from '@lolarr/ui'
 import { DetailScreen } from './detail/DetailScreen.js'
 import { HomeScreen } from './home/HomeScreen.js'
@@ -23,6 +24,7 @@ export function AuthenticatedExperience({
   Action,
   TextInput,
   storage,
+  playerPlatform,
   apiBaseUrl,
   token,
   setToken,
@@ -32,6 +34,7 @@ export function AuthenticatedExperience({
   Action: ActionComponent
   TextInput: TextInputComponent
   storage: KeyValueStorage
+  playerPlatform: PlayerPlatform
   apiBaseUrl: string
   token: string | undefined
   setToken: (token: string | undefined) => void
@@ -98,6 +101,7 @@ export function AuthenticatedExperience({
         key={currentScreen.itemId}
         Action={Action}
         storage={storage}
+        platform={playerPlatform}
         itemId={currentScreen.itemId}
         title={currentScreen.title}
         resumeTicks={currentScreen.resumeTicks}

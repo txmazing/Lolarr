@@ -30,6 +30,7 @@ export type PlaybackSessionHandle = {
   togglePause(): void
   seekBy(seconds: number): void
   seekTo(seconds: number): void
+  setVolume(volume: number): void
   stop(): Promise<void>
   getProgress(): { position: number; duration: number }
 }
@@ -228,6 +229,10 @@ export function createPlaybackSession(deps: {
     seekTo(seconds) {
       player.seek(seconds)
       reportProgress()
+    },
+
+    setVolume(volume: number) {
+      player.setVolume(volume)
     },
 
     async stop() {
