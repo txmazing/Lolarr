@@ -9,6 +9,7 @@ import { discoverRoutes } from './modules/discover.js'
 import { homeRoutes } from './modules/home.js'
 import { libraryRoutes } from './modules/library.js'
 import { mediaRoutes } from './modules/media.js'
+import { notificationsRoutes } from './modules/notifications.js'
 import { requestsRoutes } from './modules/requests.js'
 import { webhooksRoutes } from './modules/webhooks.js'
 import { registerAuthHook } from './plugins/auth.js'
@@ -44,6 +45,7 @@ export function createServer(config: AppConfig) {
   app.register(homeRoutes, context)
   app.register(libraryRoutes, context)
   app.register(mediaRoutes, context)
+  app.register(notificationsRoutes, context)
   app.register(requestsRoutes, context)
   app.register(webhooksRoutes, context)
 
