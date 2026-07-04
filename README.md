@@ -37,14 +37,36 @@ Run after each `tizen:sync` deploy — none of this is exercised in CI:
 ## Notifications
 
 Lolarr surfaces request-lifecycle updates (available / approved / declined / failed) as a
-one-time toast plus an unread badge on the Requests entry. It relies on Seerr's webhook agent:
+one-time toast plus an unread badge on the Requests entry. It relies on Seerr's webhook agent
+(**Settings → Notifications → Webhook**).
 
-- Set `LOLARR_WEBHOOK_SECRET` (16+ chars) in the API environment.
-- In Seerr: **Settings → Notifications → Webhook** → enable it, set the Webhook URL to
-  `http://<lolarr-api-host>:4000/api/webhooks/seerr`, put the same secret in the
-  **Authorization Header** field, and tick the *Available*, *Approved*, *Declined*, and
-  *Request Automatically Approved/Failed* notification types.
-- Matching is by Jellyfin username; a user only sees notifications for their own requests.
+**API side:** set `LOLARR_WEBHOOK_SECRET` (16+ chars) in the API environment. It is read once at
+startup — **restart the API after changing it.**
+
+**Seerr webhook fields:**
+
+| Field | Value |
+| --- | --- |
+| Webhook URL | `http://<lolarr-api-host>:4000/api/webhooks/seerr` — the host must be reachable **from the Seerr server** (not `localhost` unless Seerr runs on the same machine) |
+| Authorization Header | the **exact** `LOLARR_WEBHOOK_SECRET` value — no `Bearer` prefix, no trailing whitespace |
+| Custom Headers | leave empty (only needed if your Seerr build has no dedicated Authorization Header field, then use `{"Authorization": "<secret>"}`) |
+| Notification Types | tick only **Request Available**, **Request Approved**, **Request Declined**, and **Request Processing Failed**. Leave *Pending* and *Automatically Approved* off — the API treats them as no-ops. |
+| JSON Payload | keep Seerr's **default** — it already carries `notification_type`, `subject`, `media.media_type`, `media.tmdbId`, and `request.requestedBy_username` (all the API reads; extra fields are ignored). Its conditional `{{media}}`/`{{request}}` blocks also let the **Test** button (which has no media) return 200. |
+
+Matching is by Jellyfin username (`requestedBy_username` == the Jellyfin user name, case-insensitive,
+ASCII); a user only sees notifications for their own requests. A user who has never signed into
+Lolarr is silently dropped.
+
+**Troubleshooting the Test button:**
+
+- **401 `Invalid webhook secret`** — the API reached is running a *different* `LOLARR_WEBHOOK_SECRET`
+  than the Authorization Header sends. Confirm both match byte-for-byte and that you restarted the
+  API after editing its env. Quick local check:
+  `curl -si -XPOST http://localhost:4000/api/webhooks/seerr -H "authorization: <secret>" -H "content-type: application/json" -d '{"notification_type":"TEST_NOTIFICATION","subject":"Test"}'` → expect `200 {"ok":true}`.
+- **"could not be sent" / connection error** — Seerr cannot reach the URL (DNS, firewall, wrong host).
+  A remote Seerr cannot reach a `localhost` API; expose the API or tunnel to it.
+- **400** — only with a non-default JSON payload that always includes `media`; the Test notification
+  has no media. Use the default payload.
 
 ## Apps
 
