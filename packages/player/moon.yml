@@ -22,6 +22,7 @@ tasks:
     command: 'pnpm run typecheck'
     inputs:
       - 'src/**/*'
+      - 'tests/**/*'
       - 'tsconfig.json'
   test:
     command: 'pnpm run test'

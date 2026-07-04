@@ -16,7 +16,16 @@ describe('useScreenStore', () => {
       const initialLength = beforeReplace.stack.length
       const screenBelow = beforeReplace.stack[0]
 
-      store.replace({ name: 'detail', item: { id: 'new-item', name: 'New Item', type: 'show', rating: 8 } })
+      store.replace({
+        name: 'detail',
+        item: {
+          id: 'new-item',
+          mediaType: 'tv',
+          title: 'New Item',
+          overview: 'A brand new item',
+          availability: 'available',
+        },
+      })
 
       const updatedState = useScreenStore.getState()
       expect(updatedState.stack.length).toBe(initialLength)
@@ -33,8 +42,11 @@ describe('useScreenStore', () => {
 
       const updatedState = useScreenStore.getState()
       expect(updatedState.stack.length).toBe(1)
-      expect(updatedState.stack[0].name).toBe('libraryDetail')
-      expect(updatedState.stack[0].itemId).toBe('item-1')
+      const updatedScreen = updatedState.stack[0]
+      expect(updatedScreen.name).toBe('libraryDetail')
+      if (updatedScreen.name === 'libraryDetail') {
+        expect(updatedScreen.itemId).toBe('item-1')
+      }
     })
   })
 
