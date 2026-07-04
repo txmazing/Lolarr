@@ -1,4 +1,11 @@
-import type { MediaItem, MediaRow, MediaType, RequestStatus } from '@lolarr/domain'
+import type {
+  MediaItem,
+  MediaRequest,
+  MediaRow,
+  MediaType,
+  RequestStatus,
+  SeasonAvailability,
+} from '@lolarr/domain'
 import type { AppConfig } from '../config.js'
 import { UpstreamError } from '../lib/errors.js'
 import type { SeerrSessionService } from '../services/seerrSession.js'
@@ -219,6 +226,109 @@ export function mapSeerrAvailability(
     default:
       return 'requestable'
   }
+}
+
+export function mapSeerrRequestStatus(
+  requestStatus: number | undefined,
+  mediaStatus: number | undefined,
+): RequestStatus {
+  if (requestStatus === 3) {
+    return 'declined'
+  }
+  if (requestStatus === 4) {
+    return 'failed'
+  }
+  if (requestStatus === 2) {
+    if (mediaStatus === 5) {
+      return 'available'
+    }
+    if (mediaStatus === 3 || mediaStatus === 4) {
+      return 'processing'
+    }
+    return 'approved'
+  }
+  return 'pending'
+}
+
+export function mapSeerrRequest(value: unknown): MediaRequest | undefined {
+  if (!isRecord(value)) {
+    return undefined
+  }
+
+  const media = isRecord(value.media) ? value.media : undefined
+  const requestId = readNumber(value, ['id'])
+  const tmdbId = readNumber(media, ['tmdbId'])
+  const mediaType = readString(media ?? {}, ['mediaType'])
+
+  if (requestId === undefined || tmdbId === undefined || (mediaType !== 'movie' && mediaType !== 'tv')) {
+    return undefined
+  }
+
+  const status = mapSeerrRequestStatus(readNumber(value, ['status']), readNumber(media, ['status']))
+  const requestedBy = isRecord(value.requestedBy) ? value.requestedBy : undefined
+  const requestedById = readNumber(requestedBy, ['id'])
+  const seasons = Array.isArray(value.seasons)
+    ? value.seasons
+        .map((season) => (isRecord(season) ? readNumber(season, ['seasonNumber']) : undefined))
+        .filter((seasonNumber): seasonNumber is number => typeof seasonNumber === 'number' && seasonNumber > 0)
+    : []
+
+  return {
+    id: String(requestId),
+    mediaType,
+    tmdbId,
+    title: readString(media, ['title', 'name']),
+    status,
+    seasons: seasons.length > 0 ? seasons : undefined,
+    canCancel: status === 'pending' || status === 'approved',
+    requestedBy: {
+      id: requestedById !== undefined ? String(requestedById) : 'unknown',
+      name: readString(requestedBy ?? {}, ['displayName', 'username', 'email']) ?? 'Unknown user',
+    },
+    createdAt: readString(value, ['createdAt']) ?? '',
+  }
+}
+
+export function mapSeasonAvailabilities(value: unknown): SeasonAvailability[] {
+  if (!isRecord(value) || !Array.isArray(value.seasons)) {
+    return []
+  }
+
+  const mediaInfo = isRecord(value.mediaInfo) ? value.mediaInfo : undefined
+  const statusBySeason = new Map<number, number>()
+  if (mediaInfo && Array.isArray(mediaInfo.seasons)) {
+    for (const season of mediaInfo.seasons) {
+      if (!isRecord(season)) {
+        continue
+      }
+      const seasonNumber = readNumber(season, ['seasonNumber'])
+      const status = readNumber(season, ['status'])
+      if (seasonNumber !== undefined && status !== undefined) {
+        statusBySeason.set(seasonNumber, status)
+      }
+    }
+  }
+
+  return value.seasons
+    .map((season) => {
+      if (!isRecord(season)) {
+        return undefined
+      }
+      const seasonNumber = readNumber(season, ['seasonNumber'])
+      if (seasonNumber === undefined || seasonNumber <= 0) {
+        return undefined
+      }
+      const name = readString(season, ['name'])
+      const result: SeasonAvailability = {
+        seasonNumber,
+        availability: mapSeerrAvailability(statusBySeason.get(seasonNumber)),
+      }
+      if (name !== undefined) {
+        result.name = name
+      }
+      return result
+    })
+    .filter((season): season is SeasonAvailability => season !== undefined)
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
