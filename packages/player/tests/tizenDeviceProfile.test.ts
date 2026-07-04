@@ -22,6 +22,22 @@ describe('detectTizenYear', () => {
     expect(detectTizenYear(source({ model: 'UN55RU8000' }))).toBe(2019)
   })
 
+  it('detects the QLED year letter, not the series letter (QN65Q80A -> 2021)', () => {
+    expect(detectTizenYear(source({ model: 'QN65Q80A' }))).toBe(2021)
+  })
+
+  it('detects the QLED year letter with a region suffix (QN65Q80AAFXZA -> 2021)', () => {
+    expect(detectTizenYear(source({ model: 'QN65Q80AAFXZA' }))).toBe(2021)
+  })
+
+  it('detects the Neo QLED year letter (QN65QN90B -> 2022)', () => {
+    expect(detectTizenYear(source({ model: 'QN65QN90B' }))).toBe(2022)
+  })
+
+  it('detects The Frame year letter (QN43LS03BAFXZA -> 2022)', () => {
+    expect(detectTizenYear(source({ model: 'QN43LS03BAFXZA' }))).toBe(2022)
+  })
+
   it('falls back to a firmware year', () => {
     expect(detectTizenYear(source({ firmware: 'T-KTMAKUC-2024.1' }))).toBe(2024)
   })

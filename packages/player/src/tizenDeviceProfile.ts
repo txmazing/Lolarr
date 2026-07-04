@@ -115,8 +115,20 @@ function yearFromModel(model: string | undefined): number | undefined {
   if (!model) {
     return undefined
   }
-  const match = model.match(/\d{2}([A-Z])/)
-  return match ? MODEL_YEAR[match[1]] : undefined
+  // QLED / Neo QLED / The Frame: the year letter follows the series token
+  // (Q80A, QN90B, LS03B), so a naive "digits then a letter" scan grabs the
+  // series letter (Q/LS) instead. Skip the series letter(s) and their digits.
+  const qled = model.match(/\d{2}[A-Z]{1,2}\d{2}([A-Z])/)
+  if (qled && MODEL_YEAR[qled[1]] !== undefined) {
+    return MODEL_YEAR[qled[1]]
+  }
+  // LED / Crystal UHD (RU8000, NU7100): the year letter sits right after the
+  // panel size and is itself followed by the series letter.
+  const led = model.match(/\d{2}([A-Z])[A-Z]/)
+  if (led && MODEL_YEAR[led[1]] !== undefined) {
+    return MODEL_YEAR[led[1]]
+  }
+  return undefined
 }
 
 function yearFromFirmware(firmware: string | undefined): number | undefined {
