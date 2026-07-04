@@ -156,6 +156,28 @@ describe('AVPlayPlayer', () => {
     expect(fake.calls).toContain('seek:10000')
   })
 
+  it('warns and gives up when seekTo keeps throwing past the retry limit', () => {
+    const { player } = makePlayer()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    fake.seekThrows = 20 // exceeds SEEK_RETRY_LIMIT
+    player.seek(10)
+    vi.runAllTimers()
+    expect(fake.calls).not.toContain('seek:10000')
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
+  it('warns when neither user-agent streaming property can be set', async () => {
+    const { player } = makePlayer()
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    fake.avplay.setStreamingProperty = () => {
+      throw new Error('unsupported')
+    }
+    await player.load(hlsSource, {})
+    expect(warn).toHaveBeenCalled()
+    warn.mockRestore()
+  })
+
   it('maps onstreamcompleted to ended and onerror to error', async () => {
     const { player } = makePlayer()
     const events: string[] = []

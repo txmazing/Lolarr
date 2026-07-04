@@ -72,7 +72,11 @@ export class AVPlayPlayer implements Player {
       try {
         webapis.avplay.setStreamingProperty('USER_AGENT', USER_AGENT)
       } catch {
-        webapis.avplay.setStreamingProperty('USERAGENT', USER_AGENT)
+        try {
+          webapis.avplay.setStreamingProperty('USERAGENT', USER_AGENT)
+        } catch (error) {
+          console.warn('[avplay] failed to set the streaming user-agent', error)
+        }
       }
     }
 
@@ -206,6 +210,8 @@ export class AVPlayPlayer implements Player {
     } catch (error) {
       if (attempt < SEEK_RETRY_LIMIT && isInvalidState(error)) {
         setTimeout(() => this.seekWithRetry(ms, attempt + 1), SEEK_RETRY_DELAY_MS)
+      } else {
+        console.warn(`[avplay] seekTo(${ms}) gave up after ${attempt} retries`, error)
       }
     }
   }
