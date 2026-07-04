@@ -65,6 +65,24 @@ describe('SeerrSessionService', () => {
     expect(result).toEqual({ results: [] })
   })
 
+  it('throws an UpstreamError when seerr still answers 401 after cookie renewal', async () => {
+    db.saveSeerrCookie(user.id, 'connect.sid=s%3Astale')
+    ctx.seerr
+      .intercept({ path: '/api/v1/request', method: 'GET' })
+      .reply(401, {})
+    mockSilentQuickConnect(ctx)
+    // Retry with the fresh cookie is rejected again — must surface as
+    // UpstreamError instead of looping into another renewal.
+    ctx.seerr
+      .intercept({ path: '/api/v1/request', method: 'GET' })
+      .reply(401, {})
+
+    await expect(service.fetchWithSession(user.id, '/api/v1/request')).rejects.toMatchObject({
+      name: 'UpstreamError',
+      status: 401,
+    })
+  })
+
   it('maps a rejected jellyfin token to JellyfinTokenInvalidError', async () => {
     ctx.seerr
       .intercept({ path: '/api/v1/auth/jellyfin/quickconnect/initiate', method: 'POST' })
