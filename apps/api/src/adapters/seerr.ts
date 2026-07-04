@@ -315,7 +315,9 @@ export function mapSeerrRequestStatus(
   if (requestStatus === 4) {
     return 'failed'
   }
-  if (requestStatus === 2) {
+  // Seerr MediaRequestStatus: 2 = APPROVED, 5 = COMPLETED. Both mean the request
+  // is past approval; the concrete state comes from the media status below.
+  if (requestStatus === 2 || requestStatus === 5) {
     if (mediaStatus === 5) {
       return 'available'
     }

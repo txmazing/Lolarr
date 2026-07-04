@@ -15,6 +15,10 @@ describe('mapSeerrRequestStatus', () => {
     [2, 4, 'processing'],
     [2, 1, 'approved'],
     [2, undefined, 'approved'],
+    [5, 5, 'available'],
+    [5, 4, 'processing'],
+    [5, 3, 'processing'],
+    [5, 1, 'approved'],
     [undefined, undefined, 'pending'],
   ])('maps request status %s with media status %s to %s', (requestStatus, mediaStatus, expected) => {
     expect(mapSeerrRequestStatus(requestStatus, mediaStatus)).toBe(expected)
