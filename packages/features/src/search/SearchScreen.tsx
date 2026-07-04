@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useDeferredValue, useState } from 'react'
 import type { MediaItem } from '@lolarr/domain'
 import {
@@ -42,6 +42,9 @@ export function SearchScreen({
     queryKey: ['search', apiBaseUrl, deferredQuery],
     queryFn: () => api.search(deferredQuery),
     enabled: deferredQuery.length >= 2,
+    // Keep the previous results mounted while typing so the focused poster
+    // does not unmount mid-navigation on TV.
+    placeholderData: keepPreviousData,
   })
 
   const results = searchQuery.data?.results ?? []
@@ -57,7 +60,13 @@ export function SearchScreen({
         Back
       </Action>
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
-      {searchQuery.error ? <ErrorPanel message={readErrorMessage(searchQuery.error)} /> : null}
+      {searchQuery.error ? (
+        <ErrorPanel
+          message={readErrorMessage(searchQuery.error)}
+          Action={Action}
+          onRetry={() => void searchQuery.refetch()}
+        />
+      ) : null}
       {searchQuery.isLoading ? <LoadingPanel /> : null}
       {deferredQuery.length < 2 ? (
         <p className="empty-state">Type at least two characters to search.</p>
