@@ -78,4 +78,13 @@ describe('useScreenStore', () => {
       }
     })
   })
+
+  it('supports search and requests screens', () => {
+    const store = useScreenStore.getState()
+    store.push({ name: 'search' })
+    store.push({ name: 'requests' })
+    const stack = useScreenStore.getState().stack
+    expect(stack[stack.length - 2]).toEqual({ name: 'search' })
+    expect(stack[stack.length - 1]).toEqual({ name: 'requests' })
+  })
 })

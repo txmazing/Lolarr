@@ -6,6 +6,8 @@ export type Screen =
   | { name: 'detail'; item: MediaItem }
   | { name: 'libraryDetail'; itemId: string }
   | { name: 'player'; itemId: string; resumeTicks?: number; seriesId?: string }
+  | { name: 'search' }
+  | { name: 'requests' }
 
 type ScreenState = {
   stack: Screen[]

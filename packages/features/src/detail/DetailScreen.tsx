@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import type { MediaItem } from '@lolarr/domain'
-import { AppFrame, DetailPanel, type ActionComponent } from '@lolarr/ui'
+import { AppFrame, DetailPanel, SeasonRequestPicker, type ActionComponent } from '@lolarr/ui'
 import { useApi } from '../api.js'
+import { readErrorMessage } from '../lib/errors.js'
 import { useRequests } from '../requests/useRequests.js'
 
 export function DetailScreen({
@@ -33,9 +35,19 @@ export function DetailScreen({
     enabled: tmdbId !== undefined,
   })
 
-  const { createRequest, isRequesting } = useRequests({ apiBaseUrl, enabled: true })
+  const { createRequest, isRequesting, requestError } = useRequests({ apiBaseUrl, enabled: true })
+  const [showSeasonPicker, setShowSeasonPicker] = useState(false)
 
   const detailItem = detailQuery.data?.item ?? selectedItem
+  const seasons = detailQuery.data?.seasons ?? []
+
+  function handleRequest(item: MediaItem) {
+    if (item.mediaType === 'tv' && seasons.length > 0) {
+      setShowSeasonPicker(true)
+      return
+    }
+    createRequest(item)
+  }
 
   return (
     <AppFrame
@@ -47,10 +59,25 @@ export function DetailScreen({
       <DetailPanel
         item={detailItem}
         isRequesting={isRequesting}
+        requestError={
+          !showSeasonPicker && requestError ? readErrorMessage(requestError) : undefined
+        }
         onBack={onBack}
-        onRequest={createRequest}
+        onRequest={handleRequest}
         Action={Action}
       />
+      {showSeasonPicker ? (
+        <SeasonRequestPicker
+          seasons={seasons}
+          isRequesting={isRequesting}
+          errorMessage={requestError ? readErrorMessage(requestError) : undefined}
+          onConfirm={(selection) =>
+            createRequest(detailItem, selection, { onSuccess: () => setShowSeasonPicker(false) })
+          }
+          onClose={() => setShowSeasonPicker(false)}
+          Action={Action}
+        />
+      ) : null}
     </AppFrame>
   )
 }
