@@ -1,10 +1,11 @@
-import type { Availability, MediaItem } from '@lolarr/domain'
+import type { Availability, MediaItem, MediaType } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { StatusBadge } from './StatusBadge'
 
 type DetailPanelProps = {
   item: MediaItem
   isRequesting?: boolean
+  requestError?: string
   onBack: () => void
   onRequest: (item: MediaItem) => void
   Action: ActionComponent
@@ -13,12 +14,15 @@ type DetailPanelProps = {
 export function DetailPanel({
   item,
   isRequesting,
+  requestError,
   onBack,
   onRequest,
   Action,
 }: DetailPanelProps) {
   const canRequest =
-    item.availability === 'requestable' || item.availability === 'unavailable'
+    item.availability === 'requestable' ||
+    item.availability === 'unavailable' ||
+    (item.mediaType === 'tv' && item.availability === 'partiallyAvailable')
 
   return (
     <section className="detail-panel">
@@ -48,8 +52,9 @@ export function DetailPanel({
               onPress={() => onRequest(item)}
               focusKey={`request-${item.mediaType}-${item.tmdbId}`}
             >
-              {requestLabel(item.availability, Boolean(isRequesting))}
+              {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
             </Action>
+            {requestError ? <p className="request-error">{requestError}</p> : null}
           </div>
         </div>
       </div>
@@ -57,13 +62,17 @@ export function DetailPanel({
   )
 }
 
-function requestLabel(availability: Availability, isRequesting: boolean) {
+function requestLabel(mediaType: MediaType, availability: Availability, isRequesting: boolean) {
   if (isRequesting) {
     return 'Requesting...'
   }
 
-  if (availability === 'available' || availability === 'partiallyAvailable') {
+  if (availability === 'available') {
     return 'Available in Jellyfin'
+  }
+
+  if (availability === 'partiallyAvailable') {
+    return mediaType === 'tv' ? 'Request more seasons' : 'Available in Jellyfin'
   }
 
   if (availability === 'requested') {

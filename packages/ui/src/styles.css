@@ -695,3 +695,108 @@ button:disabled {
 }
 
 @keyframes player-spin { to { transform: rotate(360deg); } }
+
+/* Slice 4: requests & availability */
+.request-status-pending,
+.request-status-approved {
+  background: rgba(230, 180, 60, 0.18);
+  color: #e6c46a;
+}
+
+.request-status-processing {
+  background: rgba(110, 160, 230, 0.18);
+  color: #8fb7ef;
+}
+
+.request-status-available {
+  background: rgba(90, 200, 120, 0.18);
+  color: #7fd68f;
+}
+
+.request-status-declined,
+.request-status-failed {
+  background: rgba(220, 90, 90, 0.18);
+  color: #e08d8d;
+}
+
+.media-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.media-card-meta .status-badge {
+  font-size: 0.62rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.request-title {
+  font-weight: 600;
+}
+
+.request-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.request-error {
+  color: #e08d8d;
+  font-size: 0.85rem;
+}
+
+.season-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+
+.season-picker {
+  background: #14151c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: min(28rem, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.season-picker ul {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.season-option {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.season-option.selected {
+  outline: 2px solid var(--accent);
+}
+
+.season-picker-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.home-header-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}

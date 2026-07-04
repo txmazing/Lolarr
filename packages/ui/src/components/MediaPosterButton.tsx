@@ -1,6 +1,6 @@
 import type { MediaItem } from '@lolarr/domain'
 import type { ActionComponent } from './types'
-import { labelForAvailability } from './availabilityLabels'
+import { StatusBadge } from './StatusBadge'
 
 export function MediaPosterButton({
   item,
@@ -37,8 +37,8 @@ export function MediaPosterButton({
       </span>
       <span className="media-card-title">{item.title}</span>
       <span className="media-card-meta">
-        {item.year ? `${item.year} · ` : ''}
-        {labelForAvailability(item.availability)}
+        {item.year ? <span>{item.year}</span> : null}
+        <StatusBadge availability={item.availability} />
       </span>
       {item.jellyfin?.episode ? (
         <span className="poster-subtitle">{`S${item.jellyfin.episode.season} · E${item.jellyfin.episode.number}`}</span>

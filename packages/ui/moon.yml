@@ -23,6 +23,11 @@ tasks:
     inputs:
       - 'src/**/*'
       - '/eslint.config.js'
+  test:
+    command: 'pnpm run test'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
   typecheck:
     command: 'pnpm run typecheck'
     deps:

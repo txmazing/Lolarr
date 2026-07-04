@@ -109,7 +109,7 @@ export function HomeScreen({
           Action={Action}
         />
       ))}
-      <RequestList requests={requests} />
+      <RequestList requests={requests} Action={Action} />
     </AppFrame>
   )
 }
