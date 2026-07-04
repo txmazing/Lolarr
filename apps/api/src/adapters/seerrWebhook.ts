@@ -1,13 +1,17 @@
 import { z } from 'zod'
 
+// Deliberately lenient: Seerr's Test button and non-media events post the media
+// and request blocks with empty-string fields, so strict typing here would 400 a
+// well-formed body. Only genuinely unparseable JSON is a 400; a well-formed but
+// incomplete payload is validated in mapWebhookToNotification and becomes a no-op.
 export const seerrWebhookSchema = z
   .object({
     notification_type: z.string(),
     subject: z.string().optional(),
     media: z
       .object({
-        media_type: z.enum(['movie', 'tv']),
-        tmdbId: z.coerce.number().int(),
+        media_type: z.string().optional(),
+        tmdbId: z.union([z.string(), z.number()]).optional(),
         status: z.string().optional(),
       })
       .optional(),
@@ -46,15 +50,29 @@ export function mapWebhookToNotification(payload: SeerrWebhookPayload): MappedNo
   const kind = Object.hasOwn(TYPE_TO_KIND, payload.notification_type)
     ? TYPE_TO_KIND[payload.notification_type]
     : undefined
+  const mediaType = normalizeMediaType(payload.media?.media_type)
+  const tmdbId = coerceTmdbId(payload.media?.tmdbId)
   const username = payload.request?.requestedBy_username
-  if (!kind || !payload.media || !payload.subject || !username) {
+  if (!kind || mediaType === undefined || tmdbId === undefined || !payload.subject || !username) {
     return null
   }
   return {
     kind,
-    tmdbId: payload.media.tmdbId,
-    mediaType: payload.media.media_type,
+    tmdbId,
+    mediaType,
     title: payload.subject,
     username,
   }
+}
+
+function normalizeMediaType(value: string | undefined): 'movie' | 'tv' | undefined {
+  return value === 'movie' || value === 'tv' ? value : undefined
+}
+
+function coerceTmdbId(value: string | number | undefined): number | undefined {
+  if (value === undefined || value === '') {
+    return undefined
+  }
+  const parsed = typeof value === 'number' ? value : Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }

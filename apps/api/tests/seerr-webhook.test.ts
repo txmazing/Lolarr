@@ -47,6 +47,22 @@ describe('mapWebhookToNotification', () => {
     expect(result?.kind).toBe('available')
   })
 
+  it('parses and drops a Seerr Test notification with empty media/request fields', () => {
+    const testPayload = {
+      notification_type: 'TEST_NOTIFICATION',
+      subject: 'Test Notification',
+      media: { media_type: '', tmdbId: '', status: '' },
+      request: { requestedBy_username: '' },
+    }
+    expect(mapWebhookToNotification(seerrWebhookSchema.parse(testPayload))).toBeNull()
+  })
+
+  it('drops a mapped event whose media is present but empty instead of throwing', () => {
+    expect(
+      mapWebhookToNotification(seerrWebhookSchema.parse(payload({ media: { media_type: '', tmdbId: '' } }))),
+    ).toBeNull()
+  })
+
   it.each(['constructor', 'toString', '__proto__'])(
     'returns null for the prototype-chain key %s instead of resolving an inherited member',
     (type) => {

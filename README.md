@@ -65,8 +65,9 @@ Lolarr is silently dropped.
   `curl -si -XPOST http://localhost:4000/api/webhooks/seerr -H "authorization: <secret>" -H "content-type: application/json" -d '{"notification_type":"TEST_NOTIFICATION","subject":"Test"}'` → expect `200 {"ok":true}`.
 - **"could not be sent" / connection error** — Seerr cannot reach the URL (DNS, firewall, wrong host).
   A remote Seerr cannot reach a `localhost` API; expose the API or tunnel to it.
-- **400** — only with a non-default JSON payload that always includes `media`; the Test notification
-  has no media. Use the default payload.
+- **400 `Malformed webhook payload`** — only for genuinely unparseable JSON (bad syntax). Well-formed
+  payloads, including the default-template Test notification (whose `media`/`request` fields arrive
+  empty), are accepted as a `200` no-op.
 
 ## Apps
 

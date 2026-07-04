@@ -73,6 +73,17 @@ describe('POST /api/webhooks/seerr', () => {
     expect(rows[0]).toMatchObject({ kind: 'available', tmdbId: 550, title: 'Fight Club (1999)' })
   })
 
+  it('accepts the Seerr Test notification (empty media) as a 200 no-op', async () => {
+    const response = await postWebhook(app, {
+      notification_type: 'TEST_NOTIFICATION',
+      subject: 'Test Notification',
+      media: { media_type: '', tmdbId: '', status: '' },
+      request: { requestedBy_username: '' },
+    })
+    expect(response.statusCode).toBe(200)
+    expect(storedNotifications()).toHaveLength(0)
+  })
+
   it('acks but drops a no-op notification type (200, no row)', async () => {
     const response = await postWebhook(app, webhookBody({ notification_type: 'MEDIA_PENDING' }))
     expect(response.statusCode).toBe(200)
