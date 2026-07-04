@@ -39,7 +39,7 @@ export class WebPlayer implements Player {
       this.hls.loadSource(source.url)
       this.hls.attachMedia(this.video)
     } else {
-      // direct play — oder natives HLS (Safari)
+      // direct play — or native HLS (Safari)
       this.video.src = source.url
     }
 

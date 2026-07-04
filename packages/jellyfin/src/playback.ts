@@ -175,7 +175,7 @@ export async function reportPlaybackStopped(session: JellyfinSession, info: Play
   await jellyfinRequest(session, '/Sessions/Playing/Stopped', { method: 'POST', body: progressBody(info) })
 }
 
-// sendBeacon kann keine Header setzen — Token als Query-Param.
+// sendBeacon cannot set headers — pass the token as a query param.
 export function buildStoppedBeaconPayload(session: JellyfinSession, info: PlaybackProgressInfo) {
   return {
     url: `${session.url}/Sessions/Playing/Stopped?api_key=${encodeURIComponent(session.accessToken)}`,
