@@ -77,7 +77,13 @@ export function HomeScreen({
           Requests
         </Action>
       </div>
-      {homeQuery.error ? <ErrorPanel message={readErrorMessage(homeQuery.error)} /> : null}
+      {homeQuery.error ? (
+        <ErrorPanel
+          message={readErrorMessage(homeQuery.error)}
+          Action={Action}
+          onRetry={() => void homeQuery.refetch()}
+        />
+      ) : null}
       <HeroPanel
         item={featuredItem}
         onOpen={
