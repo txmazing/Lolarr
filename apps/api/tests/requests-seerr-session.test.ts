@@ -33,7 +33,10 @@ describe('POST /api/requests uses the user seerr session', () => {
           return true
         },
       })
-      .reply(201, { id: 42 }, { headers: { 'content-type': 'application/json' } })
+      .reply(201, { id: 42, status: 1, media: { mediaType: 'movie', tmdbId: 550, status: 2 } }, { headers: { 'content-type': 'application/json' } })
+    ctx.seerr
+      .intercept({ path: '/api/v1/request', method: 'GET', query: { take: '50', sort: 'added' } })
+      .reply(200, { results: [] }, { headers: { 'content-type': 'application/json' } })
 
     const app = createServer(ctx.config)
     const login = await app.inject({

@@ -1,4 +1,5 @@
 import type {
+  CreateRequest,
   MediaItem,
   MediaRequest,
   MediaRow,
@@ -16,6 +17,7 @@ export class SeerrAdapter {
   private readonly config: AppConfig
   private readonly sessions: SeerrSessionService
   private discoverCache: { rows: MediaRow[]; fetchedAt: number } | undefined
+  private readonly titleCache = new Map<string, string>()
 
   constructor(config: AppConfig, sessions: SeerrSessionService) {
     this.config = config
@@ -48,31 +50,87 @@ export class SeerrAdapter {
     return extractItems(response)
   }
 
-  async media(mediaType: MediaType, tmdbId: number): Promise<MediaItem | undefined> {
-    const response = await this.request(`/api/v1/media/${mediaType}/${tmdbId}`)
-    return mapSeerrItem(response, mediaType)
-  }
-
-  async requestMedia(
-    userId: string,
+  async media(
     mediaType: MediaType,
     tmdbId: number,
-  ): Promise<{ status: RequestStatus; seerrRequestId?: string }> {
-    const payload =
-      mediaType === 'movie'
-        ? { mediaType, mediaId: tmdbId }
-        : { mediaType, mediaId: tmdbId, seasons: 'all' }
+  ): Promise<{ item: MediaItem; seasons?: SeasonAvailability[] } | undefined> {
+    const path = mediaType === 'movie' ? `/api/v1/movie/${tmdbId}` : `/api/v1/tv/${tmdbId}`
+    const response = await this.request(path)
+    const item = mapSeerrItem(response, mediaType)
+
+    if (!item) {
+      return undefined
+    }
+
+    if (mediaType === 'movie') {
+      return { item }
+    }
+
+    return { item, seasons: mapSeasonAvailabilities(response) }
+  }
+
+  async requestMedia(userId: string, payload: CreateRequest): Promise<MediaRequest | undefined> {
+    const body =
+      payload.mediaType === 'movie'
+        ? { mediaType: 'movie', mediaId: payload.tmdbId }
+        : { mediaType: 'tv', mediaId: payload.tmdbId, seasons: payload.seasons ?? 'all' }
 
     const response = await this.sessions.fetchWithSession(userId, '/api/v1/request', {
       method: 'POST',
-      body: payload,
+      body,
     })
 
-    const requestId = readNumber(response, ['id', 'requestId'])
     this.discoverCache = undefined
-    return {
-      status: 'pending',
-      seerrRequestId: requestId ? String(requestId) : undefined,
+    const request = mapSeerrRequest(response)
+    if (request && !request.title) {
+      request.title = payload.title
+    }
+    return request
+  }
+
+  async listRequests(userId: string): Promise<MediaRequest[]> {
+    const response = await this.sessions.fetchWithSession(userId, '/api/v1/request?take=50&sort=added')
+    const results = isRecord(response) && Array.isArray(response.results) ? response.results : []
+    const requests = results
+      .map((entry) => mapSeerrRequest(entry))
+      .filter((request): request is MediaRequest => request !== undefined)
+    await this.fillMissingTitles(requests)
+    return requests
+  }
+
+  async deleteRequest(userId: string, requestId: string): Promise<void> {
+    await this.sessions.fetchWithSession(userId, `/api/v1/request/${encodeURIComponent(requestId)}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Seerr's request listing carries no display title; details are fetched once
+  // per (mediaType, tmdbId) and cached for the process lifetime (titles are
+  // effectively immutable). Failures degrade to the UI's TMDB-id fallback.
+  private async fillMissingTitles(requests: MediaRequest[]) {
+    const missing = new Map<string, { mediaType: MediaType; tmdbId: number }>()
+    for (const request of requests) {
+      const key = `${request.mediaType}-${request.tmdbId}`
+      if (!request.title && !this.titleCache.has(key)) {
+        missing.set(key, { mediaType: request.mediaType, tmdbId: request.tmdbId })
+      }
+    }
+
+    await Promise.all(
+      [...missing.entries()].map(async ([key, target]) => {
+        try {
+          const detail = await this.media(target.mediaType, target.tmdbId)
+          if (detail) {
+            this.titleCache.set(key, detail.item.title)
+          }
+        } catch {
+          // best effort — see comment above
+        }
+      }),
+    )
+
+    for (const request of requests) {
+      request.title ??= this.titleCache.get(`${request.mediaType}-${request.tmdbId}`)
     }
   }
 

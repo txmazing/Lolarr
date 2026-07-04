@@ -12,12 +12,12 @@ export async function mediaRoutes(app: FastifyInstance, { seerr }: AppContext) {
       return reply.code(400).send({ error: 'Invalid TMDB id' })
     }
 
-    const item = await seerr.media(mediaType, tmdbId)
+    const detail = await seerr.media(mediaType, tmdbId)
 
-    if (!item) {
+    if (!detail) {
       return reply.code(404).send({ error: 'Media item not found' })
     }
 
-    return { item }
+    return { item: detail.item, seasons: detail.seasons }
   })
 }
