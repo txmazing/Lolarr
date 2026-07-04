@@ -36,7 +36,7 @@ export function useRequests({ apiBaseUrl, enabled }: { apiBaseUrl: string; enabl
 
   const cancelMutation = useMutation({
     mutationFn: (requestId: string) => api.deleteRequest(requestId),
-    onSuccess: invalidateAfterChange,
+    onSettled: invalidateAfterChange,
   })
 
   return {
