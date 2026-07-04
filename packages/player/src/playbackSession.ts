@@ -247,13 +247,13 @@ export function createPlaybackSession(deps: {
       for (const unsubscribe of unsubscribes) {
         unsubscribe()
       }
+      player.dispose()
       if (info) {
         await api.reportPlaybackStopped(session, info).catch(() => {})
         if (current?.source.kind === 'hls') {
           await api.stopActiveEncodings(session, current.playSessionId).catch(() => {})
         }
       }
-      player.dispose()
     },
 
     getProgress() {
