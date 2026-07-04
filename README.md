@@ -24,6 +24,16 @@ default `webPlatform` (HTML5 `<video>` + hls.js). Requirements on the TV:
   detects the model year to enable HEVC/VP9/AV1 where available.
 - On-device verification is manual — there is no Tizen emulator in CI.
 
+### On-device smoke checklist
+
+Run after each `tizen:sync` deploy — none of this is exercised in CI:
+
+- [ ] **Cold-start play** — pick a movie, playback begins from the device profile without a lingering AVPlay session error.
+- [ ] **Resume** — reopen a partially watched title and confirm it seeks to the saved position (HLS resume is deferred ~1.5s after play).
+- [ ] **Next episode** — let an episode finish (or skip to the end) and confirm the next one loads without a stuck/black AVPlay surface.
+- [ ] **Back cascade** — the Back/Return key (10009) first hides the controls, then exits the player.
+- [ ] **Media keys** — Play/Pause/Stop and Rewind/Fast-Forward on the remote drive the player.
+
 ## Apps
 
 - `apps/api` - Fastify gateway for Jellyfin login, Seerr discovery, requests, and SQLite persistence.
