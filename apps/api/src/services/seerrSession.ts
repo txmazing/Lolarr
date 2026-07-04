@@ -53,7 +53,14 @@ export class SeerrSessionService {
       response = await this.seerrFetch(path, { ...init, cookie })
     }
 
-    assertOk(response, `Seerr request failed: ${path}`)
+    if (!response.ok) {
+      throw new UpstreamError('seerr', response.status, await readSeerrErrorMessage(response, path))
+    }
+
+    if (response.status === 204) {
+      return undefined
+    }
+
     return response.json()
   }
 
@@ -124,6 +131,15 @@ export class SeerrSessionService {
 function assertOk(response: Response, message: string) {
   if (!response.ok) {
     throw new UpstreamError('seerr', response.status, message)
+  }
+}
+
+async function readSeerrErrorMessage(response: Response, path: string) {
+  try {
+    const payload = (await response.json()) as { message?: string; error?: string }
+    return payload.message ?? payload.error ?? `Seerr request failed: ${path}`
+  } catch {
+    return `Seerr request failed: ${path}`
   }
 }
 

@@ -75,4 +75,25 @@ describe('SeerrSessionService', () => {
 
     await expect(service.ensureSession(user.id)).rejects.toBeInstanceOf(JellyfinTokenInvalidError)
   })
+
+  it('returns undefined for 204 responses', async () => {
+    db.saveSeerrCookie(user.id, 'connect.sid=s%3Afresh')
+    ctx.seerr
+      .intercept({ path: '/api/v1/request/10', method: 'DELETE' })
+      .reply(204)
+
+    const result = await service.fetchWithSession(user.id, '/api/v1/request/10', { method: 'DELETE' })
+    expect(result).toBeUndefined()
+  })
+
+  it('throws an upstream error carrying the seerr message on 4xx', async () => {
+    db.saveSeerrCookie(user.id, 'connect.sid=s%3Afresh')
+    ctx.seerr
+      .intercept({ path: '/api/v1/request', method: 'POST' })
+      .reply(403, { message: 'Quota exceeded' }, { headers: { 'content-type': 'application/json' } })
+
+    await expect(
+      service.fetchWithSession(user.id, '/api/v1/request', { method: 'POST', body: {} }),
+    ).rejects.toMatchObject({ name: 'UpstreamError', status: 403, message: 'Quota exceeded' })
+  })
 })

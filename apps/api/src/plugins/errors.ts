@@ -30,6 +30,18 @@ export function registerErrorHandler(app: FastifyInstance, database: LolarrDatab
 
     if (error instanceof UpstreamError) {
       request.log.error({ err: error }, 'upstream request failed')
+      // Seerr client errors (quota, permission, not found) carry a user-facing
+      // message. 401 stays a 502: it only occurs after the silent-QC retry
+      // failed, and returning 401 here would wrongly end the Lolarr session.
+      if (
+        error.service === 'seerr' &&
+        error.status !== undefined &&
+        error.status >= 400 &&
+        error.status < 500 &&
+        error.status !== 401
+      ) {
+        return reply.code(error.status).send({ error: error.message })
+      }
       return reply.code(502).send({ error: `${error.service}_unreachable` })
     }
 
