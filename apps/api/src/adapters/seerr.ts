@@ -55,7 +55,19 @@ export class SeerrAdapter {
     tmdbId: number,
   ): Promise<{ item: MediaItem; seasons?: SeasonAvailability[] } | undefined> {
     const path = mediaType === 'movie' ? `/api/v1/movie/${tmdbId}` : `/api/v1/tv/${tmdbId}`
-    const response = await this.request(path)
+
+    let response: unknown
+    try {
+      response = await this.request(path)
+    } catch (error) {
+      // Seerr answers 404 for titles unknown to TMDB/Seerr — that is "not
+      // found", not an upstream failure.
+      if (error instanceof UpstreamError && error.status === 404) {
+        return undefined
+      }
+      throw error
+    }
+
     const item = mapSeerrItem(response, mediaType)
 
     if (!item) {
@@ -81,6 +93,12 @@ export class SeerrAdapter {
     })
 
     this.discoverCache = undefined
+    // Seed the title cache so the list refetch right after creating a request
+    // does not need a detail round-trip for the new entry.
+    const cacheKey = `${payload.mediaType}-${payload.tmdbId}`
+    if (!this.titleCache.has(cacheKey)) {
+      this.titleCache.set(cacheKey, payload.title)
+    }
     const request = mapSeerrRequest(response)
     if (request && !request.title) {
       request.title = payload.title

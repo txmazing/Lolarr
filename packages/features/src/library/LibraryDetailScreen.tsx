@@ -59,7 +59,11 @@ export function LibraryDetailScreen({
   if (!data) {
     return (
       <AppFrame {...frameProps}>
-        <ErrorPanel message={detailQuery.error ? readErrorMessage(detailQuery.error) : 'Item not found'} />
+        <ErrorPanel
+          message={detailQuery.error ? readErrorMessage(detailQuery.error) : 'Item not found'}
+          Action={Action}
+          onRetry={detailQuery.error ? () => void detailQuery.refetch() : undefined}
+        />
         <Action onPress={onBack} focusKey="library-back">Back</Action>
       </AppFrame>
     )

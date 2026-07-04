@@ -34,7 +34,7 @@ describe('error handling', () => {
       url: '/api/auth/login',
       payload: { username: 'joel', password: 'pw', deviceId: 'device-123' },
     })
-    // Hinweis: deviceId wird erst in Task 13 Teil des Schemas; bis dahin ignoriert Zod das Feld.
+    // Note: deviceId only becomes part of the schema in Task 13; until then Zod ignores the field.
     expect(response.statusCode).toBe(502)
     expect(response.json().error).toBe('jellyfin_unreachable')
   })
@@ -79,10 +79,10 @@ describe('error handling', () => {
     ctx.seerr
       .intercept({ path: '/api/v1/request', method: 'POST' })
       .reply(401, { message: 'whatever' }, { headers: { 'content-type': 'application/json' } })
-    // 401 löst normalerweise Silent-QC-Retry aus; kein Jellyfin-Token vorhanden
-    // (Login lief über Passwort, nicht QC) → silentQuickConnect wirft JellyfinTokenInvalidError.
-    // Um wirklich den seerr-401-UpstreamError-Pfad zu testen, muss der Retry ebenfalls 401 liefern
-    // und ein gültiges Jellyfin-Token vorliegen, damit der Retry durchläuft und erneut 401 zurückgibt.
+    // A 401 normally triggers the silent Quick Connect retry; without a Jellyfin token
+    // (login used a password, not QC) silentQuickConnect throws JellyfinTokenInvalidError.
+    // To really exercise the seerr-401 UpstreamError path, the retry must also return 401
+    // and a valid Jellyfin token must exist so the retry completes and gets 401 again.
     ctx.seerr
       .intercept({ path: '/api/v1/auth/jellyfin/quickconnect/initiate', method: 'POST' })
       .reply(200, { code: '654321', secret: 'seerr-qc-secret' }, { headers: { 'content-type': 'application/json' } })

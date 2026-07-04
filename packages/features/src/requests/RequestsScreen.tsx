@@ -19,8 +19,15 @@ export function RequestsScreen({
   onConfigureGateway: () => void
   onBack: () => void
 }) {
-  const { requests, requestsError, isRequestsLoading, cancelRequest, cancelingId, cancelError } =
-    useRequests({ apiBaseUrl, enabled: true })
+  const {
+    requests,
+    requestsError,
+    isRequestsLoading,
+    refetchRequests,
+    cancelRequest,
+    cancelingId,
+    cancelError,
+  } = useRequests({ apiBaseUrl, enabled: true })
 
   return (
     <AppFrame
@@ -32,7 +39,13 @@ export function RequestsScreen({
       <Action className="ghost-action" onPress={onBack} focusKey="requests-back">
         Back
       </Action>
-      {requestsError ? <ErrorPanel message={readErrorMessage(requestsError)} /> : null}
+      {requestsError ? (
+        <ErrorPanel
+          message={readErrorMessage(requestsError)}
+          Action={Action}
+          onRetry={refetchRequests}
+        />
+      ) : null}
       {isRequestsLoading ? <LoadingPanel /> : null}
       {!requestsError && !isRequestsLoading ? (
         <RequestList
