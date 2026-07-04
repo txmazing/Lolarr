@@ -68,3 +68,43 @@ describe('requests table migration', () => {
     expect(table).toBeUndefined()
   })
 })
+
+describe('notifications', () => {
+  function freshDb() {
+    const path = join(tmpdir(), `lolarr-notif-${randomUUID()}.sqlite`)
+    const db = new LolarrDatabase(path, 'test-secret-at-least-16-chars')
+    db.upsertUser({ id: 'u1', name: 'Joel' }, 'jf-token')
+    return { db, path }
+  }
+
+  it('inserts and lists a notification, deduping on (user, tmdb, mediaType, kind)', () => {
+    const { db } = freshDb()
+    expect(
+      db.insertNotification({ id: 'n1', userId: 'u1', kind: 'available', tmdbId: 550, mediaType: 'movie', title: 'Fight Club' }),
+    ).toBe(true)
+    // same key again → no-op, returns false
+    expect(
+      db.insertNotification({ id: 'n2', userId: 'u1', kind: 'available', tmdbId: 550, mediaType: 'movie', title: 'Fight Club' }),
+    ).toBe(false)
+    const rows = db.listNotifications('u1')
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({ id: 'n1', kind: 'available', tmdbId: 550, mediaType: 'movie', title: 'Fight Club', read: false })
+  })
+
+  it('counts unread and marks all read', () => {
+    const { db } = freshDb()
+    db.insertNotification({ id: 'n1', userId: 'u1', kind: 'available', tmdbId: 1, mediaType: 'movie', title: 'A' })
+    db.insertNotification({ id: 'n2', userId: 'u1', kind: 'declined', tmdbId: 2, mediaType: 'movie', title: 'B' })
+    expect(db.countUnread('u1')).toBe(2)
+    db.markNotificationsRead('u1')
+    expect(db.countUnread('u1')).toBe(0)
+    expect(db.listNotifications('u1').every((row) => row.read)).toBe(true)
+  })
+
+  it('finds a user by name case-insensitively', () => {
+    const { db } = freshDb()
+    expect(db.findUserByName('joel')?.id).toBe('u1')
+    expect(db.findUserByName('JOEL')?.id).toBe('u1')
+    expect(db.findUserByName('nobody')).toBeUndefined()
+  })
+})

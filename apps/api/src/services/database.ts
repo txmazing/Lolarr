@@ -10,6 +10,18 @@ export type StoredSession = {
   user: LolarrUser
 }
 
+export type NotificationKindRow = 'available' | 'approved' | 'declined' | 'failed'
+
+export type NotificationRow = {
+  id: string
+  kind: NotificationKindRow
+  tmdbId: number
+  mediaType: 'movie' | 'tv'
+  title: string
+  createdAt: string
+  read: boolean
+}
+
 export class LolarrDatabase {
   private readonly database: DatabaseSync
   private readonly secret: string
@@ -112,6 +124,72 @@ export class LolarrDatabase {
     this.database.prepare('delete from sessions where user_id = ?').run(userId)
   }
 
+  insertNotification(input: {
+    id: string
+    userId: string
+    kind: NotificationKindRow
+    tmdbId: number
+    mediaType: 'movie' | 'tv'
+    title: string
+  }): boolean {
+    const result = this.database
+      .prepare(
+        `insert into notifications (id, user_id, kind, tmdb_id, media_type, title)
+         values (?, ?, ?, ?, ?, ?)
+         on conflict(user_id, tmdb_id, media_type, kind) do nothing`,
+      )
+      .run(input.id, input.userId, input.kind, input.tmdbId, input.mediaType, input.title)
+    return Number(result.changes) > 0
+  }
+
+  findUserByName(name: string): { id: string; name: string } | undefined {
+    return this.database
+      .prepare('select id, name from users where name = ? collate nocase')
+      .get(name) as { id: string; name: string } | undefined
+  }
+
+  listNotifications(userId: string, limit = 50): NotificationRow[] {
+    const rows = this.database
+      .prepare(
+        `select id, kind, tmdb_id, media_type, title, created_at, read_at
+         from notifications
+         where user_id = ?
+         order by created_at desc
+         limit ?`,
+      )
+      .all(userId, limit) as Array<{
+        id: string
+        kind: NotificationKindRow
+        tmdb_id: number
+        media_type: 'movie' | 'tv'
+        title: string
+        created_at: string
+        read_at: string | null
+      }>
+    return rows.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      tmdbId: row.tmdb_id,
+      mediaType: row.media_type,
+      title: row.title,
+      createdAt: row.created_at,
+      read: row.read_at !== null,
+    }))
+  }
+
+  countUnread(userId: string): number {
+    const row = this.database
+      .prepare('select count(*) as count from notifications where user_id = ? and read_at is null')
+      .get(userId) as { count: number }
+    return Number(row.count)
+  }
+
+  markNotificationsRead(userId: string) {
+    this.database
+      .prepare('update notifications set read_at = ? where user_id = ? and read_at is null')
+      .run(new Date().toISOString(), userId)
+  }
+
   private migrate() {
     this.database.exec(`
       create table if not exists users (
@@ -139,6 +217,23 @@ export class LolarrDatabase {
     // Slice 4: requests live in Seerr (source of truth); the local table from
     // slice 1 is dropped. 'if exists' keeps this idempotent for fresh databases.
     this.database.exec('drop table if exists requests')
+
+    this.database.exec(`
+      create table if not exists notifications (
+        id text primary key,
+        user_id text not null references users(id),
+        kind text not null,
+        tmdb_id integer not null,
+        media_type text not null,
+        title text not null,
+        created_at text not null default current_timestamp,
+        read_at text,
+        unique(user_id, tmdb_id, media_type, kind)
+      );
+
+      create index if not exists notifications_user_created
+        on notifications(user_id, created_at desc);
+    `)
   }
 }
 
