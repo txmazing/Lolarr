@@ -43,10 +43,12 @@ export function useRequests({ apiBaseUrl, enabled }: { apiBaseUrl: string; enabl
     requests: requestsQuery.data?.requests ?? [],
     requestsError: requestsQuery.error,
     isRequestsLoading: requestsQuery.isLoading,
+    refetchRequests: () => void requestsQuery.refetch(),
     createRequest: (item: MediaItem, seasons?: number[], options?: { onSuccess?: () => void }) =>
       requestMutation.mutate({ item, seasons }, { onSuccess: options?.onSuccess }),
     isRequesting: requestMutation.isPending,
     requestError: requestMutation.error,
+    resetRequestError: () => requestMutation.reset(),
     cancelRequest: (requestId: string) => cancelMutation.mutate(requestId),
     cancelingId: cancelMutation.isPending ? cancelMutation.variables : undefined,
     cancelError:

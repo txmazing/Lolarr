@@ -35,7 +35,10 @@ export function DetailScreen({
     enabled: tmdbId !== undefined,
   })
 
-  const { createRequest, isRequesting, requestError } = useRequests({ apiBaseUrl, enabled: true })
+  const { createRequest, isRequesting, requestError, resetRequestError } = useRequests({
+    apiBaseUrl,
+    enabled: true,
+  })
   const [showSeasonPicker, setShowSeasonPicker] = useState(false)
 
   const detailItem = detailQuery.data?.item ?? selectedItem
@@ -74,7 +77,12 @@ export function DetailScreen({
           onConfirm={(selection) =>
             createRequest(detailItem, selection, { onSuccess: () => setShowSeasonPicker(false) })
           }
-          onClose={() => setShowSeasonPicker(false)}
+          onClose={() => {
+            setShowSeasonPicker(false)
+            // Drop a stale picker error so it does not resurface under the
+            // main request button.
+            resetRequestError()
+          }}
           Action={Action}
         />
       ) : null}
