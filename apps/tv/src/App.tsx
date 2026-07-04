@@ -6,6 +6,7 @@ import {
 } from '@noriginmedia/norigin-spatial-navigation-react'
 import { LolarrApp } from '@lolarr/features'
 import type { ActionProps, TextInputProps } from '@lolarr/ui'
+import { tizenPlatform } from '@lolarr/player'
 
 function TvAction({
   ariaLabel,
@@ -187,7 +188,14 @@ function TvShell({ children }: { children: ReactNode }) {
 }
 
 function App() {
-  return <LolarrApp Action={TvAction} TextInput={TvTextInput} Shell={TvShell} />
+  return (
+    <LolarrApp
+      Action={TvAction}
+      TextInput={TvTextInput}
+      Shell={TvShell}
+      playerPlatform={tizenPlatform}
+    />
+  )
 }
 
 export default App

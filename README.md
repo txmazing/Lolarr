@@ -10,6 +10,20 @@ Moonrepo monorepo for the Lolarr clients.
   - *Enable New Jellyfin Sign-In* turned on (users log in without prior import)
 - Environment: see `.env.example` — all variables are required; the API refuses to start otherwise.
 
+## Tizen TV playback
+
+The TV app plays video through Samsung's native AVPlay API (`packages/player` →
+`tizenPlatform`), injected via `LolarrApp`'s `playerPlatform` prop. Web keeps the
+default `webPlatform` (HTML5 `<video>` + hls.js). Requirements on the TV:
+
+- `config.xml` privileges: `avplay`, `tv.inputdevice`, `productinfo`, `systeminfo`,
+  `tv.audio`, `internet`, `network.public`.
+- Build and package: `pnpm --filter @lolarr/tv tizen:sync`, then load the `apps/tv/tizen`
+  project in Tizen Studio and deploy to the device (a signed `.wgt` is not produced by CI).
+- DTS/DCA audio always transcodes (unsupported on every Tizen year). The device profile
+  detects the model year to enable HEVC/VP9/AV1 where available.
+- On-device verification is manual — there is no Tizen emulator in CI.
+
 ## Apps
 
 - `apps/api` - Fastify gateway for Jellyfin login, Seerr discovery, requests, and SQLite persistence.
