@@ -26,4 +26,13 @@ describe('loadConfig', () => {
   it('rejects short secrets', () => {
     expect(() => loadConfig({ ...validEnv, LOLARR_SECRET: 'short' })).toThrow()
   })
+
+  it('leaves the cors origin unset by default', () => {
+    expect(loadConfig(validEnv).LOLARR_CORS_ORIGIN).toBeUndefined()
+  })
+
+  it('accepts a cors origin list', () => {
+    const config = loadConfig({ ...validEnv, LOLARR_CORS_ORIGIN: 'http://tv.local,https://lolarr.example' })
+    expect(config.LOLARR_CORS_ORIGIN).toBe('http://tv.local,https://lolarr.example')
+  })
 })

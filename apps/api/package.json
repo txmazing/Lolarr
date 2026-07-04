@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@fastify/rate-limit": "^11.1.0",
     "@lolarr/domain": "workspace:*",
     "fastify": "^5.9.0",
     "zod": "^4.4.3"

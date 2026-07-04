@@ -8,6 +8,9 @@ const envSchema = z.object({
   SEERR_API_KEY: z.string().min(1),
   LOLARR_SECRET: z.string().min(16),
   LOLARR_DATABASE_PATH: z.string().default('./data/lolarr.sqlite'),
+  // Comma-separated allowlist of CORS origins. Unset = reflect any origin,
+  // the right default for self-hosted LAN deployments.
+  LOLARR_CORS_ORIGIN: z.string().optional(),
 })
 
 export type AppConfig = z.infer<typeof envSchema>

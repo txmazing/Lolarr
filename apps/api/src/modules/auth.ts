@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type { FastifyInstance } from 'fastify'
-import { loginRequestSchema, qcInitiateRequestSchema } from '@lolarr/domain'
+import { loginRequestSchema, qcInitiateRequestSchema, qcStateRequestSchema } from '@lolarr/domain'
 import {
   authenticateByName,
   authenticateWithQuickConnect,
@@ -12,13 +12,19 @@ import type { AppContext } from '../lib/context.js'
 type PendingQuickConnect = { secret: string; deviceId: string; createdAt: number }
 const QC_TTL_MS = 10 * 60 * 1000
 
+// The auth endpoints are public and each hit costs an upstream Jellyfin call
+// (login, initiate) — keep them behind a per-IP limit. The QC state poll runs
+// every 5s (12/min), so it gets more headroom than login/initiate.
+const AUTH_RATE_LIMIT = { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }
+const QC_POLL_RATE_LIMIT = { config: { rateLimit: { max: 30, timeWindow: '1 minute' } } }
+
 export async function authRoutes(
   app: FastifyInstance,
   { config, database, seerrSession }: AppContext,
 ) {
   const pendingQuickConnects = new Map<string, PendingQuickConnect>()
 
-  app.post('/api/auth/login', async (request) => {
+  app.post('/api/auth/login', AUTH_RATE_LIMIT, async (request) => {
     const credentials = loginRequestSchema.parse(request.body)
 
     const auth = await authenticateByName(config, credentials)
@@ -42,7 +48,7 @@ export async function authRoutes(
     }
   })
 
-  app.post('/api/auth/qc/initiate', async (request) => {
+  app.post('/api/auth/qc/initiate', AUTH_RATE_LIMIT, async (request) => {
     prune(pendingQuickConnects)
     const { deviceId } = qcInitiateRequestSchema.parse(request.body)
     const { code, secret } = await initiateQuickConnect(config, deviceId)
@@ -51,12 +57,14 @@ export async function authRoutes(
     return { code, pollToken }
   })
 
-  app.get('/api/auth/qc/state', async (request, reply) => {
+  // POST with the token in the body — as a GET query param it would end up in
+  // the request log (Fastify logs req.url).
+  app.post('/api/auth/qc/state', QC_POLL_RATE_LIMIT, async (request, reply) => {
     prune(pendingQuickConnects)
-    const pollToken = readPollToken(request.query)
-    const pending = pollToken ? pendingQuickConnects.get(pollToken) : undefined
+    const { pollToken } = qcStateRequestSchema.parse(request.body)
+    const pending = pendingQuickConnects.get(pollToken)
 
-    if (!pollToken || !pending) {
+    if (!pending) {
       return reply.code(404).send({ error: 'Unknown or expired poll token' })
     }
 
@@ -118,12 +126,4 @@ function prune(map: Map<string, PendingQuickConnect>) {
       map.delete(key)
     }
   }
-}
-
-function readPollToken(query: unknown): string | undefined {
-  if (typeof query === 'object' && query !== null && 'pollToken' in query) {
-    const value = (query as { pollToken: unknown }).pollToken
-    return typeof value === 'string' && value.length > 0 ? value : undefined
-  }
-  return undefined
 }

@@ -74,7 +74,7 @@ Immer wenn eine Seerr-Session fehlt oder abgelaufen ist (Seerr antwortet 401) un
 2. BFF → Jellyfin `POST /QuickConnect/Authorize?code=…` — autorisiert mit dem gespeicherten User-Token
 3. BFF → Seerr `POST /api/v1/auth/jellyfin/quickconnect/authenticate` → frische `connect.sid`, danach Retry des ursprünglichen Calls (max. 1 Retry)
 
-Damit gibt es genau einen Seerr-Auth-Pfad für QC-Login **und** Cookie-Erneuerung; keine Admin-Key-Impersonation. Der `SEERR_API_KEY` wird ausschließlich für zentrales, user-unabhängiges Discover/Search verwendet (cachebar, reine TMDB-Daten).
+Damit gibt es genau einen Seerr-Auth-Pfad für QC-Login **und** Cookie-Erneuerung; keine Admin-Key-Impersonation. Der `SEERR_API_KEY` wird ausschließlich für zentrale, user-unabhängige Lesezugriffe verwendet: Discover/Search **und** Media-Details (`/api/v1/movie|tv/:id`, inkl. Titel-Lookup für Request-Listen). Alles davon sind cachebare, reine TMDB-Daten ohne User-Bezug; schreibende Aktionen (Requests anlegen/löschen) laufen immer über die per-User-Seerr-Session.
 
 ### 401-Kaskade
 - Jellyfin-Token ungültig (Admin-Revoke o. ä.) → BFF beendet die Lolarr-Session (401) → Client löscht Token via Storage-Adapter, zurück zum Login.
