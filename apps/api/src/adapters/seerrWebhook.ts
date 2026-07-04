@@ -43,7 +43,9 @@ const TYPE_TO_KIND: Record<string, NotificationKind | undefined> = {
 }
 
 export function mapWebhookToNotification(payload: SeerrWebhookPayload): MappedNotification | null {
-  const kind = TYPE_TO_KIND[payload.notification_type]
+  const kind = Object.hasOwn(TYPE_TO_KIND, payload.notification_type)
+    ? TYPE_TO_KIND[payload.notification_type]
+    : undefined
   const username = payload.request?.requestedBy_username
   if (!kind || !payload.media || !payload.subject || !username) {
     return null

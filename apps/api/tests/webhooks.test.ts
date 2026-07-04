@@ -55,6 +55,16 @@ describe('POST /api/webhooks/seerr', () => {
     expect(response.statusCode).toBe(400)
   })
 
+  it('returns 400 for an unparseable JSON body', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/webhooks/seerr',
+      headers: { authorization: SECRET, 'content-type': 'application/json' },
+      payload: '{invalid',
+    })
+    expect(response.statusCode).toBe(400)
+  })
+
   it('stores a notification for a matching user (200)', async () => {
     const response = await postWebhook(app, webhookBody())
     expect(response.statusCode).toBe(200)

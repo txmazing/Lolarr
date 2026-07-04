@@ -46,4 +46,11 @@ describe('mapWebhookToNotification', () => {
     const result = mapWebhookToNotification(seerrWebhookSchema.parse(payload({ image: 'http://x/y.jpg', extra: [] })))
     expect(result?.kind).toBe('available')
   })
+
+  it.each(['constructor', 'toString', '__proto__'])(
+    'returns null for the prototype-chain key %s instead of resolving an inherited member',
+    (type) => {
+      expect(mapWebhookToNotification(seerrWebhookSchema.parse(payload({ notification_type: type })))).toBeNull()
+    },
+  )
 })

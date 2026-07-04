@@ -51,6 +51,14 @@ export function registerErrorHandler(app: FastifyInstance, database: LolarrDatab
       return reply.code(429).send({ error: 'rate_limited' })
     }
 
+    // Fastify framework errors (malformed/empty JSON body → 400, unsupported
+    // media type → 415) carry a 4xx statusCode. Pass them through rather than
+    // masking them as 500 — the public webhook route's spec requires 400 on an
+    // unparseable body, and a 5xx would trigger Seerr retry storms.
+    if (isRecord(error) && typeof error.statusCode === 'number' && error.statusCode >= 400 && error.statusCode < 500) {
+      return reply.code(error.statusCode).send({ error: 'bad_request' })
+    }
+
     request.log.error({ err: error }, 'unhandled error')
     return reply.code(500).send({ error: 'internal_error' })
   })
