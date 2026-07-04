@@ -659,6 +659,8 @@ button:disabled {
 
 .player-surface { width: 100%; height: 100%; }
 
+.avplay-surface { width: 100%; height: 100%; }
+
 .player-video { width: 100%; height: 100%; object-fit: contain; }
 
 .player-controls {
