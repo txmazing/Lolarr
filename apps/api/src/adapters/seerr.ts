@@ -102,6 +102,7 @@ export class SeerrAdapter {
     await this.sessions.fetchWithSession(userId, `/api/v1/request/${encodeURIComponent(requestId)}`, {
       method: 'DELETE',
     })
+    this.discoverCache = undefined
   }
 
   // Seerr's request listing carries no display title; details are fetched once
