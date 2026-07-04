@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import type { SeasonAvailability } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { labelForAvailability } from './availabilityLabels'
-import { selectableSeasonNumbers, toggleSeason } from './seasonSelection'
+import { pruneSelection, selectableSeasonNumbers, toggleSeason } from './seasonSelection'
 
 type SeasonRequestPickerProps = {
   seasons: SeasonAvailability[]
@@ -23,7 +23,8 @@ export function SeasonRequestPicker({
 }: SeasonRequestPickerProps) {
   const selectable = useMemo(() => selectableSeasonNumbers(seasons), [seasons])
   const [selection, setSelection] = useState<number[]>([])
-  const allSelected = selectable.length > 0 && selection.length === selectable.length
+  const validSelection = useMemo(() => pruneSelection(selection, selectable), [selection, selectable])
+  const allSelected = selectable.length > 0 && validSelection.length === selectable.length
 
   return (
     <div className="season-picker-backdrop">
@@ -42,7 +43,7 @@ export function SeasonRequestPicker({
           </li>
           {seasons.map((season) => {
             const isSelectable = selectable.includes(season.seasonNumber)
-            const isSelected = selection.includes(season.seasonNumber)
+            const isSelected = validSelection.includes(season.seasonNumber)
             return (
               <li key={season.seasonNumber}>
                 <Action
@@ -62,13 +63,13 @@ export function SeasonRequestPicker({
         <div className="season-picker-actions">
           <Action
             className="primary-action"
-            onPress={() => onConfirm(selection)}
+            onPress={() => onConfirm(validSelection)}
             focusKey="season-pick-confirm"
-            disabled={selection.length === 0 || isRequesting}
+            disabled={validSelection.length === 0 || isRequesting}
           >
             {isRequesting
               ? 'Requesting...'
-              : `Request ${selection.length} ${selection.length === 1 ? 'season' : 'seasons'}`}
+              : `Request ${validSelection.length} ${validSelection.length === 1 ? 'season' : 'seasons'}`}
           </Action>
           <Action className="ghost-action" onPress={onClose} focusKey="season-pick-cancel" disabled={isRequesting}>
             Cancel

@@ -11,3 +11,7 @@ export function toggleSeason(selection: number[], seasonNumber: number): number[
     ? selection.filter((selected) => selected !== seasonNumber)
     : [...selection, seasonNumber].sort((a, b) => a - b)
 }
+
+export function pruneSelection(selection: number[], selectable: number[]): number[] {
+  return selection.filter((seasonNumber) => selectable.includes(seasonNumber))
+}

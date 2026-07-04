@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { selectableSeasonNumbers, toggleSeason } from '../src/components/seasonSelection.js'
+import { selectableSeasonNumbers, toggleSeason, pruneSelection } from '../src/components/seasonSelection.js'
 
 describe('selectableSeasonNumbers', () => {
   it('keeps only requestable and unavailable seasons', () => {
@@ -22,5 +22,15 @@ describe('toggleSeason', () => {
 
   it('removes an already selected season', () => {
     expect(toggleSeason([1, 3], 3)).toEqual([1])
+  })
+})
+
+describe('pruneSelection', () => {
+  it('removes seasons no longer selectable', () => {
+    expect(pruneSelection([1, 2, 3], [2, 3])).toEqual([2, 3])
+  })
+
+  it('returns empty array when all seasons are pruned', () => {
+    expect(pruneSelection([], [1])).toEqual([])
   })
 })
