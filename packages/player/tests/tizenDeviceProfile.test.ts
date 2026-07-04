@@ -14,6 +14,10 @@ describe('detectTizenYear', () => {
     expect(detectTizenYear(source({ platformVersion: '6.0' }))).toBe(2021)
   })
 
+  it('recognizes newer platform versions (9.0 -> 2025)', () => {
+    expect(detectTizenYear(source({ platformVersion: '9.0' }))).toBe(2025)
+  })
+
   it('falls back to the model year letter', () => {
     expect(detectTizenYear(source({ model: 'UN55RU8000' }))).toBe(2019)
   })

@@ -19,6 +19,8 @@ const VERSION_YEAR: Record<string, number> = {
   '6.5': 2022,
   '7.0': 2023,
   '8.0': 2024,
+  '9.0': 2025,
+  '10.0': 2026,
 }
 
 const MODEL_YEAR: Record<string, number> = {
