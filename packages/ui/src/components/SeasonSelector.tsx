@@ -1,3 +1,4 @@
+import { PillTabs } from './ui/PillTabs'
 import type { ActionComponent } from './types'
 
 type SeasonSelectorProps = {
@@ -9,17 +10,12 @@ type SeasonSelectorProps = {
 
 export function SeasonSelector({ Action, seasons, selectedId, onSelect }: SeasonSelectorProps) {
   return (
-    <nav className="season-selector" aria-label="Seasons">
-      {seasons.map((season) => (
-        <Action
-          key={season.id}
-          focusKey={`season-${season.id}`}
-          className={season.id === selectedId ? 'season-button selected' : 'season-button'}
-          onPress={() => onSelect(season.id)}
-        >
-          {season.name}
-        </Action>
-      ))}
-    </nav>
+    <PillTabs
+      ariaLabel="Seasons"
+      Action={Action}
+      items={seasons.map((s) => ({ id: s.id, label: s.name }))}
+      selectedId={selectedId}
+      onSelect={onSelect}
+    />
   )
 }

@@ -11,29 +11,34 @@ export function EpisodeList({
   onPlay?: (episode: Episode) => void
 }) {
   return (
-    <ol className="episode-list">
+    <ol className="flex flex-col gap-2">
       {episodes.map((episode) => (
-        <li key={episode.id} className="episode-row">
+        <li
+          key={episode.id}
+          className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border bg-surface p-4 transition-colors duration-[350ms] ease-out-expo hover:bg-surface-2 focused:bg-surface-2"
+        >
           {Action && onPlay ? (
             <Action
               onPress={() => onPlay(episode)}
               focusKey={`episode-play-${episode.id}`}
               ariaLabel={`Play ${episode.title}`}
-              className="episode-play"
+              variant="glass"
             >
               ▶
             </Action>
           ) : null}
-          <span className="episode-number">{episode.episodeNumber}</span>
-          <span className="episode-info">
-            <span className="episode-title">
+          <span className="text-sm text-muted-foreground w-8">{episode.episodeNumber}</span>
+          <span className="flex flex-col gap-1">
+            <span>
               {episode.title}
-              {episode.played ? <span className="episode-played" aria-label="Watched"> ✓</span> : null}
+              {episode.played ? <span className="text-status-available" aria-label="Watched"> ✓</span> : null}
             </span>
-            {episode.overview ? <span className="episode-overview">{episode.overview}</span> : null}
+            {episode.overview ? (
+              <span className="text-sm text-muted-foreground line-clamp-2">{episode.overview}</span>
+            ) : null}
           </span>
           {episode.runtimeMinutes ? (
-            <span className="episode-runtime">{episode.runtimeMinutes} min</span>
+            <span className="text-xs text-muted-foreground">{episode.runtimeMinutes} min</span>
           ) : null}
         </li>
       ))}

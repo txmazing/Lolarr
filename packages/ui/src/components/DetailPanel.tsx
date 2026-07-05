@@ -25,36 +25,45 @@ export function DetailPanel({
     (item.mediaType === 'tv' && item.availability === 'partiallyAvailable')
 
   return (
-    <section className="detail-panel">
-      <div className="detail-backdrop">
-        {item.backdropUrl ? <img src={item.backdropUrl} alt="" /> : null}
+    <section className="flex flex-col gap-8">
+      <div className="relative min-h-[48vh] rounded-lg overflow-hidden">
+        {item.backdropUrl ? (
+          <img src={item.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
       </div>
-      <div className="detail-content">
-        <Action className="ghost-action" onPress={onBack} focusKey="detail-back">
+      <div className="relative z-10 p-12 flex flex-col gap-4 max-w-2xl">
+        <Action variant="ghost" onPress={onBack} focusKey="detail-back">
           Back
         </Action>
-        <div className="detail-grid">
-          <div className="detail-poster">
-            {item.posterUrl ? <img src={item.posterUrl} alt="" /> : null}
+        <div className="grid grid-cols-[240px_1fr] gap-8 items-start">
+          <div>
+            {item.posterUrl ? (
+              <img
+                src={item.posterUrl}
+                alt=""
+                className="rounded-md border aspect-[2/3] object-cover w-full"
+              />
+            ) : null}
           </div>
           <div>
             <StatusBadge availability={item.availability} />
-            <h2>{item.title}</h2>
-            <p>{item.overview}</p>
-            <div className="hero-meta">
+            <h2 className="text-4xl font-semibold tracking-tight">{item.title}</h2>
+            <p className="text-muted-foreground">{item.overview}</p>
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
               {item.year ? <span>{item.year}</span> : null}
               <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
               {item.tmdbId !== undefined ? <span>TMDB {item.tmdbId}</span> : null}
             </div>
             <Action
-              className="primary-action"
+              variant="primary"
               disabled={!canRequest || isRequesting}
               onPress={() => onRequest(item)}
               focusKey={`request-${item.mediaType}-${item.tmdbId}`}
             >
               {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
             </Action>
-            {requestError ? <p className="request-error">{requestError}</p> : null}
+            {requestError ? <p className="text-sm text-danger">{requestError}</p> : null}
           </div>
         </div>
       </div>
