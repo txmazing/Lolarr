@@ -41,9 +41,13 @@
   --surface-3: rgb(255 255 255 / 0.11);
   /* Solid dark button chip that inverts to the near-white accent on hover. */
   --surface-chip: rgb(40 40 40 / 0.8);
-  --glass: rgb(42 42 42 / 0.6);
-  --blur-overlay: 15px;
-  --blur-controls: 4px;
+  --control-hover: rgb(255 255 255 / 0.1);
+  --primary-solid: rgb(255 255 255 / 0.95);
+  --dialog-frost: rgb(42 42 42 / 0.72);
+  --dialog-border: rgb(245 245 247 / 0.16);
+  --glass: var(--dialog-frost);
+  --blur-overlay: 20px;
+  --blur-controls: 8px;
   --status-available: #6fbf9f;
   --status-processing: #8fa8c9;
   --status-pending: #c9b37e;
@@ -77,6 +81,10 @@
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
   --color-surface-chip: var(--surface-chip);
+  --color-control-hover: var(--control-hover);
+  --color-primary-solid: var(--primary-solid);
+  --color-dialog-frost: var(--dialog-frost);
+  --color-dialog-border: var(--dialog-border);
   --color-status-available: var(--status-available);
   --color-status-processing: var(--status-processing);
   --color-status-pending: var(--status-pending);
