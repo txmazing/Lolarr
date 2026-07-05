@@ -1,20 +1,27 @@
+import { Button } from './ui/Button'
 import type { ActionProps } from './types'
 
 export function DefaultAction({
+  ariaLabel,
   children,
   className,
   disabled,
   onPress,
+  size,
   type = 'button',
+  variant,
 }: ActionProps) {
   return (
-    <button
+    <Button
+      aria-label={ariaLabel}
       type={type}
+      variant={variant}
+      size={size}
       className={className}
       disabled={disabled}
       onClick={onPress}
     >
       {children}
-    </button>
+    </Button>
   )
 }

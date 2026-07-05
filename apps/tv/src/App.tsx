@@ -5,7 +5,7 @@ import {
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation-react'
 import { LolarrApp } from '@lolarr/features'
-import type { ActionProps, TextInputProps } from '@lolarr/ui'
+import { Button, Input, cn, type ActionProps, type TextInputProps } from '@lolarr/ui'
 import { isTizenPlayerAvailable, tizenPlatform, webPlatform } from '@lolarr/player'
 
 function TvAction({
@@ -15,7 +15,9 @@ function TvAction({
   disabled,
   focusKey,
   onPress,
+  size,
   type = 'button',
+  variant,
 }: ActionProps) {
   const { ref, focused } = useFocusable({
     focusKey,
@@ -38,16 +40,18 @@ function TvAction({
   }, [focused, ref])
 
   return (
-    <button
+    <Button
       ref={ref}
+      type={type}
+      variant={variant}
+      size={size}
       aria-label={ariaLabel}
-      className={focused ? `${className} focused` : className}
+      className={cn(className, focused && 'focused')}
       disabled={disabled}
       onClick={onPress}
-      type={type}
     >
       {children}
-    </button>
+    </Button>
   )
 }
 
@@ -145,11 +149,11 @@ function TvTextInput({
   }
 
   return (
-    <input
+    <Input
       ref={ref}
       aria-label={ariaLabel}
       autoComplete={autoComplete}
-      className={focused ? `${className} focused` : className}
+      className={cn(className, focused && 'focused')}
       data-focus-key={focusKey}
       defaultValue={defaultValue}
       enterKeyHint={enterKeyHint}

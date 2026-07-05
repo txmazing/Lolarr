@@ -7,7 +7,9 @@ export type ActionProps = {
   disabled?: boolean
   focusKey?: string
   onPress?: () => void
+  size?: 'md' | 'lg'
   type?: 'button' | 'submit'
+  variant?: 'primary' | 'ghost' | 'glass'
 }
 
 export type ActionComponent = ComponentType<ActionProps>

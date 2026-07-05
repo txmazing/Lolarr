@@ -1,3 +1,4 @@
+import { Input } from './ui/Input'
 import type { TextInputProps } from './types'
 
 export function DefaultTextInput({
@@ -14,7 +15,7 @@ export function DefaultTextInput({
   value,
 }: TextInputProps) {
   return (
-    <input
+    <Input
       aria-label={ariaLabel}
       autoComplete={autoComplete}
       className={className}
