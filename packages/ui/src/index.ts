@@ -8,6 +8,7 @@ export type {
 export { AppFrame } from './components/AppFrame'
 export { AutoplayOverlay } from './components/AutoplayOverlay'
 export { Button } from './components/ui/Button'
+export { OverlayScopeProvider, type OverlayScopeComponent } from './components/ui/OverlayScope'
 export { DefaultAction } from './components/DefaultAction'
 export { DefaultTextInput } from './components/DefaultTextInput'
 export { DetailPanel } from './components/DetailPanel'

@@ -1,9 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   FocusContext,
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation-react'
-import { Button, GlassDialog, PillTabs, cn, type ActionProps } from '@lolarr/ui'
+import {
+  Button,
+  GlassDialog,
+  OverlayScopeProvider,
+  PillTabs,
+  cn,
+  type ActionProps,
+} from '@lolarr/ui'
+
+// Mirrors TvOverlayScope in App.tsx — the Norigin focus boundary the real app
+// injects, so the spike validates the same dialog containment behaviour.
+function SpikeOverlayScope({ children }: { children: ReactNode }) {
+  const { ref, focusKey } = useFocusable({ isFocusBoundary: true, trackChildren: true })
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <div ref={ref} className="contents">
+        {children}
+      </div>
+    </FocusContext.Provider>
+  )
+}
 
 function SpikeButton({ label, onPress }: { label: string; onPress?: () => void }) {
   const { ref, focused } = useFocusable({ onEnterPress: onPress })
@@ -66,7 +86,8 @@ export function SpikeScreen() {
   }, [focusSelf])
 
   return (
-    <FocusContext.Provider value={focusKey}>
+    <OverlayScopeProvider value={SpikeOverlayScope}>
+      <FocusContext.Provider value={focusKey}>
       <div ref={ref} className="min-h-screen bg-background p-16 flex flex-col gap-8">
         <h1 className="text-3xl font-semibold">UI-Spike (Phase 0)</h1>
         <p className="text-muted-foreground text-sm break-all">{navigator.userAgent}</p>
@@ -97,6 +118,7 @@ export function SpikeScreen() {
           </div>
         </GlassDialog>
       </div>
-    </FocusContext.Provider>
+      </FocusContext.Provider>
+    </OverlayScopeProvider>
   )
 }

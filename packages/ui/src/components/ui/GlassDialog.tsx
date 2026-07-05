@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogTitle,
 } from '@ui/components/ui/shadcn/dialog'
+import { useOverlayScope } from '@ui/components/ui/OverlayScope'
 import { cn } from '@ui/lib/utils'
 
 export function GlassDialog({
@@ -21,6 +22,9 @@ export function GlassDialog({
   children: ReactNode
   className?: string
 }) {
+  // On TV this is a Norigin focus boundary so the D-pad stays inside the open
+  // dialog; on web it is a passthrough. See OverlayScope.
+  const OverlayScope = useOverlayScope()
   return (
     // modal={false} + initialFocus={false}: Base UI darf weder einen Focus-Trap
     // setzen noch beim Öffnen den Fokus an sich ziehen. Sonst inertisiert es die
@@ -34,7 +38,7 @@ export function GlassDialog({
         className={cn('glass rounded-lg border-border max-w-lg', className)}
       >
         {title ? <DialogTitle className="text-xl font-semibold">{title}</DialogTitle> : null}
-        {children}
+        <OverlayScope>{children}</OverlayScope>
       </DialogContent>
     </Dialog>
   )

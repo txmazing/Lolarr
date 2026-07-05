@@ -5,7 +5,14 @@ import {
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation-react'
 import { LolarrApp } from '@lolarr/features'
-import { Button, Input, cn, type ActionProps, type TextInputProps } from '@lolarr/ui'
+import {
+  Button,
+  Input,
+  OverlayScopeProvider,
+  cn,
+  type ActionProps,
+  type TextInputProps,
+} from '@lolarr/ui'
 import { isTizenPlayerAvailable, tizenPlatform, webPlatform } from '@lolarr/player'
 import { SpikeScreen } from './SpikeScreen'
 
@@ -184,6 +191,25 @@ function TvTextInput({
   )
 }
 
+// Norigin focus boundary for open overlays (dialogs). Injected into
+// @lolarr/ui via OverlayScopeProvider so GlassDialog confines D-pad navigation
+// to the dialog while it is open — the remote-friendly equivalent of a modal
+// focus trap, without fighting Base UI's Tab-based one (which is disabled).
+function TvOverlayScope({ children }: { children: ReactNode }) {
+  const { ref, focusKey } = useFocusable({
+    isFocusBoundary: true,
+    trackChildren: true,
+  })
+
+  return (
+    <FocusContext.Provider value={focusKey}>
+      <div ref={ref} className="contents">
+        {children}
+      </div>
+    </FocusContext.Provider>
+  )
+}
+
 function TvShell({ children }: { children: ReactNode }) {
   const { ref, focusKey, focusSelf } = useFocusable({
     focusKey: 'APP',
@@ -195,11 +221,13 @@ function TvShell({ children }: { children: ReactNode }) {
   }, [focusSelf])
 
   return (
-    <FocusContext.Provider value={focusKey}>
-      <div ref={ref} className="app-shell">
-        {children}
-      </div>
-    </FocusContext.Provider>
+    <OverlayScopeProvider value={TvOverlayScope}>
+      <FocusContext.Provider value={focusKey}>
+        <div ref={ref} className="app-shell">
+          {children}
+        </div>
+      </FocusContext.Provider>
+    </OverlayScopeProvider>
   )
 }
 
