@@ -21,4 +21,11 @@ describe('Button', () => {
     render(<Button variant="glass">Info</Button>)
     expect(screen.getByRole('button').className).toContain('glass-controls')
   })
+
+  it('renders card variant with block-layout neutralizers', () => {
+    render(<Button variant="card">Poster</Button>)
+    const { className } = screen.getByRole('button')
+    expect(className).toContain('flex flex-col')
+    expect(className).toContain('h-auto')
+  })
 })

@@ -15,8 +15,8 @@ export function MediaPosterButton({
 }) {
   return (
     <Action
-      variant="ghost"
-      className="flex flex-col items-start justify-start h-auto p-0 gap-2 group relative w-40 shrink-0 rounded-md transition-transform duration-[350ms] ease-out-expo hover:scale-[1.06] focused:scale-[1.06] focused:outline focused:outline-2 focused:outline-ring"
+      variant="card"
+      className="group relative w-40 shrink-0 rounded-md transition-transform duration-[350ms] ease-out-expo hover:scale-[1.06] focused:scale-[1.06] focused:outline focused:outline-2 focused:outline-ring"
       onPress={() => onOpen(item)}
       focusKey={`${focusKeyPrefix}-${item.id}`}
       ariaLabel={`Open ${item.title}`}
