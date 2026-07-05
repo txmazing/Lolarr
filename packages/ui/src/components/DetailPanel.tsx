@@ -33,7 +33,7 @@ export function DetailPanel({
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
       </div>
       <div className="relative z-10 p-12 flex flex-col gap-4 max-w-2xl">
-        <Action variant="ghost" onPress={onBack} focusKey="detail-back">
+        <Action variant="secondary" onPress={onBack} focusKey="detail-back">
           Back
         </Action>
         <div className="grid grid-cols-[240px_1fr] gap-8 items-start">
@@ -42,7 +42,7 @@ export function DetailPanel({
               <img
                 src={item.posterUrl}
                 alt=""
-                className="rounded-md border aspect-[2/3] object-cover w-full"
+                className="aspect-[2/3] w-full rounded-md object-cover ring-1 ring-inset ring-white/10"
               />
             ) : null}
           </div>

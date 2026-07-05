@@ -1,5 +1,5 @@
 import type { RequestStatus } from '@lolarr/domain'
-import { Badge } from '@ui/components/ui/shadcn/badge'
+import { Badge } from '@ui/components/ui/Badge'
 import { cn } from '@ui/lib/utils'
 import { labelForRequestStatus } from './requestStatusLabels'
 

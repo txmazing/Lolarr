@@ -15,7 +15,7 @@ export function EpisodeList({
       {episodes.map((episode) => (
         <li
           key={episode.id}
-          className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md border bg-surface p-4 transition-colors duration-[350ms] ease-out-expo hover:bg-surface-2 focused:bg-surface-2"
+          className="grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-md bg-surface p-4 transition-colors duration-[350ms] ease-out-expo ring-1 ring-inset ring-white/[0.06] hover:bg-surface-2 hover:ring-white/15 focused:bg-surface-2 focused:ring-white/15"
         >
           {Action && onPlay ? (
             <Action

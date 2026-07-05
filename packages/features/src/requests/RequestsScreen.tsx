@@ -43,7 +43,7 @@ export function RequestsScreen({
       userName={userName}
       onSignOut={onSignOut}
     >
-      <Action className="ghost-action" onPress={onBack} focusKey="requests-back">
+      <Action variant="secondary" onPress={onBack} focusKey="requests-back">
         Back
       </Action>
       {requestsError ? (

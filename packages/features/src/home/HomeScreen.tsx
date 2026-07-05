@@ -82,7 +82,6 @@ export function HomeScreen({
     <AppFrame
       Action={Action}
       navItems={navItems}
-      onSearch={onOpenSearch}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
       userName={userName}
       onSignOut={onSignOut}

@@ -76,16 +76,17 @@ export function LibraryDetailScreen({
   return (
     <AppFrame {...frameProps}>
       <section
-        className="library-detail"
+        className="relative overflow-hidden rounded-lg bg-cover bg-center"
         style={images.backdropUrl ? { backgroundImage: `url(${images.backdropUrl})` } : undefined}
       >
-        <div className="library-detail-content">
+        <div className="max-w-[60%] bg-gradient-to-r from-background/90 via-background/60 to-background/20 p-12">
           <h1>{item.title}</h1>
-          <p className="library-detail-meta">{item.year ?? ''}</p>
+          <p className="text-muted-foreground">{item.year ?? ''}</p>
           <p>{item.overview}</p>
-          <div className="library-detail-actions">
+          <div className="mt-4 flex gap-3">
             {item.mediaType === 'movie' ? (
               <Action
+                variant="primary"
                 onPress={() =>
                   onPlay({
                     itemId: item.jellyfin?.itemId ?? itemId,

@@ -22,7 +22,7 @@ export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) 
           {title}
         </h2>
       </div>
-      <div className="flex gap-4 overflow-x-auto pl-12 pr-0 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-4 overflow-x-auto pl-12 pr-0 pt-2 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => (
           <MediaPosterButton
             key={item.id}

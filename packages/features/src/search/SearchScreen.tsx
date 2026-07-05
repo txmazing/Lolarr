@@ -56,7 +56,7 @@ export function SearchScreen({
       userName={userName}
       onSignOut={onSignOut}
     >
-      <Action className="ghost-action" onPress={onBack} focusKey="search-back">
+      <Action variant="secondary" onPress={onBack} focusKey="search-back">
         Back
       </Action>
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
@@ -69,11 +69,11 @@ export function SearchScreen({
       ) : null}
       {searchQuery.isLoading ? <LoadingPanel /> : null}
       {deferredQuery.length < 2 ? (
-        <p className="empty-state">Type at least two characters to search.</p>
+        <p className="flex min-h-[52px] items-center justify-between gap-3.5 rounded-md bg-surface px-3.5 py-3 text-muted-foreground">Type at least two characters to search.</p>
       ) : !searchQuery.isLoading && !searchQuery.error && results.length === 0 ? (
-        <p className="empty-state">No results for "{deferredQuery}".</p>
+        <p className="flex min-h-[52px] items-center justify-between gap-3.5 rounded-md bg-surface px-3.5 py-3 text-muted-foreground">No results for "{deferredQuery}".</p>
       ) : (
-        <div className="search-grid">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
           {results.map((item) => (
             <MediaPosterButton
               key={item.id}

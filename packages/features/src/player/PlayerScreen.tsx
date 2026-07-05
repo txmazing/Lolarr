@@ -127,7 +127,7 @@ export function PlayerScreen({
 
   if (state === 'error') {
     return (
-      <div className="player-screen">
+      <div className="fixed inset-0 z-[100] bg-black">
         <ErrorPanel message={errorMessage ?? 'Playback failed'} />
         <Action onPress={onExit} focusKey="player-back">Back</Action>
       </div>
@@ -135,9 +135,14 @@ export function PlayerScreen({
   }
 
   return (
-    <div ref={screenRef} className="player-screen" onMouseMove={showControls}>
-      <div ref={containerRef} className="player-surface" />
-      {state === 'loading' ? <div className="player-spinner" aria-label="Loading" /> : null}
+    <div ref={screenRef} className="fixed inset-0 z-[100] bg-black" onMouseMove={showControls}>
+      <div ref={containerRef} className="h-full w-full" />
+      {state === 'loading' ? (
+        <div
+          className="absolute top-1/2 left-1/2 h-12 w-12 -mt-6 -ml-6 animate-spin rounded-full border-4 border-white/25 border-t-foreground"
+          aria-label="Loading"
+        />
+      ) : null}
       <PlayerControlsContainer
         Action={Action}
         visible={controlsVisible}

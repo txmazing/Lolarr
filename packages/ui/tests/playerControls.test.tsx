@@ -25,10 +25,10 @@ function markup(showVolume: boolean) {
 
 describe('PlayerControls showVolume', () => {
   it('renders the volume slider when showVolume is true', () => {
-    expect(markup(true)).toContain('player-volume')
+    expect(markup(true)).toContain('aria-label="Volume"')
   })
 
   it('omits the volume slider when showVolume is false', () => {
-    expect(markup(false)).not.toContain('player-volume')
+    expect(markup(false)).not.toContain('aria-label="Volume"')
   })
 })

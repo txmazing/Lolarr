@@ -1,6 +1,15 @@
 import type { MediaItem } from '@lolarr/domain'
 import type { ActionComponent } from './types'
-import { StatusBadge } from './StatusBadge'
+import { labelForAvailability } from './availabilityLabels'
+
+// Library titles render clean (no status chip); anything not directly
+// watchable-in-full carries a small frosted indicator overlaid on the poster.
+const OVERLAY_AVAILABILITY = new Set<MediaItem['availability']>([
+  'processing',
+  'requested',
+  'requestable',
+  'unavailable',
+])
 
 export function MediaPosterButton({
   item,
@@ -13,38 +22,47 @@ export function MediaPosterButton({
   Action: ActionComponent
   focusKeyPrefix: string
 }) {
+  const metaLine = item.jellyfin?.episode
+    ? `S${item.jellyfin.episode.season} · E${item.jellyfin.episode.number}`
+    : item.year
+      ? String(item.year)
+      : null
+
   return (
     <Action
       variant="card"
-      className="group relative w-40 shrink-0 rounded-md transition-transform duration-[350ms] ease-out-expo hover:scale-[1.06] focused:scale-[1.06] focused:outline focused:outline-2 focused:outline-ring"
+      className="group w-40 shrink-0 transition-transform duration-[350ms] ease-out-expo hover:scale-[1.08] focused:scale-[1.08]"
       onPress={() => onOpen(item)}
       focusKey={`${focusKeyPrefix}-${item.id}`}
-      ariaLabel={`Open ${item.title}`}
+      ariaLabel={`${item.title} öffnen`}
     >
-      <span className="relative aspect-[2/3] overflow-hidden rounded-md bg-surface border block">
+      {/* No hard border or shadow; a faint inset ring sits under the poster
+          and brightens on hover/focus instead. */}
+      <span className="relative block aspect-[2/3] w-full overflow-hidden rounded-md bg-surface ring-1 ring-inset ring-white/[0.06] transition-[box-shadow] duration-200 group-hover:ring-2 group-hover:ring-white/25 focused:ring-2 focused:ring-white/30">
         {item.posterUrl ? (
           <img src={item.posterUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
-          <span className="flex h-full items-center justify-center p-3 text-center text-sm text-muted-foreground">
+          <span className="flex h-full items-center justify-center p-3 text-center text-2xl font-semibold text-muted-foreground">
             {item.title.slice(0, 1)}
           </span>
         )}
+        {OVERLAY_AVAILABILITY.has(item.availability) ? (
+          <span className="glass-controls absolute top-2 right-2 rounded-full px-2 py-0.5 text-[10px] font-medium">
+            {labelForAvailability(item.availability)}
+          </span>
+        ) : null}
         {item.jellyfin?.progressPercent !== undefined ? (
-          <span className="absolute bottom-0 inset-x-0 h-1 bg-surface-3" aria-hidden="true">
+          <span className="absolute inset-x-0 bottom-0 h-1 bg-black/40" aria-hidden="true">
             <span
-              className="h-full bg-primary block"
+              className="block h-full bg-primary"
               style={{ width: `${item.jellyfin.progressPercent}%` }}
             />
           </span>
         ) : null}
       </span>
-      <span className="mt-2 truncate text-sm font-medium block">{item.title}</span>
-      <span className="text-xs text-muted-foreground flex items-center gap-2">
-        {item.year ? <span>{item.year}</span> : null}
-        <StatusBadge availability={item.availability} />
-      </span>
-      {item.jellyfin?.episode ? (
-        <span className="block text-xs text-muted-foreground mt-1">{`S${item.jellyfin.episode.season} · E${item.jellyfin.episode.number}`}</span>
+      <span className="mt-2 block w-full truncate text-sm font-semibold">{item.title}</span>
+      {metaLine ? (
+        <span className="block text-xs font-light text-muted-foreground">{metaLine}</span>
       ) : null}
     </Action>
   )

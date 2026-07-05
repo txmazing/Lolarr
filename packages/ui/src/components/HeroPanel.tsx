@@ -1,6 +1,6 @@
 import type { MediaItem } from '@lolarr/domain'
 import type { ActionComponent } from './types'
-import { Badge } from '@ui/components/ui/shadcn/badge'
+import { Badge } from '@ui/components/ui/Badge'
 import { StatusBadge } from './StatusBadge'
 
 type HeroProps = {
@@ -12,7 +12,7 @@ type HeroProps = {
 // Full-bleed cinematic hero. -mt-16 pulls the backdrop up under the sticky nav
 // (see AppFrame) so it bleeds to the very top edge; the gradients keep the nav
 // and the bottom-left content readable over the image.
-const HERO_SHELL = 'relative w-full h-[82vh] min-h-[520px] overflow-hidden -mt-16'
+const HERO_SHELL = 'relative w-full h-[82vh] min-h-[520px] overflow-hidden -mt-24'
 const HERO_CONTENT = 'absolute bottom-[14%] left-0 px-12 max-w-2xl flex flex-col gap-4 z-10'
 
 export function HeroPanel({ item, onOpen, Action }: HeroProps) {

@@ -16,7 +16,7 @@ export function GatewayPanel({
   return (
     <section className="mx-auto my-[12vh] w-full max-w-md glass rounded-lg border p-10 flex flex-col gap-6">
       <div>
-        <p className="eyebrow">Gateway setup</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Gateway setup</p>
         <h2 className="text-2xl font-semibold tracking-tight">Connect this TV to Lolarr.</h2>
         <p className="text-sm text-muted-foreground">
           Enter the API URL from the machine running the gateway. On Tizen this

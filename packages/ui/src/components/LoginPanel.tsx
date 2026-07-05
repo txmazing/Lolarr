@@ -16,7 +16,7 @@ export function LoginPanel({
   return (
     <section className="mx-auto my-[12vh] w-full max-w-md glass rounded-lg border p-10 flex flex-col gap-6">
       <div>
-        <p className="eyebrow">Jellyfin login</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Jellyfin login</p>
         <h2 className="text-2xl font-semibold tracking-tight">One account for your library and requests.</h2>
         <p className="text-sm text-muted-foreground">
           Use your Jellyfin credentials. Lolarr keeps the session in its gateway

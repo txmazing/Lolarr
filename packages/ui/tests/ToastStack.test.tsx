@@ -15,12 +15,12 @@ describe('ToastStack', () => {
     const { container } = render(<ToastStack toasts={toasts} />)
     expect(screen.getByText('Dune is now available')).toBeDefined()
     expect(screen.getByText('Tenet failed to process')).toBeDefined()
-    expect(container.querySelector('.toast-available')).not.toBeNull()
-    expect(container.querySelector('.toast-failed')).not.toBeNull()
+    expect(container.querySelector('.border-l-status-available')).not.toBeNull()
+    expect(container.querySelector('.border-l-status-failed')).not.toBeNull()
   })
 
   it('renders nothing when empty', () => {
     const { container } = render(<ToastStack toasts={[]} />)
-    expect(container.querySelector('.toast-stack')).toBeNull()
+    expect(container.firstChild).toBeNull()
   })
 })

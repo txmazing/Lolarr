@@ -23,7 +23,7 @@ export function PillTabs({
           focusKey={`tab-${item.id}`}
           onPress={() => onSelect(item.id)}
           className={cn(
-            'rounded-full px-5 h-9 text-sm',
+            'rounded-full px-5 h-11 text-sm',
             item.id === selectedId
               ? 'bg-primary text-primary-foreground'
               : 'bg-surface text-muted-foreground',

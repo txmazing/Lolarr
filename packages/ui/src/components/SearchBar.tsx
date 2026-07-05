@@ -10,7 +10,7 @@ export function SearchBar({
   onQueryChange: (query: string) => void
 }) {
   return (
-    <label className="search-bar">
+    <label className="my-7 grid gap-2 text-xs font-medium uppercase tracking-[0.04em] text-muted-foreground">
       <span>Search</span>
       <TextInput
         autoComplete="off"

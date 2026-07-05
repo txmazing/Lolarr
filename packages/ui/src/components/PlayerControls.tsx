@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { cn } from '@ui/lib/utils'
 import type { ActionComponent } from './types'
 
 type PlayerControlsProps = {
@@ -48,14 +49,19 @@ export function PlayerControls({
   }
 
   return (
-    <div className={visible ? 'player-controls visible' : 'player-controls'}>
-      <div className="player-controls-top">
+    <div
+      className={cn(
+        'pointer-events-none absolute inset-0 flex flex-col justify-between bg-gradient-to-b from-black/60 via-transparent to-black/75 p-6 opacity-0 transition-opacity duration-300 ease-out-expo',
+        visible && 'pointer-events-auto opacity-100',
+      )}
+    >
+      <div className="flex items-center gap-4">
         <Action onPress={onBack} focusKey="player-back" ariaLabel="Back">←</Action>
-        {title ? <span className="player-title">{title}</span> : null}
+        {title ? <span className="text-lg font-semibold">{title}</span> : null}
       </div>
-      <div className="player-controls-bottom">
+      <div className="flex flex-col gap-3">
         <input
-          className="player-seekbar"
+          className="w-full accent-foreground"
           type="range"
           min={0}
           max={hasDuration ? Math.floor(duration) : 0}
@@ -66,18 +72,18 @@ export function PlayerControls({
           onBlur={(event) => commitSeek(Number(event.currentTarget.value))}
           aria-label="Seek"
         />
-        <div className="player-buttons">
+        <div className="flex items-center gap-3">
           <Action onPress={() => onSeekBy(-10)} focusKey="player-rewind" ariaLabel="Back 10 seconds">⟲10</Action>
           <Action onPress={onTogglePause} focusKey="player-pause" ariaLabel={isPaused ? 'Play' : 'Pause'}>
             {isPaused ? '▶' : '⏸'}
           </Action>
           <Action onPress={() => onSeekBy(10)} focusKey="player-forward" ariaLabel="Forward 10 seconds">⟳10</Action>
-          <span className="player-time">
+          <span className="text-muted-foreground tabular-nums">
             {formatTime(position)} / {hasDuration ? formatTime(duration) : '–:––'}
           </span>
           {showVolume ? (
             <input
-              className="player-volume"
+              className="w-[110px] accent-foreground"
               type="range"
               min={0}
               max={1}

@@ -32,7 +32,7 @@ export function SeasonRequestPicker({
     <GlassDialog open onClose={onClose} title="Request seasons" ariaLabel="Request seasons">
       <div className="flex flex-col gap-2 max-h-[50vh] overflow-y-auto">
         <Action
-          variant="ghost"
+          variant="secondary"
           onPress={() => setSelection(allSelected ? [] : selectable)}
           focusKey="season-pick-all"
           disabled={selectable.length === 0}
@@ -69,7 +69,7 @@ export function SeasonRequestPicker({
             ? 'Requesting...'
             : `Request ${validSelection.length} ${validSelection.length === 1 ? 'season' : 'seasons'}`}
         </Action>
-        <Action variant="ghost" onPress={onClose} focusKey="season-pick-cancel" disabled={isRequesting}>
+        <Action variant="secondary" onPress={onClose} focusKey="season-pick-cancel" disabled={isRequesting}>
           Cancel
         </Action>
       </div>

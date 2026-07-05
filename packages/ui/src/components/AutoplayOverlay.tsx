@@ -14,11 +14,11 @@ export function AutoplayOverlay({
   onCancel: () => void
 }) {
   return (
-    <div className="autoplay-overlay">
-      <p className="autoplay-label">Next episode in {secondsLeft}s</p>
-      <p className="autoplay-title">{title}</p>
-      <div className="autoplay-actions">
-        <Action onPress={onPlayNow} focusKey="autoplay-now">
+    <div className="glass-controls absolute right-8 bottom-10 max-w-xs rounded-md p-5">
+      <p className="text-sm text-muted-foreground">Next episode in {secondsLeft}s</p>
+      <p className="mt-1 mb-3 font-semibold">{title}</p>
+      <div className="flex gap-3">
+        <Action variant="primary" onPress={onPlayNow} focusKey="autoplay-now">
           Play now
         </Action>
         <Action onPress={onCancel} focusKey="autoplay-cancel">

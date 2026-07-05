@@ -27,7 +27,9 @@ export class AVPlayPlayer implements Player {
   constructor(host: PlayerHost) {
     this.element = document.createElement('object')
     this.element.type = 'application/avplayer'
-    this.element.className = 'avplay-surface'
+    // Imperative element (outside React/Tailwind) — size it inline.
+    this.element.style.width = '100%'
+    this.element.style.height = '100%'
     host.container.appendChild(this.element)
     this.onVisibility = () => this.handleVisibilityChange()
     document.addEventListener('visibilitychange', this.onVisibility)
