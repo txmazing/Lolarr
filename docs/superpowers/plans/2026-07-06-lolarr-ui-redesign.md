@@ -55,9 +55,9 @@
 
 These are baked into the plan as defaults; flagged because the approved mockup shows more than the current player supports:
 
-1. **Player subtitle / audio-track / settings buttons** appear in the mockup but require Jellyfin track-selection + a settings sheet that **do not exist yet**. Default: this redesign **defers** them (Task 12 restyles the real controls + adds prev/next, rating, "Endet um"). Adding them is a separate slice.
-2. **Prev-episode** control: we have autoplay-**next** but no prev handler. Default: wire **next** (existing), render **prev** only if a `onPrev` handler is supplied, else omit.
-3. **lucide-animated** package is not a verified dependency. Default: use `lucide-react` + a CSS `@keyframes` heart-pop. No extra dep.
+1. **Player subtitle / audio-track / settings buttons** appear in the mockup but require Jellyfin track-selection + a settings sheet that **do not exist yet**. **Decision (user): build the full control UI** (subtitles, audio, settings, prev) with the reference layout; wire the handlers that exist; controls without backing functionality get a no-op handler and are **documented as not-yet-wired** (inline comment block + a "Deferred functionality" doc section in Task 15).
+2. **Prev-episode** control: built as UI; wired via `onPrev` if the player supplies it, else a documented no-op.
+3. **lucide-animated** package is not a verified dependency. Use `lucide-react` + a CSS `@keyframes` heart-pop for the favorite. No extra dep.
 
 ---
 
@@ -541,8 +541,9 @@ git commit -m "feat(ui): dark-frost dialog panel + selectable season rows"
 - Test: `packages/ui/tests/playerControls.test.tsx`
 
 **Interfaces:**
-- Props add (optional): `rating?: number`, `onNext?: () => void`, `onPrev?: () => void`. Existing props unchanged.
-- Layout: scrubber row = elapsed (left) · `<input range>` styled track · **remaining negative** (right, `-mm:ss`), all `tabular-nums`. Control row: left cluster `prev?(onPrev) · rewind(onSeekBy -10) · play/pause · forward(onSeekBy +10) · next?(onNext) · | · ★rating? · "Endet um HH:MM"`; right cluster `favorite · volume(+slider web) · fullscreen`. **All buttons uniform 44px** `Action` with lucide icons (no enlarged play). Deferred per pre-flight #1: no subtitle/audio/settings buttons. Gear icon reserved for a future settings sheet (omit for now).
+- Props add (all optional): `rating?: number`, `onNext?`, `onPrev?`, `onToggleFavorite?`, `isFavorite?`, `onSubtitles?`, `onAudio?`, `onSettings?`, `now?: number`. Existing props unchanged. A handler not supplied defaults to a **no-op**; the button still renders (per user decision — build UI, document gap).
+- Layout: scrubber row = elapsed (left) · `<input range>` styled track · **remaining negative** (right, `-mm:ss`), all `tabular-nums`. Control row: left cluster `prev · rewind(onSeekBy -10) · play/pause · forward(onSeekBy +10) · next · | · ★rating? · "Endet um HH:MM"`; right cluster `favorite(animated heart) · subtitles(CC) · audio · volume(+slider web) · settings(gear) · fullscreen`. **All buttons uniform 44px** `Action` with lucide icons (no enlarged play, no PiP).
+- **Not-yet-wired (build UI, document):** subtitles / audio-track / settings open placeholder handlers (no track-selection sheet exists yet); prev when no `onPrev`. Mark each with an inline `// TODO(player): not wired — needs <feature>` and list them in the Task 15 "Deferred functionality" doc.
 
 - [ ] **Step 1: Update test** — assert remaining-negative time, uniform buttons, no PiP, aria-labels
 
@@ -553,7 +554,7 @@ expect(screen.getByLabelText('Fullscreen')).toBeInTheDocument()
 ```
 
 - [ ] **Step 2: Run** → FAIL
-- [ ] **Step 3: Implement** — replace glyph children with lucide icons inside `Action`; add `endsAt(position, duration)` (pure, from a passed `now` epoch — inject via prop `now?: number` defaulting to `Date.now()` at call site to keep the component pure/testable); render `-${formatTime(duration - position)}` for remaining. Uniform button size class (e.g. `h-11 w-11 p-0`).
+- [ ] **Step 3: Implement** — replace glyph children with lucide icons inside `Action` (`SkipBack, Rewind, Play/Pause, FastForward, SkipForward, Heart, Captions, Music, Volume2, Settings, Maximize, Star`); build the **full** control set (prev/subtitles/audio/settings included) with no-op fallbacks; add `endsAt(position, duration, now)` (pure — inject `now?: number` defaulting to `Date.now()` at the call site so the component stays testable); render `-${formatTime(duration - position)}` for remaining. Uniform button size class `h-11 w-11 p-0`. Favorite heart uses a CSS `@keyframes` pop (add to `theme.css`, applied on `isFavorite`). Add an inline `// TODO(player): not wired` on each placeholder control.
 - [ ] **Step 4: Run** → PASS
 - [ ] **Step 5: Preview-verify** — open a player route; confirm buttons equal size and remaining time negative.
 - [ ] **Step 6: Commit**
@@ -620,7 +621,7 @@ git commit -m "feat(ui): apply the system to search, requests, and auth screens"
 - [ ] **Step 4: Production build (authoritative)** — `moon run web:build --force` → clean
 - [ ] **Step 5: TV build** — `moon run tv:tizen-sync --force`; commit regenerated `apps/tv/tizen/assets/*`
 - [ ] **Step 6: Preview computed-style spot checks** — start `web`; verify against the mockups: nav has no background, active tab `#f5f5f7`+`#121212`, a bare button has `background: transparent` + `backdrop-filter: blur(8px)`, dialog panel `rgb(42 42 42 / 0.72)`, player buttons equal size. Fix any divergence, re-run the covering test.
-- [ ] **Step 7: Docs** — update the UI docs to describe the bare-control system + token table.
+- [ ] **Step 7: Docs** — update the UI docs to describe the bare-control system + token table. **Add a "Deferred functionality" section** listing the player controls that render but are not yet wired (subtitles, audio-track, settings, prev-without-handler) and what each needs to become functional.
 - [ ] **Step 8: Commit**
 
 ```bash
