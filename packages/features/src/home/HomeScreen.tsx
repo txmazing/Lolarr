@@ -71,11 +71,11 @@ export function HomeScreen({
       userName={userName}
       onSignOut={onSignOut}
     >
-      <div className="home-header-row">
-        <Action className="ghost-action" onPress={onOpenSearch} focusKey="home-search">
+      <div className="flex items-center justify-between gap-4">
+        <Action variant="ghost" onPress={onOpenSearch} focusKey="home-search">
           Search
         </Action>
-        <Action className="ghost-action" onPress={onOpenRequests} focusKey="home-requests">
+        <Action variant="ghost" onPress={onOpenRequests} focusKey="home-requests">
           Requests{unreadCount > 0 ? <span className="nav-badge">{unreadCount}</span> : null}
         </Action>
       </div>

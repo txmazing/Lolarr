@@ -16,12 +16,14 @@ export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) 
   }
 
   return (
-    <section className="media-rail" aria-labelledby={`${id}-title`}>
-      <div className="rail-heading">
-        <h2 id={`${id}-title`}>{title}</h2>
-        <span>{items.length} titles</span>
+    <section className="flex flex-col gap-3" aria-labelledby={`${id}-title`}>
+      <div className="flex items-baseline justify-between px-1">
+        <h2 id={`${id}-title`} className="text-lg font-semibold">
+          {title}
+        </h2>
+        <span className="text-xs text-muted-foreground">{items.length} titles</span>
       </div>
-      <div className="rail-scroll">
+      <div className="flex gap-4 overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => (
           <MediaPosterButton
             key={item.id}
