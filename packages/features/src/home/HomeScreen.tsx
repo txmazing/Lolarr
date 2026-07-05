@@ -9,6 +9,7 @@ import {
   MediaRail,
   RequestList,
   type ActionComponent,
+  type NavItem,
 } from '@lolarr/ui'
 import { enrichItems, resolveItemImages } from '../lib/images.js'
 import { readErrorMessage } from '../lib/errors.js'
@@ -64,28 +65,21 @@ export function HomeScreen({
   const rows = enrichedHome.rows
   const featuredItem = enrichedHome.hero ?? rows[0]?.items[0]
 
+  const navItems: NavItem[] = [
+    { key: 'home', label: 'Home', onPress: () => {}, active: true },
+    { key: 'search', label: 'Suche', onPress: onOpenSearch },
+    { key: 'requests', label: 'Anfragen', onPress: onOpenRequests, badge: unreadCount || undefined },
+  ]
+
   return (
     <AppFrame
       Action={Action}
+      navItems={navItems}
+      onSearch={onOpenSearch}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
       userName={userName}
       onSignOut={onSignOut}
     >
-      <div className="flex items-center justify-between gap-4">
-        <Action variant="ghost" onPress={onOpenSearch} focusKey="home-search">
-          Search
-        </Action>
-        <Action variant="ghost" onPress={onOpenRequests} focusKey="home-requests">
-          Requests{unreadCount > 0 ? <span className="nav-badge">{unreadCount}</span> : null}
-        </Action>
-      </div>
-      {homeQuery.error ? (
-        <ErrorPanel
-          message={readErrorMessage(homeQuery.error)}
-          Action={Action}
-          onRetry={() => void homeQuery.refetch()}
-        />
-      ) : null}
       <HeroPanel
         item={featuredItem}
         onOpen={
@@ -95,20 +89,33 @@ export function HomeScreen({
         }
         Action={Action}
       />
-      {homeQuery.isLoading ? <LoadingPanel /> : null}
-      {rows.map((row) => (
-        <MediaRail
-          key={row.id}
-          id={row.id}
-          title={row.title}
-          items={row.items}
-          onOpen={row.id === 'continue-watching' ? onPlayItem : onOpenItem}
-          Action={Action}
-        />
-      ))}
-      {requestsError ? null : (
-        <RequestList requests={requests} Action={Action} limit={3} onViewAll={onOpenRequests} />
-      )}
+      <div className="flex flex-col gap-10 pb-16 pt-6">
+        {homeQuery.error ? (
+          <div className="px-12">
+            <ErrorPanel
+              message={readErrorMessage(homeQuery.error)}
+              Action={Action}
+              onRetry={() => void homeQuery.refetch()}
+            />
+          </div>
+        ) : null}
+        {homeQuery.isLoading ? <LoadingPanel /> : null}
+        {rows.map((row) => (
+          <MediaRail
+            key={row.id}
+            id={row.id}
+            title={row.title}
+            items={row.items}
+            onOpen={row.id === 'continue-watching' ? onPlayItem : onOpenItem}
+            Action={Action}
+          />
+        ))}
+        {requestsError ? null : (
+          <div className="px-12">
+            <RequestList requests={requests} Action={Action} limit={3} onViewAll={onOpenRequests} />
+          </div>
+        )}
+      </div>
     </AppFrame>
   )
 }

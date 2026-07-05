@@ -5,7 +5,7 @@ export type {
   TextInputComponent,
   TextInputProps,
 } from './components/types'
-export { AppFrame } from './components/AppFrame'
+export { AppFrame, type NavItem } from './components/AppFrame'
 export { AutoplayOverlay } from './components/AutoplayOverlay'
 export { Button } from './components/ui/Button'
 export { OverlayScopeProvider, type OverlayScopeComponent } from './components/ui/OverlayScope'
