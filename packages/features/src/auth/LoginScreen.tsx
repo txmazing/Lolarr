@@ -56,8 +56,8 @@ export function LoginScreen({
       <form onSubmit={handleLogin}>
         <LoginPanel Action={Action} error={loginError} isLoading={isLoggingIn} TextInput={TextInput} />
       </form>
-      <div className="login-alt-action">
-        <Action className="ghost-action" onPress={onQuickConnect} focusKey="login-quick-connect">
+      <div className="text-center">
+        <Action variant="ghost" onPress={onQuickConnect} focusKey="login-quick-connect">
           Sign in with Quick Connect
         </Action>
       </div>

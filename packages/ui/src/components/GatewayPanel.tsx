@@ -14,17 +14,17 @@ export function GatewayPanel({
   TextInput,
 }: GatewayPanelProps) {
   return (
-    <section className="gateway-panel">
+    <section className="mx-auto my-[12vh] w-full max-w-md glass rounded-lg border p-10 flex flex-col gap-6">
       <div>
         <p className="eyebrow">Gateway setup</p>
-        <h2>Connect this TV to Lolarr.</h2>
-        <p>
+        <h2 className="text-2xl font-semibold tracking-tight">Connect this TV to Lolarr.</h2>
+        <p className="text-sm text-muted-foreground">
           Enter the API URL from the machine running the gateway. On Tizen this
           must be an absolute network URL, for example http://192.168.1.50:4000.
         </p>
       </div>
-      <div className="login-fields">
-        <label>
+      <div className="flex flex-col gap-4">
+        <label className="flex flex-col gap-2 text-sm text-muted-foreground">
           Gateway URL
           <TextInput
             autoComplete="off"
@@ -38,8 +38,8 @@ export function GatewayPanel({
           />
         </label>
       </div>
-      {error ? <p className="form-error">{error}</p> : null}
-      <Action className="primary-action" focusKey="gateway-submit" type="submit">
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
+      <Action variant="primary" focusKey="gateway-submit" type="submit">
         Save gateway
       </Action>
     </section>

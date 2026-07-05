@@ -1,57 +1,21 @@
+/* Übergangs-Token-Block (Welle 1): mappt Legacy-Variablennamen auf die neuen
+   Tokens aus theme.css, damit noch nicht reworkte Screens (Wellen 2-4) nicht
+   brechen. Fliegt in Task 10 mit dieser Datei raus. */
 :root {
-  --bg: #080a0e;
-  --surface: #111720;
-  --surface-2: #18212d;
-  --surface-3: #223041;
-  --text: #eef4f8;
-  --muted: #91a1ad;
-  --subtle: #5f7080;
-  --line: rgba(255, 255, 255, 0.11);
-  --accent: #f4c542;
-  --accent-2: #49d6b8;
-  --danger: #ff6b6b;
-  --shadow: 0 20px 90px rgba(0, 0, 0, 0.45);
-  --radius: 8px;
-  --font: Avenir Next, Aptos, ui-sans-serif, system-ui, sans-serif;
-
-  color: var(--text);
-  background: var(--bg);
-  font: 16px/1.45 var(--font);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 22% 0%, rgba(73, 214, 184, 0.12), transparent 30rem),
-    linear-gradient(180deg, #0b1018 0%, var(--bg) 42rem);
-}
-
-button,
-input {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-}
-
-button:disabled {
-  cursor: not-allowed;
-}
-
-#root,
-.app-shell {
-  min-height: 100svh;
+  --bg: var(--background);
+  --surface: var(--surface);
+  --surface-2: var(--surface-2);
+  --surface-3: var(--surface-3);
+  --text: var(--foreground);
+  --muted: var(--muted-foreground);
+  --subtle: var(--muted-foreground);
+  --line: var(--border);
+  --accent: var(--foreground);
+  --accent-2: var(--foreground);
+  --danger: var(--danger);
+  --shadow: 0 20px 90px rgb(0 0 0 / 0.45);
+  --radius: 12px;
+  --font: var(--font-sans);
 }
 
 .lolarr-app {
@@ -137,90 +101,6 @@ button:disabled {
   background: var(--danger);
 }
 
-.primary-action,
-.ghost-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 132px;
-  min-height: 44px;
-  border: 0;
-  border-radius: var(--radius);
-  padding: 10px 18px;
-  color: #0c0f12;
-  background: var(--accent);
-  font-weight: 850;
-  text-decoration: none;
-  transition:
-    transform 140ms ease,
-    box-shadow 140ms ease,
-    background 140ms ease;
-}
-
-.primary-action:hover,
-.primary-action.focused {
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 4px rgba(244, 197, 66, 0.22), 0 18px 45px rgba(0, 0, 0, 0.35);
-}
-
-.primary-action:disabled {
-  color: var(--subtle);
-  background: var(--surface-3);
-  box-shadow: none;
-  transform: none;
-}
-
-.ghost-action {
-  min-width: auto;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.09);
-}
-
-.ghost-action:hover,
-.ghost-action.focused {
-  background: rgba(255, 255, 255, 0.17);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.16);
-}
-
-.login-panel,
-.gateway-panel,
-.loading-panel,
-.error-panel,
-.quick-connect-panel {
-  width: min(100%, 560px);
-  margin: 10vh auto 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: clamp(22px, 4vw, 38px);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
-  box-shadow: var(--shadow);
-}
-
-.login-panel h2,
-.gateway-panel h2,
-.error-panel h2,
-.quick-connect-panel h2 {
-  margin: 8px 0 10px;
-  font-size: clamp(28px, 4vw, 48px);
-  line-height: 1;
-  letter-spacing: 0;
-}
-
-.login-panel p,
-.gateway-panel p,
-.error-panel p,
-.loading-panel p,
-.quick-connect-panel p {
-  color: var(--muted);
-}
-
-.login-fields {
-  display: grid;
-  gap: 14px;
-  margin: 28px 0 16px;
-}
-
-.login-fields label,
 .search-bar {
   display: grid;
   gap: 8px;
@@ -231,7 +111,6 @@ button:disabled {
   text-transform: uppercase;
 }
 
-.login-fields input,
 .search-bar input {
   width: 100%;
   min-height: 48px;
@@ -243,29 +122,10 @@ button:disabled {
   outline: 0;
 }
 
-.login-fields input:focus,
-.login-fields input.focused,
 .search-bar input:focus,
 .search-bar input.focused {
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(244, 197, 66, 0.18);
-}
-
-.form-error,
-.error-text {
-  margin: 0 0 16px;
-  color: var(--danger) !important;
-}
-
-.quick-connect-code {
-  font-size: 3rem;
-  letter-spacing: 0.3em;
-}
-
-.login-alt-action {
-  width: min(100%, 560px);
-  margin: 16px auto 0;
-  text-align: center;
 }
 
 .hero-panel {
@@ -513,28 +373,6 @@ button:disabled {
 .request-list small,
 .empty-state {
   color: var(--muted);
-}
-
-.loading-panel {
-  display: grid;
-  gap: 18px;
-  justify-items: start;
-}
-
-.loader-line {
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background:
-    linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent)) 0 0 /
-      220% 100%;
-  animation: loader-pan 1.2s linear infinite;
-}
-
-@keyframes loader-pan {
-  to {
-    background-position-x: 220%;
-  }
 }
 
 @media (max-width: 720px) {

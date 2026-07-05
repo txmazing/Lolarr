@@ -14,17 +14,17 @@ export function LoginPanel({
   TextInput,
 }: LoginPanelProps) {
   return (
-    <section className="login-panel">
+    <section className="mx-auto my-[12vh] w-full max-w-md glass rounded-lg border p-10 flex flex-col gap-6">
       <div>
         <p className="eyebrow">Jellyfin login</p>
-        <h2>One account for your library and requests.</h2>
-        <p>
+        <h2 className="text-2xl font-semibold tracking-tight">One account for your library and requests.</h2>
+        <p className="text-sm text-muted-foreground">
           Use your Jellyfin credentials. Lolarr keeps the session in its gateway
           and uses Seerr server-side for discovery and requests.
         </p>
       </div>
-      <div className="login-fields">
-        <label>
+      <div className="flex flex-col gap-4">
+        <label className="flex flex-col gap-2 text-sm text-muted-foreground">
           Server user
           <TextInput
             autoComplete="username"
@@ -35,7 +35,7 @@ export function LoginPanel({
             required
           />
         </label>
-        <label>
+        <label className="flex flex-col gap-2 text-sm text-muted-foreground">
           Password
           <TextInput
             autoComplete="current-password"
@@ -48,9 +48,9 @@ export function LoginPanel({
           />
         </label>
       </div>
-      {error ? <p className="form-error">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       <Action
-        className="primary-action"
+        variant="primary"
         disabled={isLoading}
         focusKey="login-submit"
         type="submit"
