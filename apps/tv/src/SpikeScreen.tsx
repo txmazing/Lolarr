@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   FocusContext,
   useFocusable,
 } from '@noriginmedia/norigin-spatial-navigation-react'
-import { Button, GlassDialog, PillTabs, cn } from '@lolarr/ui'
+import { Button, GlassDialog, PillTabs, cn, type ActionProps } from '@lolarr/ui'
 
 function SpikeButton({ label, onPress }: { label: string; onPress?: () => void }) {
   const { ref, focused } = useFocusable({ onEnterPress: onPress })
@@ -14,10 +14,50 @@ function SpikeButton({ label, onPress }: { label: string; onPress?: () => void }
   )
 }
 
+// Norigin-registered ActionComponent for PillTabs — mirrors how the real app
+// injects TvAction (e.g. into SeasonSelector), which is what this gate tests.
+function SpikeAction({
+  ariaLabel,
+  children,
+  className,
+  disabled,
+  focusKey,
+  onPress,
+  size,
+  type = 'button',
+  variant,
+}: ActionProps) {
+  const { ref, focused } = useFocusable({
+    focusKey,
+    focusable: !disabled,
+    onEnterPress: onPress,
+  })
+  return (
+    <Button
+      ref={ref}
+      type={type}
+      variant={variant}
+      size={size}
+      aria-label={ariaLabel}
+      className={cn(className, focused && 'focused')}
+      disabled={disabled}
+      onClick={onPress}
+    >
+      {children}
+    </Button>
+  )
+}
+
 export function SpikeScreen() {
-  const { ref, focusKey } = useFocusable({ isFocusBoundary: true })
+  const { ref, focusKey, focusSelf } = useFocusable({ isFocusBoundary: true })
   const [dialogOpen, setDialogOpen] = useState(false)
   const [tab, setTab] = useState('s1')
+
+  // Seed initial Norigin focus like TvShell does — without it, D-Pad input is
+  // dead on the device (norigin aborts navigation when nothing is focused).
+  useEffect(() => {
+    focusSelf()
+  }, [focusSelf])
 
   return (
     <FocusContext.Provider value={focusKey}>
@@ -31,6 +71,7 @@ export function SpikeScreen() {
         </div>
         <PillTabs
           ariaLabel="Spike tabs"
+          Action={SpikeAction}
           items={[
             { id: 's1', label: 'Staffel 1' },
             { id: 's2', label: 'Staffel 2' },
