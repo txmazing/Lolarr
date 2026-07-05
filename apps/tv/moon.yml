@@ -29,6 +29,12 @@ tasks:
       - 'public/**/*'
       - 'tsconfig*.json'
       - 'vite.config.ts'
+      # Vite bundles @lolarr/* package sources directly (config/vite/react.ts
+      # aliases + each package's "exports" resolve to ./src), yet the library
+      # build tasks are typecheck-only and declare no outputs — so a dep on
+      # them cannot carry staleness forward. List the package sources here so a
+      # change under packages/*/src actually invalidates this build's cache.
+      - '/packages/*/src/**/*'
     outputs:
       - 'dist/**/*'
   lint:
@@ -48,6 +54,8 @@ tasks:
       - 'tizen-index.html'
       - 'tsconfig*.json'
       - 'vite.tizen.config.ts'
+      # tizen:sync re-bundles the same @lolarr/* package sources (see build note).
+      - '/packages/*/src/**/*'
     outputs:
       - 'dist-tizen/**/*'
       - 'tizen/index.html'
@@ -61,3 +69,5 @@ tasks:
     inputs:
       - 'src/**/*'
       - 'tsconfig*.json'
+      # tsc type-checks the imported @lolarr/* sources directly (see build note).
+      - '/packages/*/src/**/*'
