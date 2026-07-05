@@ -221,3 +221,23 @@ mit Pfeiltasten, hier NUR den Fokus hineinseeden und Norigin NICHT übersteuern.
 Neue Komponenten werden bei tatsächlicher Adoption über diese Nähte angebunden
 (YAGNI — kein spekulatives Runtime-Auto-Wrapping, das die Composite-Widgets
 brechen würde).
+
+## Pivot 2026-07-05: Kompositions-Redesign (cinematisch)
+
+**User-Feedback:** Das Layout sieht nach Web-App aus, nicht nach Netflix/abyss/
+reiverr. Ursache: Die Wellen ①-② mappten Tokens/Komponenten, behielten aber das
+alte Kompositions-Skelett (zentrierte 1680px-Spalte, gerundeter eingerückter
+Hero, Marketing-Headline-Topbar). Ein Token-Tausch erzeugt keinen cinematischen
+Look — dafür braucht es Layout/Komposition.
+
+**Entscheidung (User-approved via Mockup):** Kompositions-Redesign VOR den
+restlichen Wellen. Richtung = cinematisch (Netflix/abyss). **Top-Nav** (schlank,
+transparent, über dem Hero; KEIN reiverr-Sidebar). Konkret:
+- App-Shell **edge-to-edge** (keine zentrierte Max-Breite mehr).
+- **Full-bleed Hero** (randlos, Gradient-Scrim statt gerundeter Karte).
+- Topbar-Headline → **schlanke Top-Nav** (Logo + Home/Suche/Anfragen + Profil/
+  Sign-out), Nav-Items Norigin-fokussierbar über die Action-Naht.
+- Rails **edge-to-edge, dicht**, konsistenter linker Gutter (`px-12`) richtet
+  Hero-Content und Rails aneinander aus.
+Token-/Komponenten-Fundament (shadcn-Wrapper, Glass, Fokus-Naht, card-Variante)
+bleibt. Danach werden die übrigen Screens im neuen Gerüst nachgezogen.
