@@ -323,7 +323,6 @@ git add -A && git commit -m "feat(ui): add tailwind v4 foundation with abyss des
   "extends": "../../tsconfig.react-app.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
-    "baseUrl": ".",
     "paths": { "@ui/*": ["./src/*"] }
   },
   "include": ["src", "tests"]
@@ -392,7 +391,7 @@ export function cn(...inputs: ClassValue[]) {
 cd packages/ui && pnpm dlx shadcn@latest add button input dialog tabs badge skeleton --yes --overwrite
 ```
 
-Expected: sechs Dateien unter `packages/ui/src/components/ui/shadcn/`, `@base-ui-components/react` automatisch in `packages/ui/package.json`. Prüfen: `git status` zeigt KEINE Änderungen außerhalb von `packages/ui`. Stop-Bedingung: Legt die CLI Dateien woanders ab oder scheitert an den Aliasen, abbrechen und an den Controller melden (nicht manuell nachbauen).
+Expected: sechs Dateien unter `packages/ui/src/components/ui/shadcn/`, `@base-ui/react` (Base UI, seit 2026 umbenannt von `@base-ui-components/react`) in `packages/ui/package.json`. Prüfen: `git status` zeigt KEINE Änderungen außerhalb von `packages/ui`. Stop-Bedingung: Legt die CLI Dateien woanders ab oder scheitert an den Aliasen, abbrechen und an den Controller melden (nicht manuell nachbauen).
 
 - [ ] **Step 5: Verifikation + Commit**
 
