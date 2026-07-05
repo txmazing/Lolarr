@@ -22,9 +22,15 @@ export function GlassDialog({
   className?: string
 }) {
   return (
-    <Dialog open={open} onOpenChange={(next) => { if (!next) onClose() }}>
+    // modal={false} + initialFocus={false}: Base UI darf weder einen Focus-Trap
+    // setzen noch beim Öffnen den Fokus an sich ziehen. Sonst inertisiert es die
+    // restliche Seite und desynchronisiert die Norigin-Spatial-Navigation auf dem
+    // TV (D-Pad läuft ins Leere). So behält Norigin die Fokus-Hoheit; Escape und
+    // Backdrop-Schließen bleiben erhalten.
+    <Dialog open={open} modal={false} onOpenChange={(next) => { if (!next) onClose() }}>
       <DialogContent
         aria-label={ariaLabel}
+        initialFocus={false}
         className={cn('glass rounded-lg border-border max-w-lg', className)}
       >
         {title ? <DialogTitle className="text-xl font-semibold">{title}</DialogTitle> : null}
