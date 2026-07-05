@@ -31,22 +31,15 @@ export function AppFrame({
   return (
     <div className="min-h-svh bg-background text-foreground">
       {/* Transparent header floating over the full-bleed hero. The primary nav
-          is a centred frosted-glass segmented control (see NavTabs); a light
-          top scrim keeps the wordmark and links legible over a bright backdrop. */}
+          is a centred row of bare tabs (see NavTabs); a light top scrim keeps
+          the wordmark and links legible over a bright backdrop. */}
       <header className="sticky top-0 z-40 grid grid-cols-[1fr_auto_1fr] items-center px-12 py-5 bg-gradient-to-b from-background/80 via-background/25 to-transparent">
         <span className="justify-self-start text-base font-semibold tracking-[0.2em] select-none">
           LOLARR
         </span>
 
         {navItems && navItems.length > 0 ? (
-          <NavTabs
-            Action={Action}
-            ariaLabel="Primary"
-            className="justify-self-center"
-            items={navItems.map((item) => ({ id: item.key, label: item.label, badge: item.badge }))}
-            selectedId={navItems.find((item) => item.active)?.key ?? navItems[0].key}
-            onSelect={(id) => navItems.find((item) => item.key === id)?.onPress()}
-          />
+          <NavTabs Action={Action} ariaLabel="Primary" className="justify-self-center" items={navItems} />
         ) : (
           <span />
         )}
