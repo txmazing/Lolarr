@@ -198,3 +198,26 @@ Commit `cd23aa3`) — Base UI setzt keinen Trap/`inert` mehr und zieht den Fokus
 nicht an sich, Norigin behält die Hoheit. Escape/Backdrop-Schließen bleiben.
 Kein Eigenbau-Overlay, shadcn-Datei unangetastet. **Re-Spike auf dem S94C
 ausstehend**, bevor Wellen ②-④ die Dialoge nutzen.
+
+### Phase-0 GATE BESTANDEN (2026-07-05, S94C)
+
+Dialog-Overlay auf dem Gerät vollständig validiert nach drei Iterationen:
+1. `modal={false}` + `initialFocus={false}` (Commit `cd23aa3`) — Base UI hört auf,
+   Fokus zu trappen/stehlen; Norigin behält die Hoheit.
+2. `autoFocus` auf dem Action-Vertrag (`db266b7`) — TvAction ruft `focusSelf()`
+   beim Mount; der primäre Dialog-Button bekommt beim Öffnen den Fokus.
+3. `OverlayScope`-Norigin-Fokusgrenze via DI (`a4b71ba`) — `isFocusBoundary`
+   verhindert das Rausnavigieren auf Hintergrund-Elemente. Baumbasiert (nicht
+   geometrisch, aus Norigin-Quelle verifiziert), trägt durch Base UIs Portal.
+
+**Generalisierung (Architektur-Fazit):** Es gibt KEINE einzelne „alle shadcn-
+Fokus automatisch übernehmen"-Magie — shadcn/Base-UI-Komponenten zerfallen in
+drei Fokus-Klassen mit je EIGENER, aber wiederverwendbarer Behandlung:
+(a) einfache Fokus-Elemente (Button/Input) → Action/TextInput-Injection-Naht;
+(b) Overlay-Familie (Dialog/Popover/Dropdown/Sheet) → GlassDialog-Rezept
+(`modal=false` + `initialFocus=false` + `OverlayScope`); (c) Pfeiltasten-
+Composite-Widgets (Select/Menu/Tabs/Combobox) → Base UI navigiert intern SELBST
+mit Pfeiltasten, hier NUR den Fokus hineinseeden und Norigin NICHT übersteuern.
+Neue Komponenten werden bei tatsächlicher Adoption über diese Nähte angebunden
+(YAGNI — kein spekulatives Runtime-Auto-Wrapping, das die Composite-Widgets
+brechen würde).
