@@ -182,3 +182,19 @@ User-Entscheid: **Base UI** — deckt sich mit der Lib-Recherche (aktivste
 Entwicklung, Radix-Nachfolgeteam). Alle „Radix"-Bezüge in Spec/Plan meinen
 fortan die shadcn-Primitives-Schicht (Base UI); das Phase-0-Gate testet den
 Fokus-Konflikt unverändert.
+
+## Phase-0-Ergebnis (2026-07-05, On-Device S94C, Tizen 9)
+
+**UA:** Chrome/120 bestätigt → M120-Floor stimmt.
+**Buttons + Pill-Tabs:** D-Pad voll funktionsfähig → shadcn-Button/Input/Badge/
+Skeleton + das Action-basierte PillTabs-Muster sind TV-tauglich.
+**Glass:** rendert flüssig → kein Kill-Switch nötig, Blur bleibt.
+**Dialog (Erstversuch, modal):** Buttons im Dialog per D-Pad NICHT auswählbar —
+Base UIs modaler Focus-Trap + `inert` desynchronisiert Norigin.
+
+**Auflösung (statt Plan B / Eigenbau-Overlay):** `GlassDialog` rendert Base UI
+nun **non-modal** (`Dialog.Root modal={false}` + `Popup initialFocus={false}`,
+Commit `cd23aa3`) — Base UI setzt keinen Trap/`inert` mehr und zieht den Fokus
+nicht an sich, Norigin behält die Hoheit. Escape/Backdrop-Schließen bleiben.
+Kein Eigenbau-Overlay, shadcn-Datei unangetastet. **Re-Spike auf dem S94C
+ausstehend**, bevor Wellen ②-④ die Dialoge nutzen.
