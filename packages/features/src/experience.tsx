@@ -70,6 +70,13 @@ export function AuthenticatedExperience({
     )
   }
 
+  // Header tab / icon navigation shared by every logged-in screen. Home is the
+  // stack root, so returning there resets rather than pushes; Search/Requests
+  // push like the Home screen already does.
+  const openHome = () => useScreenStore.getState().reset()
+  const openSearch = () => useScreenStore.getState().push({ name: 'search' })
+  const openRequests = () => useScreenStore.getState().push({ name: 'requests' })
+
   if (!auth.user) {
     if (loginMode === 'quickconnect') {
       return (
@@ -136,6 +143,9 @@ export function AuthenticatedExperience({
           canConfigureGateway={canConfigureGateway}
           onConfigureGateway={onConfigureGateway}
           onBack={() => useScreenStore.getState().pop()}
+          onOpenHome={openHome}
+          onOpenSearch={openSearch}
+          onOpenRequests={openRequests}
         />
       )
     }
@@ -156,6 +166,9 @@ export function AuthenticatedExperience({
           onPlay={({ itemId, title, resumeTicks, seriesId }) =>
             useScreenStore.getState().push({ name: 'player', itemId, title, resumeTicks, seriesId })
           }
+          onOpenHome={openHome}
+          onOpenSearch={openSearch}
+          onOpenRequests={openRequests}
         />
       )
     }
@@ -172,6 +185,8 @@ export function AuthenticatedExperience({
           onConfigureGateway={onConfigureGateway}
           onBack={() => useScreenStore.getState().pop()}
           onOpenItem={openItem}
+          onOpenHome={openHome}
+          onOpenRequests={openRequests}
         />
       )
     }
@@ -186,6 +201,8 @@ export function AuthenticatedExperience({
           canConfigureGateway={canConfigureGateway}
           onConfigureGateway={onConfigureGateway}
           onBack={() => useScreenStore.getState().pop()}
+          onOpenHome={openHome}
+          onOpenSearch={openSearch}
         />
       )
     }

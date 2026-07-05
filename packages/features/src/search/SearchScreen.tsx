@@ -8,10 +8,12 @@ import {
   MediaPosterButton,
   SearchBar,
   type ActionComponent,
+  type NavItem,
   type TextInputComponent,
 } from '@lolarr/ui'
 import { useApi } from '../api.js'
 import { readErrorMessage } from '../lib/errors.js'
+import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 
 export function SearchScreen({
   Action,
@@ -23,6 +25,8 @@ export function SearchScreen({
   onConfigureGateway,
   onBack,
   onOpenItem,
+  onOpenHome,
+  onOpenRequests,
 }: {
   Action: ActionComponent
   TextInput: TextInputComponent
@@ -33,7 +37,20 @@ export function SearchScreen({
   onConfigureGateway: () => void
   onBack: () => void
   onOpenItem: (item: MediaItem) => void
+  onOpenHome?: () => void
+  onOpenRequests?: () => void
 }) {
+  const { unreadCount } = useNotificationsContext()
+
+  const navItems: NavItem[] = [
+    { key: 'home', label: 'Start', onPress: () => onOpenHome?.() },
+    {
+      key: 'requests',
+      label: 'Anfragen',
+      onPress: () => onOpenRequests?.(),
+      badge: unreadCount || undefined,
+    },
+  ]
   const api = useApi()
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query.trim())
@@ -52,6 +69,7 @@ export function SearchScreen({
   return (
     <AppFrame
       Action={Action}
+      navItems={navItems}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
       userName={userName}
       onSignOut={onSignOut}

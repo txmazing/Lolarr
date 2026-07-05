@@ -7,9 +7,11 @@ import {
   LoadingPanel,
   SeasonSelector,
   type ActionComponent,
+  type NavItem,
 } from '@lolarr/ui'
 import { readErrorMessage } from '../lib/errors.js'
 import { resolveItemImages } from '../lib/images.js'
+import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 import type { KeyValueStorage } from '../storage.js'
 import { useLibraryDetail } from './useLibraryDetail.js'
 
@@ -24,6 +26,9 @@ export function LibraryDetailScreen({
   onConfigureGateway,
   onBack,
   onPlay,
+  onOpenHome,
+  onOpenSearch,
+  onOpenRequests,
 }: {
   Action: ActionComponent
   apiBaseUrl: string
@@ -35,15 +40,31 @@ export function LibraryDetailScreen({
   onConfigureGateway: () => void
   onBack: () => void
   onPlay: (opts: { itemId: string; title?: string; resumeTicks?: number; seriesId?: string }) => void
+  onOpenHome?: () => void
+  onOpenSearch?: () => void
+  onOpenRequests?: () => void
 }) {
   const detailQuery = useLibraryDetail({ apiBaseUrl, itemId })
   const jellyfinSession = useMemo(() => readJellyfinSession(storage), [storage])
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>()
+  const { unreadCount } = useNotificationsContext()
+
+  const navItems: NavItem[] = [
+    { key: 'home', label: 'Start', onPress: () => onOpenHome?.() },
+    {
+      key: 'requests',
+      label: 'Anfragen',
+      onPress: () => onOpenRequests?.(),
+      badge: unreadCount || undefined,
+    },
+  ]
 
   const frameProps = {
     Action,
+    navItems,
     userName,
     onSignOut,
+    onOpenSearch,
     onConfigureGateway: canConfigureGateway ? onConfigureGateway : undefined,
   }
 

@@ -1,9 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import type { MediaItem } from '@lolarr/domain'
-import { AppFrame, DetailPanel, SeasonRequestPicker, type ActionComponent } from '@lolarr/ui'
+import {
+  AppFrame,
+  DetailPanel,
+  SeasonRequestPicker,
+  type ActionComponent,
+  type NavItem,
+} from '@lolarr/ui'
 import { useApi } from '../api.js'
 import { readErrorMessage } from '../lib/errors.js'
+import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 import { useRequests } from '../requests/useRequests.js'
 
 export function DetailScreen({
@@ -15,6 +22,9 @@ export function DetailScreen({
   canConfigureGateway,
   onConfigureGateway,
   onBack,
+  onOpenHome,
+  onOpenSearch,
+  onOpenRequests,
 }: {
   Action: ActionComponent
   apiBaseUrl: string
@@ -24,8 +34,22 @@ export function DetailScreen({
   canConfigureGateway: boolean
   onConfigureGateway: () => void
   onBack: () => void
+  onOpenHome?: () => void
+  onOpenSearch?: () => void
+  onOpenRequests?: () => void
 }) {
   const api = useApi()
+  const { unreadCount } = useNotificationsContext()
+
+  const navItems: NavItem[] = [
+    { key: 'home', label: 'Start', onPress: () => onOpenHome?.() },
+    {
+      key: 'requests',
+      label: 'Anfragen',
+      onPress: () => onOpenRequests?.(),
+      badge: unreadCount || undefined,
+    },
+  ]
 
   const tmdbId = selectedItem.tmdbId
 
@@ -55,7 +79,9 @@ export function DetailScreen({
   return (
     <AppFrame
       Action={Action}
+      navItems={navItems}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
+      onOpenSearch={onOpenSearch}
       userName={userName}
       onSignOut={onSignOut}
     >

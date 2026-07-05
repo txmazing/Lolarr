@@ -1,5 +1,12 @@
 import { useEffect } from 'react'
-import { AppFrame, ErrorPanel, LoadingPanel, RequestList, type ActionComponent } from '@lolarr/ui'
+import {
+  AppFrame,
+  ErrorPanel,
+  LoadingPanel,
+  RequestList,
+  type ActionComponent,
+  type NavItem,
+} from '@lolarr/ui'
 import { readErrorMessage } from '../lib/errors.js'
 import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 import { useRequests } from './useRequests.js'
@@ -12,6 +19,8 @@ export function RequestsScreen({
   canConfigureGateway,
   onConfigureGateway,
   onBack,
+  onOpenHome,
+  onOpenSearch,
 }: {
   Action: ActionComponent
   apiBaseUrl: string
@@ -20,6 +29,8 @@ export function RequestsScreen({
   canConfigureGateway: boolean
   onConfigureGateway: () => void
   onBack: () => void
+  onOpenHome?: () => void
+  onOpenSearch?: () => void
 }) {
   const {
     requests,
@@ -31,15 +42,28 @@ export function RequestsScreen({
     cancelError,
   } = useRequests({ apiBaseUrl, enabled: true })
 
-  const { markRead } = useNotificationsContext()
+  const { markRead, unreadCount } = useNotificationsContext()
   useEffect(() => {
     markRead()
   }, [markRead])
 
+  const navItems: NavItem[] = [
+    { key: 'home', label: 'Start', onPress: () => onOpenHome?.() },
+    {
+      key: 'requests',
+      label: 'Anfragen',
+      onPress: () => {},
+      active: true,
+      badge: unreadCount || undefined,
+    },
+  ]
+
   return (
     <AppFrame
       Action={Action}
+      navItems={navItems}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
+      onOpenSearch={onOpenSearch}
       userName={userName}
       onSignOut={onSignOut}
     >
