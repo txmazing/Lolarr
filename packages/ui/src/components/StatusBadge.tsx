@@ -1,21 +1,23 @@
 import type { Availability } from '@lolarr/domain'
-import { Badge } from '@ui/components/ui/Badge'
 import { cn } from '@ui/lib/utils'
 import { labelForAvailability } from './availabilityLabels'
 
-const AVAILABILITY_CLASSES: Record<Availability, string> = {
-  available: 'text-status-available border-status-available/40 bg-status-available/10',
-  partiallyAvailable: 'text-status-available border-status-available/40 bg-status-available/10',
-  processing: 'text-status-processing border-status-processing/40 bg-status-processing/10',
-  requested: 'text-status-requested border-status-requested/40 bg-status-requested/10',
-  requestable: 'text-muted-foreground border-border bg-surface',
-  unavailable: 'text-muted-foreground border-border bg-surface',
+// Bare LED dot: status colour lives only on the dot, never as a fill/border
+// on the chip itself. Reuses the shared --status-* tokens; no new colours.
+const DOT_CLASSES: Record<Availability, string> = {
+  available: 'bg-status-available',
+  partiallyAvailable: 'bg-status-pending',
+  processing: 'bg-status-processing',
+  requested: 'bg-status-requested',
+  requestable: 'bg-muted-foreground',
+  unavailable: 'bg-muted-foreground',
 }
 
 export function StatusBadge({ availability }: { availability: Availability }) {
   return (
-    <Badge variant="outline" className={cn('rounded-full font-medium', AVAILABILITY_CLASSES[availability])}>
+    <span className="inline-flex items-center gap-2 rounded-full px-2.5 py-1.5 text-xs text-foreground backdrop-blur-[8px]">
+      <span className={cn('size-[7px] rounded-full', DOT_CLASSES[availability])} />
       {labelForAvailability(availability)}
-    </Badge>
+    </span>
   )
 }
