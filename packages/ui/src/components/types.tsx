@@ -14,7 +14,7 @@ export type ActionProps = {
   onPress?: () => void
   size?: 'md' | 'lg'
   type?: 'button' | 'submit'
-  variant?: 'primary' | 'ghost' | 'glass' | 'card'
+  variant?: 'primary' | 'secondary' | 'ghost' | 'glass' | 'card'
 }
 
 export type ActionComponent = ComponentType<ActionProps>

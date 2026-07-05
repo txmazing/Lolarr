@@ -1,4 +1,4 @@
-/* Lolarr Design-Tokens + Tailwind-v4-Entry (Slice 7, abyss-monochrom, dark-only) */
+/* Lolarr Design-Tokens + Tailwind-v4-Entry (Slice 7, monochrome, dark-only) */
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import '@fontsource-variable/inter';
@@ -13,7 +13,7 @@
 @custom-variant focused (&.focused);
 
 :root {
-  /* shadcn-kompatible Basis-Tokens, Werte = abyss-monochrom */
+  /* Semantische Basis-Tokens (Standard-Design-Token-Namen), monochrome dark palette */
   --background: #0a0a0c;
   --foreground: #f5f5f7;
   --card: rgb(255 255 255 / 0.04);
@@ -39,6 +39,8 @@
   --surface: rgb(255 255 255 / 0.04);
   --surface-2: rgb(255 255 255 / 0.07);
   --surface-3: rgb(255 255 255 / 0.11);
+  /* Solid dark button chip that inverts to the near-white accent on hover. */
+  --surface-chip: rgb(40 40 40 / 0.8);
   --glass: rgb(42 42 42 / 0.6);
   --blur-overlay: 15px;
   --blur-controls: 4px;
@@ -74,6 +76,7 @@
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
+  --color-surface-chip: var(--surface-chip);
   --color-status-available: var(--status-available);
   --color-status-processing: var(--status-processing);
   --color-status-pending: var(--status-pending);
@@ -137,11 +140,5 @@
   backdrop-filter: blur(var(--blur-controls));
 }
 
-/* shadcn-DialogOverlay neutralisieren: Backdrop dimmt nur, Blur kommt
-   ausschließlich vom Glass-Popup (--blur-overlay). Constraint: keine
-   Ad-hoc-Blur-Werte; pristine shadcn-Dateien bleiben unangetastet. */
-[data-slot='dialog-overlay'] {
-  background: rgb(0 0 0 / 0.6);
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
+/* Overlay-Backdrops werden direkt in GlassDialog gestylt (dim only, kein Blur —
+   der Blur kommt allein vom Glass-Popup). Keine globalen Komponentenregeln nötig. */
