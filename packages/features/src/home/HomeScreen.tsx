@@ -63,7 +63,14 @@ export function HomeScreen({
   }, [homeQuery.data, jellyfinSession])
 
   const rows = enrichedHome.rows
-  const featuredItem = enrichedHome.hero ?? rows[0]?.items[0]
+  // The full-bleed hero needs a backdrop image. Prefer the API-chosen hero only
+  // if it has one; otherwise fall back to the first item that actually carries a
+  // backdrop (Jellyfin continue-watching items usually don't), then to anything.
+  const featuredItem =
+    (enrichedHome.hero?.backdropUrl ? enrichedHome.hero : undefined) ??
+    rows.flatMap((row) => row.items).find((item) => item.backdropUrl) ??
+    enrichedHome.hero ??
+    rows[0]?.items[0]
 
   const navItems: NavItem[] = [
     { key: 'home', label: 'Home', onPress: () => {}, active: true },
