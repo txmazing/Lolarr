@@ -6,7 +6,7 @@
 
 **Architecture:** Tailwind v4 hängt in der geteilten Vite-Factory (`config/vite/react.ts`), die Design-Tokens leben in `packages/ui/src/theme.css` (`@theme`-Block). shadcn-Dateien bleiben pristine unter `packages/ui/src/components/ui/shadcn/`; alle Lolarr-Anpassungen leben in Wrappern unter `packages/ui/src/components/ui/`. Das DI-Muster (`ActionComponent`/`TextInputComponent`/`ShellProps`) bleibt die Plattform-Naht; Norigin behält auf TV die Fokus-Hoheit.
 
-**Tech Stack:** React 19, Tailwind v4 (`@tailwindcss/vite`), shadcn/ui (Radix), CVA + `tailwind-merge`, `@fontsource-variable/inter`, Vitest 3 + Testing Library, moon.
+**Tech Stack:** React 19, Tailwind v4 (`@tailwindcss/vite`), shadcn/ui (Base-UI-Primitives, `style: base-nova`), CVA + `tailwind-merge`, `@fontsource-variable/inter`, Vitest 3 + Testing Library, moon.
 
 ## Global Constraints
 
@@ -312,7 +312,7 @@ git add -A && git commit -m "feat(ui): add tailwind v4 foundation with abyss des
 
 **Interfaces:**
 - Consumes: Tokens/Utilities aus Task 1.
-- Produces: `cn(...inputs: ClassValue[]): string` aus `@ui/lib/utils`; pristine shadcn-Module unter `@ui/components/ui/shadcn/*` (Button mit `variant`/`size`-CVA, Input, Dialog-Familie, Tabs-Familie, Badge, Skeleton — Radix-basiert, ref-forwarding).
+- Produces: `cn(...inputs: ClassValue[]): string` aus `@ui/lib/utils`; pristine shadcn-Module unter `@ui/components/ui/shadcn/*` (Button mit `variant`/`size`-CVA, Input, Dialog-Familie, Tabs-Familie, Badge, Skeleton — Base-UI-basiert, ref-forwarding).
 
 - [ ] **Step 1: `@ui`-Alias für tsc + vitest**
 
@@ -366,7 +366,7 @@ export function cn(...inputs: ClassValue[]) {
 ```json
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-nova",
   "rsc": false,
   "tsx": true,
   "tailwind": {
@@ -392,7 +392,7 @@ export function cn(...inputs: ClassValue[]) {
 cd packages/ui && pnpm dlx shadcn@latest add button input dialog tabs badge skeleton --yes --overwrite
 ```
 
-Expected: sechs Dateien unter `packages/ui/src/components/ui/shadcn/`, Radix-Dependencies automatisch in `packages/ui/package.json`. Prüfen: `git status` zeigt KEINE Änderungen außerhalb von `packages/ui`. Stop-Bedingung: Legt die CLI Dateien woanders ab oder scheitert an den Aliasen, abbrechen und an den Controller melden (nicht manuell nachbauen).
+Expected: sechs Dateien unter `packages/ui/src/components/ui/shadcn/`, `@base-ui-components/react` automatisch in `packages/ui/package.json`. Prüfen: `git status` zeigt KEINE Änderungen außerhalb von `packages/ui`. Stop-Bedingung: Legt die CLI Dateien woanders ab oder scheitert an den Aliasen, abbrechen und an den Controller melden (nicht manuell nachbauen).
 
 - [ ] **Step 5: Verifikation + Commit**
 
@@ -620,8 +620,8 @@ git add -A && git commit -m "feat(ui): route DefaultAction/TvAction through shad
 **Interfaces:**
 - Consumes: shadcn `dialog`, `tabs`, `badge`, `skeleton`; `cn`.
 - Produces:
-  - `GlassDialog({ open, onClose, title, ariaLabel, children }: { open: boolean; onClose: () => void; title?: string; ariaLabel?: string; children: ReactNode })` — Radix-Dialog in Glass-Optik; Fokus-Trap aktiv (Spike in Task 5 validiert TV).
-  - `PillTabs({ items, selectedId, onSelect, Action }: { items: Array<{ id: string; label: string }>; selectedId: string; onSelect: (id: string) => void; Action?: ActionComponent })` — **rendert Action-Buttons in Pill-Optik** (Norigin-sicher); nutzt Radix-Tabs NICHT für die Fokus-Logik, nur die Optik-Klassen. Fällt der Tabs-Teil des Spikes positiv aus, darf die Web-Variante später auf Radix-Tabs wechseln — Verhalten identisch.
+  - `GlassDialog({ open, onClose, title, ariaLabel, children }: { open: boolean; onClose: () => void; title?: string; ariaLabel?: string; children: ReactNode })` — Base-UI-Dialog in Glass-Optik; Fokus-Trap aktiv (Spike in Task 5 validiert TV).
+  - `PillTabs({ items, selectedId, onSelect, Action }: { items: Array<{ id: string; label: string }>; selectedId: string; onSelect: (id: string) => void; Action?: ActionComponent })` — **rendert Action-Buttons in Pill-Optik** (Norigin-sicher); nutzt Base-UI-Tabs NICHT für die Fokus-Logik, nur die Optik-Klassen. Fällt der Tabs-Teil des Spikes positiv aus, darf die Web-Variante später auf Base-UI-Tabs wechseln — Verhalten identisch.
   - `StatusBadge`/`RequestStatusBadge` rendern shadcn `Badge` mit Status-Token-Klassen.
 
 - [ ] **Step 1: Failing Test** — `packages/ui/tests/GlassDialog.test.tsx`:
@@ -902,7 +902,7 @@ if (import.meta.env.VITE_UI_SPIKE === '1') {
 - [ ] **Step 5: Commit**
 
 ```bash
-git add -A && git commit -m "feat(tv): add phase-0 spike screen for norigin/radix gate"
+git add -A && git commit -m "feat(tv): add phase-0 spike screen for norigin/base-ui gate"
 ```
 
 - [ ] **Step 6: ⛔ STOP — User-Abnahme.** `VITE_UI_SPIKE=1 pnpm --filter ./apps/tv run tizen:sync` bauen, via Tizen Studio auf den S94C deployen (README Slice 5). Der User prüft die drei Checklist-Punkte. **Ergebnis (UA-String + bestanden/gescheitert je Kriterium) wird als „Phase-0-Ergebnis“-Absatz in die Spec geschrieben.** Bei Scheitern: Plan B aus der Spec aktivieren (Controller entscheidet, welche Folge-Tasks GlassDialog durch Eigenbau-Overlay ersetzen). Wellen ②-④ starten erst danach.

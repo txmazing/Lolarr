@@ -42,7 +42,7 @@ neuen Look gebracht. Web und TV (Samsung Tizen) werden gleichrangig abgenommen.
 1. **UA-Verifikation:** Die TV-App loggt `navigator.userAgent` +
    `tizen.systeminfo`-Version. Ergebnis wird als Notiz in dieser Spec
    ergänzt. Erwartung: Chromium M120 auf dem S94C (GQ77S94C, Tizen 9).
-2. **Norigin×Radix-Spike:** Minimaler Testscreen (hinter Dev-Flag) mit
+2. **Norigin×Base-UI-Spike:** Minimaler Testscreen (hinter Dev-Flag) mit
    shadcn-`Dialog` in Glass-Optik + drei Norigin-fokussierbaren Buttons,
    deployed auf den S94C. Erfolgskriterien:
    - D-Pad-Select auf dem Trigger öffnet den Dialog.
@@ -149,7 +149,7 @@ beginnen.
 
 | Risiko | Gegenmittel |
 |---|---|
-| Radix-Fokus × Norigin kollidiert | Phase-0-Spike als Gate; Plan B definiert (Eigenbau-Overlays) |
+| shadcn-Primitives-Fokus (Base UI) × Norigin kollidiert | Phase-0-Spike als Gate; Plan B definiert (Eigenbau-Overlays) |
 | Glass zu teuer für TV-GPU | Kill-Switch-Token; Spike testet Glass explizit |
 | M120-Wette platzt (Engine-Downgrade/Zweitgerät) | Floor dokumentiert; Workarounds als bewusster Folge-Slice |
 | Regression über 9 Screens | Wellen-Abnahme; Verhaltens-Änderungen erlaubt, aber dokumentiert + Konsumenten/Tests im selben Task angepasst |
@@ -173,3 +173,12 @@ beginnen.
 - sonner/Toast-Ersatz (ToastStack bleibt)
 - Untertitel-/Audiospur-Auswahl im Player (weiter aufgeschoben aus Slice 5)
 - Drizzle-Adoption (eigener Foundation-Slice, unverändert)
+
+## Nachtrag 2026-07-05: shadcn-Primitives = Base UI
+
+shadcn defaultet seit Juli 2026 auf Base UI als Primitives-Schicht
+(`components.json`-`style: base-nova`; Radix bliebe via `radix-*` wählbar).
+User-Entscheid: **Base UI** — deckt sich mit der Lib-Recherche (aktivste
+Entwicklung, Radix-Nachfolgeteam). Alle „Radix"-Bezüge in Spec/Plan meinen
+fortan die shadcn-Primitives-Schicht (Base UI); das Phase-0-Gate testet den
+Fokus-Konflikt unverändert.
