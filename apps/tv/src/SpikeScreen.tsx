@@ -18,6 +18,7 @@ function SpikeButton({ label, onPress }: { label: string; onPress?: () => void }
 // injects TvAction (e.g. into SeasonSelector), which is what this gate tests.
 function SpikeAction({
   ariaLabel,
+  autoFocus,
   children,
   className,
   disabled,
@@ -27,11 +28,16 @@ function SpikeAction({
   type = 'button',
   variant,
 }: ActionProps) {
-  const { ref, focused } = useFocusable({
+  const { ref, focused, focusSelf } = useFocusable({
     focusKey,
     focusable: !disabled,
     onEnterPress: onPress,
   })
+  useEffect(() => {
+    if (autoFocus) {
+      focusSelf()
+    }
+  }, [autoFocus, focusSelf])
   return (
     <Button
       ref={ref}
@@ -80,10 +86,14 @@ export function SpikeScreen() {
           onSelect={setTab}
         />
         <GlassDialog open={dialogOpen} onClose={() => setDialogOpen(false)} title="Glass-Dialog">
-          <p className="text-muted-foreground">Fokus-Trap-Test: Pfeiltasten müssen zwischen den zwei Buttons wechseln.</p>
+          <p className="text-muted-foreground">Beim Öffnen muss der Fokus auf „Bestätigen“ springen; Pfeiltasten wechseln zwischen den Buttons.</p>
           <div className="flex gap-4">
-            <SpikeButton label="Bestätigen" onPress={() => setDialogOpen(false)} />
-            <SpikeButton label="Abbrechen" onPress={() => setDialogOpen(false)} />
+            <SpikeAction focusKey="spike-confirm" autoFocus onPress={() => setDialogOpen(false)}>
+              Bestätigen
+            </SpikeAction>
+            <SpikeAction focusKey="spike-cancel" onPress={() => setDialogOpen(false)}>
+              Abbrechen
+            </SpikeAction>
           </div>
         </GlassDialog>
       </div>

@@ -2,6 +2,11 @@ import type { ComponentType, ReactNode } from 'react'
 
 export type ActionProps = {
   ariaLabel?: string
+  // Seed platform focus onto this action when it mounts. On TV the injected
+  // Action calls Norigin's focusSelf(), which is how an opening overlay hands
+  // focus to its first control (Base UI's modal auto-focus is disabled so
+  // Norigin keeps focus authority — see GlassDialog).
+  autoFocus?: boolean
   children: ReactNode
   className?: string
   disabled?: boolean

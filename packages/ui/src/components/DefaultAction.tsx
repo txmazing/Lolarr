@@ -3,6 +3,7 @@ import type { ActionProps } from './types'
 
 export function DefaultAction({
   ariaLabel,
+  autoFocus,
   children,
   className,
   disabled,
@@ -14,6 +15,7 @@ export function DefaultAction({
   return (
     <Button
       aria-label={ariaLabel}
+      autoFocus={autoFocus}
       type={type}
       variant={variant}
       size={size}

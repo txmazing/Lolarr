@@ -11,6 +11,7 @@ import { SpikeScreen } from './SpikeScreen'
 
 function TvAction({
   ariaLabel,
+  autoFocus,
   children,
   className = '',
   disabled,
@@ -20,7 +21,7 @@ function TvAction({
   type = 'button',
   variant,
 }: ActionProps) {
-  const { ref, focused } = useFocusable({
+  const { ref, focused, focusSelf } = useFocusable({
     focusKey,
     focusable: !disabled,
     onEnterPress: () => {
@@ -33,6 +34,16 @@ function TvAction({
       button?.click()
     },
   })
+
+  // Seed Norigin focus onto this action when it mounts (e.g. an opening
+  // overlay's primary button). Base UI's own auto-focus is disabled, so
+  // without this the D-pad would stay on whatever was focused before the
+  // overlay appeared.
+  useEffect(() => {
+    if (autoFocus) {
+      focusSelf()
+    }
+  }, [autoFocus, focusSelf])
 
   useEffect(() => {
     if (focused) {
