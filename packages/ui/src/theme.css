@@ -136,3 +136,12 @@
   -webkit-backdrop-filter: blur(var(--blur-controls));
   backdrop-filter: blur(var(--blur-controls));
 }
+
+/* shadcn-DialogOverlay neutralisieren: Backdrop dimmt nur, Blur kommt
+   ausschließlich vom Glass-Popup (--blur-overlay). Constraint: keine
+   Ad-hoc-Blur-Werte; pristine shadcn-Dateien bleiben unangetastet. */
+[data-slot='dialog-overlay'] {
+  background: rgb(0 0 0 / 0.6);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
