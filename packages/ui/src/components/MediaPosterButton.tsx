@@ -16,11 +16,13 @@ export function MediaPosterButton({
   onOpen,
   Action,
   focusKeyPrefix,
+  orientation = 'portrait',
 }: {
   item: MediaItem
   onOpen: (item: MediaItem) => void
   Action: ActionComponent
   focusKeyPrefix: string
+  orientation?: 'portrait' | 'landscape'
 }) {
   const metaLine = item.jellyfin?.episode
     ? `S${item.jellyfin.episode.season} · E${item.jellyfin.episode.number}`
@@ -28,17 +30,21 @@ export function MediaPosterButton({
       ? String(item.year)
       : null
 
+  const aspectClass = orientation === 'landscape' ? 'aspect-video' : 'aspect-[2/3]'
+
   return (
     <Action
       variant="card"
-      className="group w-40 shrink-0 transition-transform duration-[350ms] ease-out-expo hover:scale-[1.08] focused:scale-[1.08]"
+      className="group w-40 shrink-0 transition-transform duration-[350ms] ease-out-expo hover:scale-[1.06] focused:scale-[1.06]"
       onPress={() => onOpen(item)}
       focusKey={`${focusKeyPrefix}-${item.id}`}
       ariaLabel={`${item.title} öffnen`}
     >
       {/* No hard border or shadow; a faint inset ring sits under the poster
           and brightens on hover/focus instead. */}
-      <span className="relative block aspect-[2/3] w-full overflow-hidden rounded-md bg-surface ring-1 ring-inset ring-white/[0.06] transition-[box-shadow] duration-200 group-hover:ring-2 group-hover:ring-white/25 focused:ring-2 focused:ring-white/30">
+      <span
+        className={`relative block ${aspectClass} w-full overflow-hidden rounded-md bg-surface ring-1 ring-inset ring-white/[0.06] shadow-[inset_0_0_3px_rgb(200_200_200/0.35)] transition-[box-shadow] duration-200 group-hover:ring-2 group-hover:ring-white/30 focused:ring-2 focused:ring-white/30`}
+      >
         {item.posterUrl ? (
           <img src={item.posterUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
