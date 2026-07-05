@@ -52,15 +52,17 @@ export function AppFrame({
         )}
 
         <div className="justify-self-end flex items-center gap-2">
-          <Action
-            variant="ghost"
-            focusKey="nav-search"
-            onPress={onOpenSearch}
-            ariaLabel="Suche"
-            className="h-[41px] w-[41px] p-0 backdrop-blur-[8px]"
-          >
-            <Search className="size-5" aria-hidden />
-          </Action>
+          {onOpenSearch ? (
+            <Action
+              variant="ghost"
+              focusKey="nav-search"
+              onPress={onOpenSearch}
+              ariaLabel="Suche"
+              className="h-[41px] w-[41px] p-0 backdrop-blur-[8px]"
+            >
+              <Search className="size-5" aria-hidden />
+            </Action>
+          ) : null}
           {onConfigureGateway ? (
             <Action
               variant="ghost"
@@ -72,15 +74,17 @@ export function AppFrame({
               <Settings className="size-5" aria-hidden />
             </Action>
           ) : null}
-          <Action
-            variant="ghost"
-            focusKey="nav-profile"
-            onPress={onSignOut}
-            ariaLabel="Profil"
-            className="h-[41px] w-[41px] p-0 backdrop-blur-[8px]"
-          >
-            <User className="size-5" aria-hidden />
-          </Action>
+          {onSignOut ? (
+            <Action
+              variant="ghost"
+              focusKey="nav-profile"
+              onPress={onSignOut}
+              ariaLabel="Profil"
+              className="h-[41px] w-[41px] p-0 backdrop-blur-[8px]"
+            >
+              <User className="size-5" aria-hidden />
+            </Action>
+          ) : null}
         </div>
       </header>
       <main className="pt-24">{children}</main>
