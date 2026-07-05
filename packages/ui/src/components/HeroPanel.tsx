@@ -6,6 +6,10 @@ import { StatusBadge } from './StatusBadge'
 type HeroProps = {
   item?: MediaItem
   onOpen: (item: MediaItem) => void
+  // Optional: when provided, the hero renders a dedicated primary "Play" CTA
+  // alongside the bare "Mehr Infos" action (which still calls onOpen). When
+  // omitted, onOpen alone drives the single primary CTA (back-compat).
+  onPlay?: (item: MediaItem) => void
   Action: ActionComponent
 }
 
@@ -15,7 +19,7 @@ type HeroProps = {
 const HERO_SHELL = 'relative w-full h-[82vh] min-h-[520px] overflow-hidden -mt-24'
 const HERO_CONTENT = 'absolute bottom-[14%] left-0 px-12 max-w-2xl flex flex-col gap-4 z-10'
 
-export function HeroPanel({ item, onOpen, Action }: HeroProps) {
+export function HeroPanel({ item, onOpen, onPlay, Action }: HeroProps) {
   if (!item) {
     return (
       <section className={HERO_SHELL}>
@@ -54,9 +58,14 @@ export function HeroPanel({ item, onOpen, Action }: HeroProps) {
           <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
         </div>
         <div className="flex items-center gap-3 pt-1">
-          <Action variant="primary" onPress={() => onOpen(item)} focusKey="hero">
-            Details öffnen
+          <Action variant="primary" onPress={() => (onPlay ?? onOpen)(item)} focusKey="hero-play">
+            Play
           </Action>
+          {onPlay ? (
+            <Action variant="ghost" onPress={() => onOpen(item)} focusKey="hero-info">
+              Mehr Infos
+            </Action>
+          ) : null}
         </div>
       </div>
     </section>

@@ -90,10 +90,11 @@ export function HomeScreen({
     >
       <HeroPanel
         item={featuredItem}
-        onOpen={
+        onOpen={onOpenItem}
+        onPlay={
           featuredItem?.jellyfin && (featuredItem.mediaType === 'movie' || featuredItem.jellyfin.episode)
             ? onPlayItem
-            : onOpenItem
+            : undefined
         }
         Action={Action}
       />
