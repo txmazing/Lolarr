@@ -7,6 +7,7 @@ import {
 import { LolarrApp } from '@lolarr/features'
 import { Button, Input, cn, type ActionProps, type TextInputProps } from '@lolarr/ui'
 import { isTizenPlayerAvailable, tizenPlatform, webPlatform } from '@lolarr/player'
+import { SpikeScreen } from './SpikeScreen'
 
 function TvAction({
   ariaLabel,
@@ -197,6 +198,10 @@ function TvShell({ children }: { children: ReactNode }) {
 const playerPlatform = isTizenPlayerAvailable() ? tizenPlatform : webPlatform
 
 function App() {
+  if (import.meta.env.VITE_UI_SPIKE === '1') {
+    return <SpikeScreen />
+  }
+
   return (
     <LolarrApp
       Action={TvAction}

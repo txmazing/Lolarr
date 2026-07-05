@@ -34,6 +34,21 @@ Run after each `tizen:sync` deploy — none of this is exercised in CI:
 - [ ] **Back cascade** — the Back/Return key (10009) first hides the controls, then exits the player.
 - [ ] **Media keys** — Play/Pause/Stop and Rewind/Fast-Forward on the remote drive the player.
 
+### Phase-0 UI spike (Norigin + Base UI gate)
+
+Build with the spike screen enabled: `VITE_UI_SPIKE=1 pnpm --filter ./apps/tv run tizen:sync`,
+then deploy the synced `apps/tv/tizen` project via Tizen Studio (see above). The spike screen
+replaces the normal app UI (`apps/tv/src/SpikeScreen.tsx`, gated by `VITE_UI_SPIKE=1` in
+`apps/tv/src/App.tsx`) and checks whether Base UI's dialog focus trap and the pill-tab styling
+coexist with Norigin's D-Pad spatial navigation. Check and record:
+
+- [ ] **UA string** — read `navigator.userAgent` on the spike screen and note it down (expected `Chrome/120` via One-UI-Tizen-9).
+- [ ] **Glass dialog D-Pad cycle** — the dialog opens/closes smoothly; focus moves between its two buttons via D-Pad and returns to the trigger button on close.
+- [ ] **Pill tabs D-Pad** — the pill tabs are switchable via D-Pad.
+
+Rebuild without `VITE_UI_SPIKE` afterwards (plain `pnpm --filter ./apps/tv run tizen:sync`) so
+the committed `apps/tv/tizen/assets/*` output reflects the normal app, not the spike screen.
+
 ## Notifications
 
 Lolarr surfaces request-lifecycle updates (available / approved / declined / failed) as a
