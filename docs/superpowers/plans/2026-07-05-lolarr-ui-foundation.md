@@ -21,6 +21,8 @@
 - Verifikation pro Task (sofern nicht anders angegeben):
   `moon run ui:test features:test ui:typecheck web:build tv:tizen-sync`
 - Commits: Conventional Commits (`feat(ui): …`, `chore(ui): …`), pro Task mindestens ein Commit. NICHT pushen.
+- Verifikation immer mit `--force` (bekannte moon-Cache-Lücke: `web:build`/`tv:tizen-sync` invalidieren nicht zuverlässig bei `packages/ui`-Änderungen). Regenerierte `apps/tv/tizen/assets/*` mitcommitten.
+- **TV-Overlay-Rezept (Phase-0 auf S94C validiert):** Overlays laufen über `GlassDialog`, das bereits `modal={false}` + `initialFocus={false}` + eine injizierte `OverlayScope`-Norigin-Fokusgrenze trägt (Base UIs Tab/inert-Trap ist bewusst AUS, weil er Norigin desynchronisiert). Der Konsument markiert seinen primären/ersten `Action`-Button mit `autoFocus`, damit der Fokus beim Öffnen in den Dialog springt. `TvShell` liefert die `OverlayScope` bereits, `TvAction` implementiert `autoFocus` bereits — Task 8 (`SeasonRequestPicker`) und Task 10 (`AutoplayOverlay`) nutzen nur `GlassDialog` + `autoFocus`, kein erneutes Fokus-Engineering.
 
 ## Datei-Landkarte
 
