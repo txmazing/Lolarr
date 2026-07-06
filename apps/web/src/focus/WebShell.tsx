@@ -1,4 +1,9 @@
 import { useEffect, type ReactNode } from 'react'
+import {
+  doesFocusableExist,
+  getCurrentFocusKey,
+  setFocus,
+} from '@noriginmedia/norigin-spatial-navigation-core'
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation-react'
 import { OverlayScopeProvider, installModalityTracking, type ShellProps } from '@lolarr/ui'
 
@@ -20,7 +25,7 @@ function WebOverlayScope({ children }: { children: ReactNode }) {
 }
 
 export function WebShell({ children }: ShellProps) {
-  const { ref, focusKey, focusSelf } = useFocusable({
+  const { ref, focusKey } = useFocusable({
     focusKey: 'APP',
     trackChildren: true,
   })
@@ -28,12 +33,27 @@ export function WebShell({ children }: ShellProps) {
   // Modalitäts-Tracking installieren (Maus vs. Tastatur) für den Scroll-Guard.
   useEffect(() => installModalityTracking(), [])
 
-  // Fokus beim Mount seeden. Kein Streu-Ring für Maus-Nutzer: :focus-visible
-  // triggert nur bei Tastatur, und WebAction gated .focused auf Keyboard-
-  // Modalität (beim Mount = false) → sichtbarer Ring erst ab der ersten Taste.
+  // Content loads async (react-query), so there are no focusables at mount —
+  // seeding then would focus nothing. Instead the first arrow key seeds focus
+  // onto the app root's first focusable when nothing is focused yet, and
+  // consumes that press (capture + stopImmediatePropagation) so Norigin does
+  // not also navigate off the just-seeded element on the same keystroke.
   useEffect(() => {
-    focusSelf()
-  }, [focusSelf])
+    function seedOnFirstArrow(event: KeyboardEvent) {
+      if (!event.key.startsWith('Arrow')) {
+        return
+      }
+      const current = getCurrentFocusKey()
+      if (current && doesFocusableExist(current)) {
+        return
+      }
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      setFocus('APP')
+    }
+    window.addEventListener('keydown', seedOnFirstArrow, true)
+    return () => window.removeEventListener('keydown', seedOnFirstArrow, true)
+  }, [])
 
   return (
     <OverlayScopeProvider value={WebOverlayScope}>
