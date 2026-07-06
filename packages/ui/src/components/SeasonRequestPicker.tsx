@@ -3,6 +3,7 @@ import type { SeasonAvailability } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { GlassDialog } from './ui/GlassDialog'
 import { cn } from '@ui/lib/utils'
+import { Check } from '@ui/lib/icons'
 import { labelForAvailability } from './availabilityLabels'
 import { pruneSelection, selectableSeasonNumbers, toggleSeason } from './seasonSelection'
 
@@ -51,8 +52,19 @@ export function SeasonRequestPicker({
               focusKey={`season-pick-${season.seasonNumber}`}
               disabled={!isSelectable}
             >
-              <span>{season.name ?? `Season ${season.seasonNumber}`}</span>
-              <small>{isSelectable ? (isSelected ? 'Selected' : '') : labelForAvailability(season.availability)}</small>
+              <span className="flex items-center gap-3">
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'box flex size-5 shrink-0 items-center justify-center rounded-[6px] border border-dialog-border',
+                    isSelected && 'bg-primary-solid border-primary-solid',
+                  )}
+                >
+                  {isSelected ? <Check className="size-3.5 text-background" strokeWidth={3} /> : null}
+                </span>
+                <span>{season.name ?? `Season ${season.seasonNumber}`}</span>
+              </span>
+              <small>{isSelectable ? '' : labelForAvailability(season.availability)}</small>
             </Action>
           )
         })}
@@ -69,7 +81,7 @@ export function SeasonRequestPicker({
             ? 'Requesting...'
             : `Request ${validSelection.length} ${validSelection.length === 1 ? 'season' : 'seasons'}`}
         </Action>
-        <Action variant="secondary" onPress={onClose} focusKey="season-pick-cancel" disabled={isRequesting}>
+        <Action variant="ghost" onPress={onClose} focusKey="season-pick-cancel" disabled={isRequesting}>
           Cancel
         </Action>
       </div>

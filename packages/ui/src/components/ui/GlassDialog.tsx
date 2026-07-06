@@ -43,7 +43,7 @@ export function GlassDialog({
           aria-label={ariaLabel}
           initialFocus={false}
           className={cn(
-            'glass fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-border p-4 text-popover-foreground outline-none',
+            'fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-lg border border-dialog-border bg-dialog-frost p-5 backdrop-blur-[20px] text-popover-foreground outline-none shadow-[0_24px_64px_rgba(0,0,0,0.48)]',
             'data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
             className,
           )}
