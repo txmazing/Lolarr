@@ -2,6 +2,7 @@ import type { MediaItem } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { Badge } from '@ui/components/ui/Badge'
 import { StatusBadge } from './StatusBadge'
+import { Info, Play } from '../lib/icons'
 
 type HeroProps = {
   item?: MediaItem
@@ -59,10 +60,14 @@ export function HeroPanel({ item, onOpen, onPlay, Action }: HeroProps) {
         </div>
         <div className="flex items-center gap-3 pt-1">
           <Action variant="primary" onPress={() => (onPlay ?? onOpen)(item)} focusKey="hero-play">
-            Play
+            <Play fill="currentColor" strokeWidth={0} />
+            {item.jellyfin?.progressPercent !== undefined || item.jellyfin?.episode
+              ? 'Fortsetzen'
+              : 'Abspielen'}
           </Action>
           {onPlay ? (
             <Action variant="ghost" onPress={() => onOpen(item)} focusKey="hero-info">
+              <Info />
               Mehr Infos
             </Action>
           ) : null}

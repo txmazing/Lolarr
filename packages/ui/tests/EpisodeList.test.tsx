@@ -48,7 +48,7 @@ describe('EpisodeList', () => {
     const buttons = screen.getAllByRole('button')
     expect(buttons).toHaveLength(episodes.length)
 
-    fireEvent.click(screen.getByLabelText('Play The Second One'))
+    fireEvent.click(screen.getByLabelText('The Second One abspielen'))
     expect(onPlay).toHaveBeenCalledTimes(1)
     expect(onPlay).toHaveBeenCalledWith(episodes[1])
   })
@@ -58,16 +58,16 @@ describe('EpisodeList', () => {
 
     expect(screen.getByText('Pilot')).toBeDefined()
     expect(screen.getByText('Folge 1')).toBeDefined()
-    expect(screen.getByText('42 min')).toBeDefined()
+    expect(screen.getByText('42 Min')).toBeDefined()
     // The whole card is the single focusable/playable action — no separate
     // play glyph or nested button inside it.
     expect(screen.queryByText('▶')).toBeNull()
-    expect(screen.getByLabelText('Play Pilot').querySelector('button')).toBeNull()
+    expect(screen.getByLabelText('Pilot abspielen').querySelector('button')).toBeNull()
   })
 
   it('renders no play actions without Action and onPlay', () => {
     render(<EpisodeList episodes={episodes} />)
-    expect(screen.queryByLabelText('Play Pilot')).toBeNull()
+    expect(screen.queryByLabelText('Pilot abspielen')).toBeNull()
     expect(screen.queryByRole('button')).toBeNull()
     expect(screen.getByText('Pilot')).toBeDefined()
   })

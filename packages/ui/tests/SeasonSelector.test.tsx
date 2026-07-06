@@ -53,6 +53,6 @@ describe('SeasonSelector', () => {
       />,
     )
 
-    expect(screen.getByLabelText('Requested')).toBeDefined()
+    expect(screen.getByText(/angefragt/)).toBeDefined()
   })
 })

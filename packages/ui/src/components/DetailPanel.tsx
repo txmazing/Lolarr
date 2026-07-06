@@ -1,6 +1,7 @@
 import type { Availability, MediaItem, MediaType } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { StatusBadge } from './StatusBadge'
+import { ArrowLeft, Play, Plus } from '../lib/icons'
 
 type DetailPanelProps = {
   item: MediaItem
@@ -45,8 +46,9 @@ export function DetailPanel({
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
       </div>
       <div className="relative z-10 p-12 flex flex-col gap-4 max-w-2xl">
-        <Action variant="secondary" onPress={onBack} focusKey="detail-back">
-          Back
+        <Action variant="ghost" className="w-fit" onPress={onBack} focusKey="detail-back" ariaLabel="Zurück">
+          <ArrowLeft />
+          Zurück
         </Action>
         <div className="grid grid-cols-[240px_1fr] gap-8 items-start">
           <div>
@@ -70,6 +72,7 @@ export function DetailPanel({
             <div className="flex items-center gap-3 pt-1">
               {onPlay ? (
                 <Action variant="primary" onPress={() => onPlay(item)} focusKey="detail-play">
+                  <Play fill="currentColor" strokeWidth={0} />
                   {item.jellyfin?.progressPercent !== undefined ? 'Fortsetzen' : 'Abspielen'}
                 </Action>
               ) : null}
@@ -79,6 +82,7 @@ export function DetailPanel({
                 onPress={() => onRequest(item)}
                 focusKey={`request-${item.mediaType}-${item.tmdbId}`}
               >
+                {canRequest ? <Plus /> : null}
                 {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
               </Action>
             </div>

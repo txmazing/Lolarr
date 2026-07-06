@@ -26,10 +26,10 @@ describe('HeroPanel', () => {
     expect(screen.getByText('2002')).toBeDefined()
   })
 
-  it('renders Play as the solid primary CTA', () => {
+  it('renders Abspielen as the solid primary CTA', () => {
     render(<HeroPanel item={item} onOpen={() => {}} onPlay={() => {}} Action={DefaultAction} />)
 
-    const play = screen.getByRole('button', { name: 'Play' })
+    const play = screen.getByRole('button', { name: 'Abspielen' })
     expect(play.className).toContain('bg-primary-solid')
   })
 
@@ -46,7 +46,7 @@ describe('HeroPanel', () => {
     const onPlay = vi.fn()
     render(<HeroPanel item={item} onOpen={onOpen} onPlay={onPlay} Action={DefaultAction} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Play' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Abspielen' }))
     expect(onPlay).toHaveBeenCalledWith(item)
     expect(onOpen).not.toHaveBeenCalled()
 

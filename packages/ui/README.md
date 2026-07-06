@@ -98,23 +98,23 @@ are **not wired to real behavior** yet. Each is marked in code so it's easy to g
 | **Favorite persistence** | Heart icon toggles locally (`isFavorite` prop) with a pop animation; `onToggleFavorite` is caller-supplied | A backend field/endpoint to persist favorite state (Jellyfin `UserData.IsFavorite` or a Lolarr-side store) plus wiring from the playback/detail screen |
 | **Volume/mute icon** | `Volume2` icon is present but its press handler is a no-op; the slider next to it carries live volume | A mute toggle handler (remember last volume, drive the existing `onVolume`) |
 
-### Episode grid thumbnails (`packages/ui/src/components/EpisodeList.tsx`)
+### "Merken" / watchlist persistence
 
-Episode cards render a centered episode-number placeholder instead of a still image. The `Episode`
-domain type (`packages/domain/src/index.ts`) already carries `imageTag`, but there is no still-image
-URL resolver wired up yet (the equivalent of the poster-image resolver used for `MediaItem`
-cards/backdrops). Needs a helper that builds a Jellyfin `/Items/{id}/Images/Primary` (or episode
-still) URL from `jellyfinItemId` + `imageTag`, plumbed into `EpisodeList` the same way poster URLs
-reach `MediaPosterButton`.
+The Detail screen renders the bare, animated-heart "Merken" action from the design spec, and it
+toggles (heart fills + `fav-pop` animation) — but as **local UI state only** (`LibraryDetailScreen`,
+`// TODO(watchlist)`). There is no watchlist backend: nothing persists across reloads, and no
+Seerr/Jellyfin-backed list exists. Wiring it needs a per-user watchlist data model, an API endpoint
+to add/remove/list, and then swapping the local `useState` for that call (same optimistic-toggle
+shape as the player's favorite heart).
 
-### "Merken" / watchlist
+### Rating & genre in the detail meta row
 
-The approved design spec describes a bare, animated-heart "Merken" (watchlist) action on the Detail
-screen, alongside Fortsetzen/Abspielen and the season-request action. It was **not** added —
-there is no watchlist backend (no persistence, no Seerr/Jellyfin-backed list, no API route). Adding
-it needs: a data model for a per-user watchlist, an API endpoint to add/remove/list it, and then the
-UI action wired the same way the player's favorite heart is (local optimistic toggle + persistence
-call).
+The abyss mockup's detail meta row shows a star rating (`★ 8.7`) and genre alongside year and the
+season/episode counts. Neither is rendered, because the `MediaItem` domain type
+(`packages/domain/src/index.ts`) carries no `rating`/`voteAverage` or `genres` field. Surfacing them
+needs those fields added to the schema and mapped through the BFF from Jellyfin/Seerr before the UI
+can show them. Everything else in that row (year, `N Staffeln · M Folgen`, inline availability chip)
+is live.
 
 ## Testing
 

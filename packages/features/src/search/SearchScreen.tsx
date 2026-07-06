@@ -91,7 +91,7 @@ export function SearchScreen({
       ) : !searchQuery.isLoading && !searchQuery.error && results.length === 0 ? (
         <p className="flex min-h-[52px] items-center justify-between gap-3.5 rounded-md bg-surface px-3.5 py-3 text-muted-foreground">No results for "{deferredQuery}".</p>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
+        <div className="flex flex-wrap gap-5">
           {results.map((item) => (
             <MediaPosterButton
               key={item.id}

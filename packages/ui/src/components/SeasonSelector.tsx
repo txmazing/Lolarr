@@ -41,10 +41,7 @@ export function SeasonSelector({
           >
             {season.name}
             {isRequested ? (
-              <span className="text-status-requested" aria-label="Requested">
-                {' '}
-                •
-              </span>
+              <span className={isActive ? 'opacity-60' : 'text-foreground/40'}> · angefragt</span>
             ) : null}
           </Action>
         )

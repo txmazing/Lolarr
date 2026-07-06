@@ -117,6 +117,7 @@ export function HomeScreen({
             items={row.items}
             onOpen={row.id === 'continue-watching' ? onPlayItem : onOpenItem}
             Action={Action}
+            cardVariant={row.id === 'continue-watching' ? 'landscape' : 'portrait'}
           />
         ))}
         {requestsError ? null : (
