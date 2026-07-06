@@ -1,8 +1,9 @@
 import { LolarrApp } from '@lolarr/features'
-import { DefaultAction } from '@lolarr/ui'
+import { WebAction } from './focus/WebAction'
+import { WebShell } from './focus/WebShell'
 
 function App() {
-  return <LolarrApp Action={DefaultAction} />
+  return <LolarrApp Action={WebAction} Shell={WebShell} />
 }
 
 export default App

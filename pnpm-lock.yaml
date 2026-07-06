@@ -133,6 +133,12 @@ importers:
       '@lolarr/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@noriginmedia/norigin-spatial-navigation-core':
+        specifier: ^4.0.0
+        version: 4.0.0
+      '@noriginmedia/norigin-spatial-navigation-react':
+        specifier: ^3.2.1
+        version: 3.2.1(react@19.2.7)
       react:
         specifier: ^19.2.7
         version: 19.2.7
