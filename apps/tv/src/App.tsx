@@ -1,5 +1,5 @@
 import { useEffect, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation-core'
+import { getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation-core'
 import {
   FocusContext,
   useFocusable,
@@ -11,6 +11,7 @@ import {
   OverlayScopeProvider,
   cn,
   installModalityTracking,
+  installRailNavigation,
   scrollFocusedIntoView,
   type ActionProps,
   type TextInputProps,
@@ -70,6 +71,7 @@ function TvAction({
       className={cn(className, focused && 'focused')}
       disabled={disabled}
       onClick={onPress}
+      data-focus-key={focusKey}
     >
       {children}
     </Button>
@@ -219,6 +221,11 @@ function TvShell({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => installModalityTracking(), [])
+
+  // Per-rail focus memory (Up/Down resumes a rail where you left it) + forward
+  // snake (Right on the last card jumps to the next rail). Same shared
+  // controller the web shell uses; TV's D-pad emits the same arrow keys.
+  useEffect(() => installRailNavigation({ setFocus, getCurrentFocusKey }), [])
 
   useEffect(() => {
     focusSelf()

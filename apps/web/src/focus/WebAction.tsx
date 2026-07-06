@@ -60,11 +60,14 @@ export function WebAction({
       className={cn(className, focused && isKeyboardModality() && 'focused')}
       disabled={disabled}
       onClick={onPress}
+      // Queryable by the rail-navigation controller (per-rail memory + snake).
+      data-focus-key={focusKey}
       // Maus↔Tastatur-Sync: Hover verschiebt Norigins aktuellen Knoten hierher,
-      // sodass Pfeiltasten von der gehoverten Card weiternavigieren. Kein Scroll
-      // (Pointer-Modalität), kein .focused (siehe className).
+      // sodass Pfeiltasten von der gehoverten Card weiternavigieren. Nur unter
+      // Pointer-Modalität — sonst würde Content, der beim Tastatur-Scrollen unter
+      // dem stehenden Cursor durchläuft, den Fokus klauen.
       onPointerEnter={() => {
-        if (!disabled) {
+        if (!disabled && !isKeyboardModality()) {
           focusSelf()
         }
       }}

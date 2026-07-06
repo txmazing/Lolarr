@@ -36,5 +36,6 @@ export { ToastStack, type ToastItem, type ToastKind } from './components/ToastSt
 export { cn } from './lib/utils'
 export * from './lib/icons'
 export * from './lib/focusScroll'
+export * from './lib/railNavigation'
 export { labelForRequestStatus } from './components/requestStatusLabels'
 export { pruneSelection, selectableSeasonNumbers, toggleSeason } from './components/seasonSelection'

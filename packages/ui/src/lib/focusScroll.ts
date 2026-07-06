@@ -4,12 +4,23 @@
 
 let keyboardModality = false
 
+// Mirror the modality onto the document root so CSS can suppress mouse-only
+// affordances (card hover-expand) while the keyboard drives navigation — a
+// stationary cursor must not trigger hover on cards scrolling under it.
+function reflectModality() {
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.navInput = keyboardModality ? 'keyboard' : 'pointer'
+  }
+}
+
 function markKeyboard() {
   keyboardModality = true
+  reflectModality()
 }
 
 function markPointer() {
   keyboardModality = false
+  reflectModality()
 }
 
 export function isKeyboardModality(): boolean {

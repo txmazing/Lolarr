@@ -210,6 +210,16 @@
   }
 }
 
+/* While the keyboard/remote drives navigation, a stationary mouse must not
+   trigger card hover as content scrolls under it (double-expanded cards, focus
+   fights). Disabling pointer-events on the cards suppresses hover-expand +
+   pointerenter; the first real mouse move flips data-nav-input back to
+   "pointer" (see installModalityTracking) and restores them. */
+:root[data-nav-input='keyboard'] .lolarr-card-slot,
+:root[data-nav-input='keyboard'] .lolarr-art {
+  pointer-events: none;
+}
+
 /* ---- Morphing media card (rails + search) --------------------------------
    Portrait poster at rest; on hover (web) / keyboard focus / TvAction `.focused`
    (D-pad) it expands to a landscape preview — a backdrop crossfaded in under a

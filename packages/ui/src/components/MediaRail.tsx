@@ -23,7 +23,10 @@ export function MediaRail({ id, title, items, onOpen, Action, cardVariant }: Med
           {title}
         </h2>
       </div>
-      <div className="lolarr-rail flex gap-5 overflow-x-auto pl-12 pr-12 pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        data-rail={id}
+        className="lolarr-rail flex gap-5 overflow-x-auto pl-12 pr-12 pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {items.map((item) => (
           <MediaPosterButton
             key={item.id}

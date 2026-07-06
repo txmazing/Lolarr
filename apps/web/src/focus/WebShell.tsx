@@ -5,7 +5,12 @@ import {
   setFocus,
 } from '@noriginmedia/norigin-spatial-navigation-core'
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation-react'
-import { OverlayScopeProvider, installModalityTracking, type ShellProps } from '@lolarr/ui'
+import {
+  OverlayScopeProvider,
+  installModalityTracking,
+  installRailNavigation,
+  type ShellProps,
+} from '@lolarr/ui'
 
 // Norigin-Fokus-Boundary für offene Dialoge — Pfeiltasten bleiben im Dialog
 // gefangen (ergänzt Base UIs Tab-Trap). Spiegel von TvOverlayScope.
@@ -54,6 +59,12 @@ export function WebShell({ children }: ShellProps) {
     window.addEventListener('keydown', seedOnFirstArrow, true)
     return () => window.removeEventListener('keydown', seedOnFirstArrow, true)
   }, [])
+
+  // Rail-grid navigation on top of Norigin: per-rail focus memory (Up/Down
+  // resumes a rail where you left it) + forward snake (Right on the last card
+  // jumps to the next rail). Registered after the seed effect so its capture
+  // handler runs after seeding on the very first arrow press.
+  useEffect(() => installRailNavigation({ setFocus, getCurrentFocusKey }), [])
 
   return (
     <OverlayScopeProvider value={WebOverlayScope}>
