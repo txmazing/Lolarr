@@ -116,6 +116,20 @@ needs those fields added to the schema and mapped through the BFF from Jellyfin/
 can show them. Everything else in that row (year, `N Staffeln · M Folgen`, inline availability chip)
 is live.
 
+### Fokus-Navigation & Scroll (Web + TV)
+
+Beide Apps injizieren Norigin-basierte Fokus-Komponenten über den `LolarrApp`-Seam
+(`Action`/`Shell`/`TextInput`): TV → `TvAction`/`TvShell`/`TvTextInput`,
+Web → `WebAction`/`WebShell`/`WebTextInput` (Desktop Maus+Tastatur, Pfeile additiv).
+Das Scroll-/Modalitäts-Verhalten liegt geteilt und Norigin-frei in
+`src/lib/focusScroll.ts`:
+
+- `installModalityTracking()` — verfolgt Tastatur vs. Maus (nur Tastatur scrollt).
+- `scrollFocusedIntoView(el, { smooth })` — Hero-Wrapper (`data-focus-scroll-region`)
+  werden ganz oben gezeigt (`block:'start'`), sonst wird die Reihe zentriert
+  (`block:'center'`) mit Peek über die Rail-`scroll-padding-inline`. `smooth` im Web,
+  instant auf TV; immer instant bei `prefers-reduced-motion`.
+
 ## Testing
 
 Component tests live in `packages/ui/tests/` (Vitest + Testing Library, `jsdom`). Run with:
