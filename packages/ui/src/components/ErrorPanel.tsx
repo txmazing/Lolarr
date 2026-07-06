@@ -15,7 +15,7 @@ export function ErrorPanel({
       <h2 className="text-2xl font-semibold tracking-tight">Something failed.</h2>
       <p className="text-sm text-muted-foreground">{message}</p>
       {Action && onRetry ? (
-        <Action variant="secondary" onPress={onRetry} focusKey="error-retry">
+        <Action variant="ghost" onPress={onRetry} focusKey="error-retry">
           Retry
         </Action>
       ) : null}

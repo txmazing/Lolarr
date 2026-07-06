@@ -1,5 +1,5 @@
 import { useEffect, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from 'react'
-import { setFocus } from '@noriginmedia/norigin-spatial-navigation-core'
+import { getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation-core'
 import {
   FocusContext,
   useFocusable,
@@ -10,6 +10,9 @@ import {
   Input,
   OverlayScopeProvider,
   cn,
+  installModalityTracking,
+  installRailNavigation,
+  scrollFocusedIntoView,
   type ActionProps,
   type TextInputProps,
 } from '@lolarr/ui'
@@ -54,7 +57,7 @@ function TvAction({
 
   useEffect(() => {
     if (focused) {
-      scrollFocusedElementIntoView(ref.current)
+      scrollFocusedIntoView(ref.current, { smooth: false })
     }
   }, [focused, ref])
 
@@ -68,6 +71,7 @@ function TvAction({
       className={cn(className, focused && 'focused')}
       disabled={disabled}
       onClick={onPress}
+      data-focus-key={focusKey}
     >
       {children}
     </Button>
@@ -115,7 +119,7 @@ function TvTextInput({
     const input = ref.current as HTMLInputElement | null
 
     if (focused) {
-      scrollFocusedElementIntoView(input)
+      scrollFocusedIntoView(input, { smooth: false })
       return
     }
 
@@ -216,6 +220,13 @@ function TvShell({ children }: { children: ReactNode }) {
     trackChildren: true,
   })
 
+  useEffect(() => installModalityTracking(), [])
+
+  // Per-rail focus memory (Up/Down resumes a rail where you left it) + forward
+  // snake (Right on the last card jumps to the next rail). Same shared
+  // controller the web shell uses; TV's D-pad emits the same arrow keys.
+  useEffect(() => installRailNavigation({ setFocus, getCurrentFocusKey }), [])
+
   useEffect(() => {
     focusSelf()
   }, [focusSelf])
@@ -261,7 +272,7 @@ function activateTextInput(input: HTMLInputElement | null) {
   blurActiveTextInput(input)
   input.focus()
   selectTextForEditing(input)
-  scrollFocusedElementIntoView(input)
+  scrollFocusedIntoView(input, { smooth: false })
 }
 
 function blurTextInput(input: HTMLInputElement | null) {
@@ -318,23 +329,6 @@ function selectTextForEditing(input: HTMLInputElement) {
   }
 
   input.select()
-}
-
-function scrollFocusedElementIntoView(element: Element | null) {
-  if (!element) {
-    return
-  }
-
-  window.requestAnimationFrame(() => {
-    try {
-      element.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest',
-      })
-    } catch {
-      element.scrollIntoView(false)
-    }
-  })
 }
 
 function isBackKey(event: KeyboardEvent) {

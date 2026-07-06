@@ -35,4 +35,18 @@ describe('GlassDialog', () => {
     )
     expect(screen.queryByText('Body')).toBeNull()
   })
+
+  it('renders the popup panel with the dark-frost surface', () => {
+    render(
+      <GlassDialog open onClose={() => {}} title="T">
+        <p>Body</p>
+      </GlassDialog>,
+    )
+    const popup = screen.getByRole('dialog')
+    expect(popup.className).toContain('bg-dialog-frost')
+    expect(popup.className).toContain('backdrop-blur-[20px]')
+    expect(popup.className).toContain('border-dialog-border')
+    expect(popup.className).toContain('rounded-lg')
+    expect(popup.className).not.toContain('glass')
+  })
 })

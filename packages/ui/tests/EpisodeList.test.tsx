@@ -36,18 +36,39 @@ const episodes: Episode[] = [
 describe('EpisodeList', () => {
   afterEach(cleanup)
 
-  it('renders a play action per episode and reports the episode on press', () => {
+  it('renders a responsive grid container', () => {
+    const { container } = render(<EpisodeList episodes={episodes} Action={Action} onPlay={vi.fn()} />)
+    expect(container.querySelector('[class*="grid-cols"]')).toBeTruthy()
+  })
+
+  it('renders exactly one focusable card per episode and reports the episode on press', () => {
     const onPlay = vi.fn()
     render(<EpisodeList episodes={episodes} Action={Action} onPlay={onPlay} />)
 
-    fireEvent.click(screen.getByLabelText('Play The Second One'))
+    const buttons = screen.getAllByRole('button')
+    expect(buttons).toHaveLength(episodes.length)
+
+    fireEvent.click(screen.getByLabelText('The Second One abspielen'))
     expect(onPlay).toHaveBeenCalledTimes(1)
     expect(onPlay).toHaveBeenCalledWith(episodes[1])
   })
 
+  it('shows the episode caption with title, "Folge N", and runtime, with the whole card as the only focus target', () => {
+    render(<EpisodeList episodes={episodes} Action={Action} onPlay={vi.fn()} />)
+
+    expect(screen.getByText('Pilot')).toBeDefined()
+    expect(screen.getByText('Folge 1')).toBeDefined()
+    expect(screen.getByText('42 Min')).toBeDefined()
+    // The whole card is the single focusable/playable action — no separate
+    // play glyph or nested button inside it.
+    expect(screen.queryByText('▶')).toBeNull()
+    expect(screen.getByLabelText('Pilot abspielen').querySelector('button')).toBeNull()
+  })
+
   it('renders no play actions without Action and onPlay', () => {
     render(<EpisodeList episodes={episodes} />)
-    expect(screen.queryByLabelText('Play Pilot')).toBeNull()
+    expect(screen.queryByLabelText('Pilot abspielen')).toBeNull()
+    expect(screen.queryByRole('button')).toBeNull()
     expect(screen.getByText('Pilot')).toBeDefined()
   })
 })

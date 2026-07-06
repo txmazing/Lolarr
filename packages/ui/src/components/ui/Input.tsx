@@ -6,11 +6,11 @@ export function Input({ className, ...props }: BaseInput.Props) {
     <BaseInput
       data-slot="input"
       className={cn(
-        'h-11 w-full min-w-0 rounded-md border border-border bg-surface px-2.5 py-1 text-base outline-none transition-colors duration-[350ms] ease-out-expo',
+        'h-11 w-full min-w-0 rounded-md border border-border/60 bg-surface px-3 py-1 text-base backdrop-blur-[8px] outline-none transition-colors',
         'placeholder:text-muted-foreground',
-        'focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring',
+        'focus-visible:border-ring focus-visible:bg-surface-2',
         'focused:border-ring focused:bg-surface-2',
-        'disabled:pointer-events-none disabled:opacity-50',
+        'disabled:opacity-50',
         className,
       )}
       {...props}

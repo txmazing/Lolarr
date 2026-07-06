@@ -28,7 +28,7 @@ export function RequestList({
       <div className="flex items-baseline justify-between">
         <h2 className="text-lg font-medium">Recent requests</h2>
         {onViewAll ? (
-          <Action variant="secondary" onPress={onViewAll} focusKey="requests-view-all">
+          <Action variant="ghost" onPress={onViewAll} focusKey="requests-view-all">
             View all
           </Action>
         ) : (
@@ -52,7 +52,7 @@ export function RequestList({
               </span>
               {onCancel && request.canCancel ? (
                 <Action
-                  variant="secondary"
+                  variant="ghost"
                   onPress={() => onCancel(request)}
                   focusKey={`request-cancel-${request.id}`}
                   disabled={cancelingId === request.id}

@@ -41,9 +41,13 @@
   --surface-3: rgb(255 255 255 / 0.11);
   /* Solid dark button chip that inverts to the near-white accent on hover. */
   --surface-chip: rgb(40 40 40 / 0.8);
-  --glass: rgb(42 42 42 / 0.6);
-  --blur-overlay: 15px;
-  --blur-controls: 4px;
+  --control-hover: rgb(255 255 255 / 0.1);
+  --primary-solid: rgb(255 255 255 / 0.95);
+  --dialog-frost: rgb(42 42 42 / 0.72);
+  --dialog-border: rgb(245 245 247 / 0.16);
+  --glass: var(--dialog-frost);
+  --blur-overlay: 20px;
+  --blur-controls: 8px;
   --status-available: #6fbf9f;
   --status-processing: #8fa8c9;
   --status-pending: #c9b37e;
@@ -51,6 +55,9 @@
   --status-failed: #c98181;
   --status-requested: #a393c9;
   --danger: #d97b7b;
+
+  /* Höhe der fixen Top-Nav-Clearance (matcht <main class="pt-24"> / Hero -mt-24) */
+  --nav-h: 6rem;
 }
 
 @theme inline {
@@ -77,6 +84,10 @@
   --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
   --color-surface-chip: var(--surface-chip);
+  --color-control-hover: var(--control-hover);
+  --color-primary-solid: var(--primary-solid);
+  --color-dialog-frost: var(--dialog-frost);
+  --color-dialog-border: var(--dialog-border);
   --color-status-available: var(--status-available);
   --color-status-processing: var(--status-processing);
   --color-status-pending: var(--status-pending);
@@ -105,6 +116,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    scroll-padding-block-start: var(--nav-h);
   }
 
   /* 10-Foot-UI: beide TV-HTMLs tragen class="tv-ui" auf <html> */
@@ -142,3 +154,175 @@
 
 /* Overlay-Backdrops werden direkt in GlassDialog gestylt (dim only, kein Blur —
    der Blur kommt allein vom Glass-Popup). Keine globalen Komponentenregeln nötig. */
+
+/* Favorite-Heart: kurzer Pop beim Aktivieren (Player-Leiste). Reine CSS-Animation,
+   kein npm-Dependency. Wird via .fav-pop auf dem aktiven Herz-Icon angewandt. */
+@keyframes fav-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  70% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.fav-pop {
+  animation: fav-pop 320ms var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fav-pop {
+    animation: none;
+  }
+}
+
+/* Card / episode-thumbnail focus treatment — the faint inset glow at rest, and
+   on focus a crisp near-white ring sitting 3px proud of the art (abyss/mockup
+   card-focus look). Built with box-shadow (not outline: an app-tree outline
+   reset neutralises outline-color here) so it survives, and reacts to all three
+   input modes on the enclosing `.group` (Button): web hover, web keyboard
+   focus, and TvAction's `.focused` (D-pad). The near-white ring is the shared
+   --foreground token; the 3px gap ring is the page background. */
+.lolarr-art {
+  box-shadow:
+    inset 0 0 3px rgb(200 200 200 / 0.35),
+    0 0 0 3px transparent,
+    0 0 0 5px transparent;
+  transition: box-shadow 370ms var(--ease-out-expo);
+}
+:root:not([data-nav-input='keyboard']) .group:hover .lolarr-art,
+.group:focus-visible .lolarr-art,
+.group.focused .lolarr-art {
+  box-shadow:
+    inset 0 0 3px rgb(200 200 200 / 0.35),
+    0 0 0 3px var(--background),
+    0 0 0 5px var(--foreground);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lolarr-art {
+    transition: none;
+  }
+}
+
+/* While the keyboard/remote drives navigation, a stationary mouse must not
+   trigger card hover as content scrolls under it (double-expanded cards). The
+   card `:hover` rules below are therefore gated on
+   `:root:not([data-nav-input='keyboard'])` so hover only acts under pointer
+   modality; the first real mouse move flips data-nav-input back to "pointer"
+   (see installModalityTracking) and restores hover. Clicks stay live (no
+   pointer-events change), and focus-driven expansion (`.focused` /
+   `:focus-visible`) is unaffected. Focus-steal from a stationary cursor is
+   separately guarded in WebAction's onPointerEnter. */
+
+/* ---- Morphing media card (rails + search) --------------------------------
+   Portrait poster at rest; on hover (web) / keyboard focus / TvAction `.focused`
+   (D-pad) it expands to a landscape preview — a backdrop crossfaded in under a
+   gradient title/meta overlay. The height never changes (only width grows), so
+   it never clips against a rail's vertical overflow; the expanded card lifts
+   above its neighbours and grows rightward from its left edge. */
+:root {
+  --card-w: 240px;
+  --card-h: 360px;
+  --card-w-expanded: 640px;
+}
+/* The slot is the flex/grid item, and it is the thing that grows — so the
+   expansion pushes later siblings aside (in-flow) instead of overlapping them.
+   Height is fixed; only the width animates, so a rail's vertical overflow never
+   clips it. Triggered by mouse hover, keyboard focus, and TvAction `.focused`. */
+.lolarr-card-slot {
+  --exp-delay: 0ms;
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--card-w);
+  height: var(--card-h);
+  transition: width 400ms var(--ease-out-expo) var(--exp-delay);
+}
+/* Hover-intent: on the mouse, only expand after a short dwell, so sweeping the
+   cursor across the row (and crossing the gaps between cards) doesn't thrash the
+   layout. `--exp-delay` cascades into every morph transition below. Keyboard and
+   D-pad focus expand immediately (no dwell); collapse is always immediate too,
+   because the delay reverts to 0 the moment hover is lost. */
+:root:not([data-nav-input='keyboard']) .lolarr-card-slot:hover {
+  --exp-delay: 200ms;
+}
+:root:not([data-nav-input='keyboard']) .lolarr-card-slot:hover,
+.lolarr-card-slot:has(.lolarr-card:focus-visible),
+.lolarr-card-slot:has(.lolarr-card.focused) {
+  width: var(--card-w-expanded);
+}
+.lolarr-card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  box-shadow:
+    inset 0 0 3px rgb(200 200 200 / 0.35),
+    0 0 0 3px transparent,
+    0 0 0 5px transparent;
+  transition: box-shadow 300ms var(--ease-out-expo) var(--exp-delay);
+}
+:root:not([data-nav-input='keyboard']) .lolarr-card:hover,
+.lolarr-card:focus-visible,
+.lolarr-card.focused {
+  box-shadow:
+    inset 0 0 3px rgb(200 200 200 / 0.35),
+    0 0 0 3px var(--background),
+    0 0 0 5px var(--foreground);
+}
+.lolarr-poster,
+.lolarr-backdrop {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: opacity 400ms var(--ease-out-expo) var(--exp-delay);
+}
+.lolarr-backdrop,
+.lolarr-overlay {
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out-expo) var(--exp-delay);
+}
+/* Round the media/overlay layers themselves: `overflow: hidden` on the card
+   does not reliably clip these absolutely-positioned children to the rounded
+   corners, so they carry the card's radius directly. */
+.lolarr-poster,
+.lolarr-backdrop,
+.lolarr-overlay {
+  border-radius: inherit;
+}
+:root:not([data-nav-input='keyboard']) .lolarr-card:hover .lolarr-backdrop,
+.lolarr-card:focus-visible .lolarr-backdrop,
+.lolarr-card.focused .lolarr-backdrop,
+:root:not([data-nav-input='keyboard']) .lolarr-card:hover .lolarr-overlay,
+.lolarr-card:focus-visible .lolarr-overlay,
+.lolarr-card.focused .lolarr-overlay {
+  opacity: 1;
+}
+/* Only fade the poster out when there is a real backdrop to reveal. */
+:root:not([data-nav-input='keyboard']) .lolarr-card.has-backdrop:hover .lolarr-poster,
+.lolarr-card.has-backdrop:focus-visible .lolarr-poster,
+.lolarr-card.has-backdrop.focused .lolarr-poster {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lolarr-card-slot,
+  .lolarr-card,
+  .lolarr-poster,
+  .lolarr-backdrop,
+  .lolarr-overlay {
+    transition: none;
+  }
+}
+
+/* Rail-Scroller: hält die fokussierte Card mit sichtbarem Peek der Nachbar-Card
+   von der Kante weg (statt bündig), respektiert von scrollFocusedIntoView. */
+.lolarr-rail {
+  scroll-padding-inline: 6rem;
+}

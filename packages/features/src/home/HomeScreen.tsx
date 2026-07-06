@@ -72,9 +72,10 @@ export function HomeScreen({
     enrichedHome.hero ??
     rows[0]?.items[0]
 
+  // Suche is not a tab — it's the header's search icon (onOpenSearch). Tabs are
+  // Start + Anfragen only.
   const navItems: NavItem[] = [
-    { key: 'home', label: 'Home', onPress: () => {}, active: true },
-    { key: 'search', label: 'Suche', onPress: onOpenSearch },
+    { key: 'home', label: 'Start', onPress: () => {}, active: true },
     { key: 'requests', label: 'Anfragen', onPress: onOpenRequests, badge: unreadCount || undefined },
   ]
 
@@ -83,15 +84,17 @@ export function HomeScreen({
       Action={Action}
       navItems={navItems}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
+      onOpenSearch={onOpenSearch}
       userName={userName}
       onSignOut={onSignOut}
     >
       <HeroPanel
         item={featuredItem}
-        onOpen={
+        onOpen={onOpenItem}
+        onPlay={
           featuredItem?.jellyfin && (featuredItem.mediaType === 'movie' || featuredItem.jellyfin.episode)
             ? onPlayItem
-            : onOpenItem
+            : undefined
         }
         Action={Action}
       />
@@ -114,6 +117,7 @@ export function HomeScreen({
             items={row.items}
             onOpen={row.id === 'continue-watching' ? onPlayItem : onOpenItem}
             Action={Action}
+            cardVariant={row.id === 'continue-watching' ? 'landscape' : 'portrait'}
           />
         ))}
         {requestsError ? null : (

@@ -8,10 +8,12 @@ import {
   MediaPosterButton,
   SearchBar,
   type ActionComponent,
+  type NavItem,
   type TextInputComponent,
 } from '@lolarr/ui'
 import { useApi } from '../api.js'
 import { readErrorMessage } from '../lib/errors.js'
+import { useNotificationsContext } from '../notifications/NotificationsProvider.js'
 
 export function SearchScreen({
   Action,
@@ -23,6 +25,8 @@ export function SearchScreen({
   onConfigureGateway,
   onBack,
   onOpenItem,
+  onOpenHome,
+  onOpenRequests,
 }: {
   Action: ActionComponent
   TextInput: TextInputComponent
@@ -33,7 +37,20 @@ export function SearchScreen({
   onConfigureGateway: () => void
   onBack: () => void
   onOpenItem: (item: MediaItem) => void
+  onOpenHome?: () => void
+  onOpenRequests?: () => void
 }) {
+  const { unreadCount } = useNotificationsContext()
+
+  const navItems: NavItem[] = [
+    { key: 'home', label: 'Start', onPress: () => onOpenHome?.() },
+    {
+      key: 'requests',
+      label: 'Anfragen',
+      onPress: () => onOpenRequests?.(),
+      badge: unreadCount || undefined,
+    },
+  ]
   const api = useApi()
   const [query, setQuery] = useState('')
   const deferredQuery = useDeferredValue(query.trim())
@@ -52,11 +69,12 @@ export function SearchScreen({
   return (
     <AppFrame
       Action={Action}
+      navItems={navItems}
       onConfigureGateway={canConfigureGateway ? onConfigureGateway : undefined}
       userName={userName}
       onSignOut={onSignOut}
     >
-      <Action variant="secondary" onPress={onBack} focusKey="search-back">
+      <Action variant="ghost" onPress={onBack} focusKey="search-back">
         Back
       </Action>
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />
@@ -73,7 +91,7 @@ export function SearchScreen({
       ) : !searchQuery.isLoading && !searchQuery.error && results.length === 0 ? (
         <p className="flex min-h-[52px] items-center justify-between gap-3.5 rounded-md bg-surface px-3.5 py-3 text-muted-foreground">No results for "{deferredQuery}".</p>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-4">
+        <div className="flex flex-wrap gap-5">
           {results.map((item) => (
             <MediaPosterButton
               key={item.id}

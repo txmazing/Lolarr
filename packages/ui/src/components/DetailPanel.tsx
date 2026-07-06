@@ -1,6 +1,7 @@
 import type { Availability, MediaItem, MediaType } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { StatusBadge } from './StatusBadge'
+import { ArrowLeft, Play, Plus } from '../lib/icons'
 
 type DetailPanelProps = {
   item: MediaItem
@@ -9,6 +10,11 @@ type DetailPanelProps = {
   onBack: () => void
   onRequest: (item: MediaItem) => void
   Action: ActionComponent
+  // Optional, additive: when the item is already playable in Jellyfin, the
+  // caller can wire a primary Play/Continue CTA (same pattern as
+  // HeroPanel.onPlay). Omitted for the current Seerr-discovery call site,
+  // which has no playback concept — see DetailScreen.
+  onPlay?: (item: MediaItem) => void
 }
 
 export function DetailPanel({
@@ -18,14 +24,21 @@ export function DetailPanel({
   onBack,
   onRequest,
   Action,
+  onPlay,
 }: DetailPanelProps) {
   const canRequest =
     item.availability === 'requestable' ||
     item.availability === 'unavailable' ||
     (item.mediaType === 'tv' && item.availability === 'partiallyAvailable')
 
+  // The request/save action is a focus target, not the loudest thing on
+  // screen: it's primary only when there is no dedicated Play CTA (the
+  // current Seerr-request-only call site). Once a caller wires onPlay, Play
+  // takes the single primary slot and the request action becomes bare.
+  const requestVariant = onPlay ? 'ghost' : 'primary'
+
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-8" data-focus-scroll-region>
       <div className="relative min-h-[48vh] rounded-lg overflow-hidden">
         {item.backdropUrl ? (
           <img src={item.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
@@ -33,8 +46,9 @@ export function DetailPanel({
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
       </div>
       <div className="relative z-10 p-12 flex flex-col gap-4 max-w-2xl">
-        <Action variant="secondary" onPress={onBack} focusKey="detail-back">
-          Back
+        <Action variant="ghost" className="w-fit" onPress={onBack} focusKey="detail-back" ariaLabel="Zurück">
+          <ArrowLeft />
+          Zurück
         </Action>
         <div className="grid grid-cols-[240px_1fr] gap-8 items-start">
           <div>
@@ -55,14 +69,23 @@ export function DetailPanel({
               <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
               {item.tmdbId !== undefined ? <span>TMDB {item.tmdbId}</span> : null}
             </div>
-            <Action
-              variant="primary"
-              disabled={!canRequest || isRequesting}
-              onPress={() => onRequest(item)}
-              focusKey={`request-${item.mediaType}-${item.tmdbId}`}
-            >
-              {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
-            </Action>
+            <div className="flex items-center gap-3 pt-1">
+              {onPlay ? (
+                <Action variant="primary" onPress={() => onPlay(item)} focusKey="detail-play">
+                  <Play fill="currentColor" strokeWidth={0} />
+                  {item.jellyfin?.progressPercent !== undefined ? 'Fortsetzen' : 'Abspielen'}
+                </Action>
+              ) : null}
+              <Action
+                variant={requestVariant}
+                disabled={!canRequest || isRequesting}
+                onPress={() => onRequest(item)}
+                focusKey={`request-${item.mediaType}-${item.tmdbId}`}
+              >
+                {canRequest ? <Plus /> : null}
+                {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
+              </Action>
+            </div>
             {requestError ? <p className="text-sm text-danger">{requestError}</p> : null}
           </div>
         </div>
@@ -81,7 +104,7 @@ function requestLabel(mediaType: MediaType, availability: Availability, isReques
   }
 
   if (availability === 'partiallyAvailable') {
-    return mediaType === 'tv' ? 'Request more seasons' : 'Available in Jellyfin'
+    return mediaType === 'tv' ? 'Weitere Staffeln anfragen' : 'Available in Jellyfin'
   }
 
   if (availability === 'requested') {

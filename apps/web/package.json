@@ -13,6 +13,8 @@
   "dependencies": {
     "@lolarr/features": "workspace:*",
     "@lolarr/ui": "workspace:*",
+    "@noriginmedia/norigin-spatial-navigation-core": "^4.0.0",
+    "@noriginmedia/norigin-spatial-navigation-react": "^3.2.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   }

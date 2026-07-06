@@ -2,10 +2,15 @@ import type { MediaItem } from '@lolarr/domain'
 import type { ActionComponent } from './types'
 import { Badge } from '@ui/components/ui/Badge'
 import { StatusBadge } from './StatusBadge'
+import { Info, Play } from '../lib/icons'
 
 type HeroProps = {
   item?: MediaItem
   onOpen: (item: MediaItem) => void
+  // Optional: when provided, the hero renders a dedicated primary "Play" CTA
+  // alongside the bare "Mehr Infos" action (which still calls onOpen). When
+  // omitted, onOpen alone drives the single primary CTA (back-compat).
+  onPlay?: (item: MediaItem) => void
   Action: ActionComponent
 }
 
@@ -15,10 +20,10 @@ type HeroProps = {
 const HERO_SHELL = 'relative w-full h-[82vh] min-h-[520px] overflow-hidden -mt-24'
 const HERO_CONTENT = 'absolute bottom-[14%] left-0 px-12 max-w-2xl flex flex-col gap-4 z-10'
 
-export function HeroPanel({ item, onOpen, Action }: HeroProps) {
+export function HeroPanel({ item, onOpen, onPlay, Action }: HeroProps) {
   if (!item) {
     return (
-      <section className={HERO_SHELL}>
+      <section className={HERO_SHELL} data-focus-scroll-region>
         <div className="absolute inset-0 bg-surface" />
         <div className={HERO_CONTENT}>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Discover</p>
@@ -29,7 +34,7 @@ export function HeroPanel({ item, onOpen, Action }: HeroProps) {
   }
 
   return (
-    <section className={HERO_SHELL}>
+    <section className={HERO_SHELL} data-focus-scroll-region>
       {item.backdropUrl ? (
         <img src={item.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : (
@@ -54,9 +59,18 @@ export function HeroPanel({ item, onOpen, Action }: HeroProps) {
           <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
         </div>
         <div className="flex items-center gap-3 pt-1">
-          <Action variant="primary" onPress={() => onOpen(item)} focusKey="hero">
-            Details öffnen
+          <Action variant="primary" onPress={() => (onPlay ?? onOpen)(item)} focusKey="hero-play">
+            <Play fill="currentColor" strokeWidth={0} />
+            {item.jellyfin?.progressPercent !== undefined || item.jellyfin?.episode
+              ? 'Fortsetzen'
+              : 'Abspielen'}
           </Action>
+          {onPlay ? (
+            <Action variant="ghost" onPress={() => onOpen(item)} focusKey="hero-info">
+              <Info />
+              Mehr Infos
+            </Action>
+          ) : null}
         </div>
       </div>
     </section>

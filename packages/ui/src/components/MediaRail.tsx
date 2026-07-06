@@ -8,9 +8,10 @@ type MediaRailProps = {
   items: MediaItem[]
   onOpen: (item: MediaItem) => void
   Action: ActionComponent
+  cardVariant?: 'portrait' | 'landscape'
 }
 
-export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) {
+export function MediaRail({ id, title, items, onOpen, Action, cardVariant }: MediaRailProps) {
   if (items.length === 0) {
     return null
   }
@@ -22,7 +23,10 @@ export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) 
           {title}
         </h2>
       </div>
-      <div className="flex gap-4 overflow-x-auto pl-12 pr-0 pt-2 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        data-rail={id}
+        className="lolarr-rail flex gap-5 overflow-x-auto pl-12 pr-12 pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {items.map((item) => (
           <MediaPosterButton
             key={item.id}
@@ -30,6 +34,7 @@ export function MediaRail({ id, title, items, onOpen, Action }: MediaRailProps) 
             onOpen={onOpen}
             Action={Action}
             focusKeyPrefix={id}
+            variant={cardVariant}
           />
         ))}
       </div>

@@ -6,25 +6,23 @@ export type LolarrButtonVariant = 'primary' | 'secondary' | 'ghost' | 'glass' | 
 export type LolarrButtonSize = 'md' | 'lg'
 
 const BASE =
-  'group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent text-sm font-medium whitespace-nowrap outline-none select-none transition-[transform,background-color,border-color,color] duration-[350ms] ease-out-expo focus-visible:ring-3 focus-visible:ring-ring/50 focused:scale-[1.06] focused:border-ring focused:bg-surface-3 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-4'
+  'group inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-transparent text-sm font-medium whitespace-nowrap outline-none select-none transition-[transform,background-color,color] duration-[370ms] ease-out-expo focus-visible:ring-3 focus-visible:ring-ring/50 focused:scale-[1.04] focused:bg-control-hover disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=size-])]:size-[18px]'
 
 // Standard control height (44px) — matches Input so buttons and fields line up.
-const SIZES: Record<LolarrButtonSize, string> = {
-  md: 'h-11 px-4',
-  lg: 'h-12 px-5',
-}
+const SIZES: Record<LolarrButtonSize, string> = { md: 'h-11 px-4', lg: 'h-12 px-5' }
+
+// Bare control: no fill, no border, own backdrop-blur — fills on hover only.
+const BARE = 'bg-transparent text-foreground/90 backdrop-blur-[8px] hover:bg-control-hover hover:text-foreground'
 
 const VARIANTS: Record<LolarrButtonVariant, string> = {
   // Solid near-white fill + near-black text — the single strong CTA per screen.
-  primary: 'bg-primary text-primary-foreground hover:bg-primary/80',
-  // The workhorse: a solid dark chip that inverts to the near-white accent with
-  // near-black text on hover/focus (the reference theme's signature button move).
-  secondary:
-    'bg-surface-chip text-foreground hover:bg-foreground hover:text-background focused:bg-foreground focused:text-background',
-  // Flat/transparent — reserved for nav pills and icon-only buttons.
-  ghost: 'bg-transparent text-muted-foreground hover:bg-surface-2 hover:text-foreground',
-  // Frosted-glass chip with a bright edge — secondary / on-image actions.
-  glass: 'glass-controls border border-white/15 hover:bg-surface-3 hover:border-white/25',
+  primary: 'bg-primary-solid text-background font-semibold hover:bg-primary-solid',
+  // Bare control — same look as ghost/glass, kept as a distinct variant name for call sites.
+  secondary: BARE,
+  // Bare control — reserved for nav pills and icon-only buttons.
+  ghost: BARE,
+  // Bare control — secondary / on-image actions.
+  glass: BARE,
   // A card lays out block-level composite content (image + title + meta), so it
   // drops the inline button sizing and neutralises the native text-align.
   card: 'flex flex-col items-start justify-start h-auto gap-2 p-0 bg-transparent text-left hover:bg-transparent',
