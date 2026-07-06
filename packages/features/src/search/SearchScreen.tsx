@@ -74,7 +74,7 @@ export function SearchScreen({
       userName={userName}
       onSignOut={onSignOut}
     >
-      <Action variant="secondary" onPress={onBack} focusKey="search-back">
+      <Action variant="ghost" onPress={onBack} focusKey="search-back">
         Back
       </Action>
       <SearchBar TextInput={TextInput} query={query} onQueryChange={setQuery} />

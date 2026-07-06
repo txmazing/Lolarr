@@ -1,21 +1,24 @@
 import type { RequestStatus } from '@lolarr/domain'
-import { Badge } from '@ui/components/ui/Badge'
 import { cn } from '@ui/lib/utils'
 import { labelForRequestStatus } from './requestStatusLabels'
 
-const REQUEST_STATUS_CLASSES: Record<RequestStatus, string> = {
-  pending: 'text-status-pending border-status-pending/40 bg-status-pending/10',
-  approved: 'text-status-processing border-status-processing/40 bg-status-processing/10',
-  processing: 'text-status-processing border-status-processing/40 bg-status-processing/10',
-  available: 'text-status-available border-status-available/40 bg-status-available/10',
-  declined: 'text-status-declined border-status-declined/40 bg-status-declined/10',
-  failed: 'text-status-failed border-status-failed/40 bg-status-failed/10',
+// Bare LED dot: status colour lives only on the dot, never as a fill/border
+// on the chip itself. Mirrors StatusBadge — reuses the shared --status-*
+// tokens; no new colours.
+const DOT_CLASSES: Record<RequestStatus, string> = {
+  pending: 'bg-status-pending',
+  approved: 'bg-status-processing',
+  processing: 'bg-status-processing',
+  available: 'bg-status-available',
+  declined: 'bg-status-declined',
+  failed: 'bg-status-failed',
 }
 
 export function RequestStatusBadge({ status }: { status: RequestStatus }) {
   return (
-    <Badge variant="outline" className={cn('rounded-full font-medium', REQUEST_STATUS_CLASSES[status])}>
+    <span className="inline-flex items-center gap-2 rounded-full px-2.5 py-1.5 text-xs text-foreground backdrop-blur-[8px]">
+      <span className={cn('size-[7px] rounded-full', DOT_CLASSES[status])} />
       {labelForRequestStatus(status)}
-    </Badge>
+    </span>
   )
 }

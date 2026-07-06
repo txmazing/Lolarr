@@ -21,7 +21,7 @@ export function QuickConnectPanel({ Action, code, error, onCancel }: QuickConnec
       ) : (
         <p className="text-sm text-muted-foreground">Requesting code…</p>
       )}
-      <Action onPress={onCancel} focusKey="qc-cancel">
+      <Action variant="ghost" onPress={onCancel} focusKey="qc-cancel">
         Back to password login
       </Action>
     </section>
