@@ -9,6 +9,11 @@ type DetailPanelProps = {
   onBack: () => void
   onRequest: (item: MediaItem) => void
   Action: ActionComponent
+  // Optional, additive: when the item is already playable in Jellyfin, the
+  // caller can wire a primary Play/Continue CTA (same pattern as
+  // HeroPanel.onPlay). Omitted for the current Seerr-discovery call site,
+  // which has no playback concept — see DetailScreen.
+  onPlay?: (item: MediaItem) => void
 }
 
 export function DetailPanel({
@@ -18,11 +23,18 @@ export function DetailPanel({
   onBack,
   onRequest,
   Action,
+  onPlay,
 }: DetailPanelProps) {
   const canRequest =
     item.availability === 'requestable' ||
     item.availability === 'unavailable' ||
     (item.mediaType === 'tv' && item.availability === 'partiallyAvailable')
+
+  // The request/save action is a focus target, not the loudest thing on
+  // screen: it's primary only when there is no dedicated Play CTA (the
+  // current Seerr-request-only call site). Once a caller wires onPlay, Play
+  // takes the single primary slot and the request action becomes bare.
+  const requestVariant = onPlay ? 'ghost' : 'primary'
 
   return (
     <section className="flex flex-col gap-8">
@@ -55,14 +67,21 @@ export function DetailPanel({
               <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
               {item.tmdbId !== undefined ? <span>TMDB {item.tmdbId}</span> : null}
             </div>
-            <Action
-              variant="primary"
-              disabled={!canRequest || isRequesting}
-              onPress={() => onRequest(item)}
-              focusKey={`request-${item.mediaType}-${item.tmdbId}`}
-            >
-              {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
-            </Action>
+            <div className="flex items-center gap-3 pt-1">
+              {onPlay ? (
+                <Action variant="primary" onPress={() => onPlay(item)} focusKey="detail-play">
+                  {item.jellyfin?.progressPercent !== undefined ? 'Fortsetzen' : 'Abspielen'}
+                </Action>
+              ) : null}
+              <Action
+                variant={requestVariant}
+                disabled={!canRequest || isRequesting}
+                onPress={() => onRequest(item)}
+                focusKey={`request-${item.mediaType}-${item.tmdbId}`}
+              >
+                {requestLabel(item.mediaType, item.availability, Boolean(isRequesting))}
+              </Action>
+            </div>
             {requestError ? <p className="text-sm text-danger">{requestError}</p> : null}
           </div>
         </div>
@@ -81,7 +100,7 @@ function requestLabel(mediaType: MediaType, availability: Availability, isReques
   }
 
   if (availability === 'partiallyAvailable') {
-    return mediaType === 'tv' ? 'Request more seasons' : 'Available in Jellyfin'
+    return mediaType === 'tv' ? 'Weitere Staffeln anfragen' : 'Available in Jellyfin'
   }
 
   if (availability === 'requested') {
