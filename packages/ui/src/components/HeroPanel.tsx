@@ -23,7 +23,7 @@ const HERO_CONTENT = 'absolute bottom-[14%] left-0 px-12 max-w-2xl flex flex-col
 export function HeroPanel({ item, onOpen, onPlay, Action }: HeroProps) {
   if (!item) {
     return (
-      <section className={HERO_SHELL}>
+      <section className={HERO_SHELL} data-focus-scroll-region>
         <div className="absolute inset-0 bg-surface" />
         <div className={HERO_CONTENT}>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Discover</p>
@@ -34,7 +34,7 @@ export function HeroPanel({ item, onOpen, onPlay, Action }: HeroProps) {
   }
 
   return (
-    <section className={HERO_SHELL}>
+    <section className={HERO_SHELL} data-focus-scroll-region>
       {item.backdropUrl ? (
         <img src={item.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
       ) : (

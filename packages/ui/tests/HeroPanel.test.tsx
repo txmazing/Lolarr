@@ -53,4 +53,11 @@ describe('HeroPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mehr Infos' }))
     expect(onOpen).toHaveBeenCalledWith(item)
   })
+
+  it('markiert den Hero-Wrapper als Scroll-Region (ganzer Hero bei Fokus)', () => {
+    const { container } = render(
+      <HeroPanel item={item} onOpen={() => {}} onPlay={() => {}} Action={DefaultAction} />,
+    )
+    expect(container.querySelector('[data-focus-scroll-region]')).toBeTruthy()
+  })
 })

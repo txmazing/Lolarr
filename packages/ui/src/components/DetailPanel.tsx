@@ -38,7 +38,7 @@ export function DetailPanel({
   const requestVariant = onPlay ? 'ghost' : 'primary'
 
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-8" data-focus-scroll-region>
       <div className="relative min-h-[48vh] rounded-lg overflow-hidden">
         {item.backdropUrl ? (
           <img src={item.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />

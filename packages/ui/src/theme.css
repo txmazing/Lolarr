@@ -55,6 +55,9 @@
   --status-failed: #c98181;
   --status-requested: #a393c9;
   --danger: #d97b7b;
+
+  /* Höhe der fixen Top-Nav-Clearance (matcht <main class="pt-24"> / Hero -mt-24) */
+  --nav-h: 6rem;
 }
 
 @theme inline {
@@ -113,6 +116,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    scroll-padding-block-start: var(--nav-h);
   }
 
   /* 10-Foot-UI: beide TV-HTMLs tragen class="tv-ui" auf <html> */
@@ -305,4 +309,10 @@
   .lolarr-overlay {
     transition: none;
   }
+}
+
+/* Rail-Scroller: hält die fokussierte Card mit sichtbarem Peek der Nachbar-Card
+   von der Kante weg (statt bündig), respektiert von scrollFocusedIntoView. */
+.lolarr-rail {
+  scroll-padding-inline: 6rem;
 }

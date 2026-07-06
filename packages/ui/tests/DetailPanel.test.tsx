@@ -116,4 +116,16 @@ describe('DetailPanel', () => {
     expect(screen.getByText('The Wire')).toBeDefined()
     expect(screen.getByText('Requestable')).toBeDefined()
   })
+
+  it('markiert den Detail-Wrapper als Scroll-Region', () => {
+    const { container } = render(
+      <DetailPanel
+        item={requestableItem}
+        onBack={() => {}}
+        onRequest={() => {}}
+        Action={DefaultAction}
+      />,
+    )
+    expect(container.querySelector('[data-focus-scroll-region]')).toBeTruthy()
+  })
 })
