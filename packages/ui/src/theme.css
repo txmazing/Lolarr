@@ -196,7 +196,7 @@
     0 0 0 5px transparent;
   transition: box-shadow 370ms var(--ease-out-expo);
 }
-.group:hover .lolarr-art,
+:root:not([data-nav-input='keyboard']) .group:hover .lolarr-art,
 .group:focus-visible .lolarr-art,
 .group.focused .lolarr-art {
   box-shadow:
@@ -211,14 +211,14 @@
 }
 
 /* While the keyboard/remote drives navigation, a stationary mouse must not
-   trigger card hover as content scrolls under it (double-expanded cards, focus
-   fights). Disabling pointer-events on the cards suppresses hover-expand +
-   pointerenter; the first real mouse move flips data-nav-input back to
-   "pointer" (see installModalityTracking) and restores them. */
-:root[data-nav-input='keyboard'] .lolarr-card-slot,
-:root[data-nav-input='keyboard'] .lolarr-art {
-  pointer-events: none;
-}
+   trigger card hover as content scrolls under it (double-expanded cards). The
+   card `:hover` rules below are therefore gated on
+   `:root:not([data-nav-input='keyboard'])` so hover only acts under pointer
+   modality; the first real mouse move flips data-nav-input back to "pointer"
+   (see installModalityTracking) and restores hover. Clicks stay live (no
+   pointer-events change), and focus-driven expansion (`.focused` /
+   `:focus-visible`) is unaffected. Focus-steal from a stationary cursor is
+   separately guarded in WebAction's onPointerEnter. */
 
 /* ---- Morphing media card (rails + search) --------------------------------
    Portrait poster at rest; on hover (web) / keyboard focus / TvAction `.focused`
@@ -248,10 +248,10 @@
    layout. `--exp-delay` cascades into every morph transition below. Keyboard and
    D-pad focus expand immediately (no dwell); collapse is always immediate too,
    because the delay reverts to 0 the moment hover is lost. */
-.lolarr-card-slot:hover {
+:root:not([data-nav-input='keyboard']) .lolarr-card-slot:hover {
   --exp-delay: 200ms;
 }
-.lolarr-card-slot:hover,
+:root:not([data-nav-input='keyboard']) .lolarr-card-slot:hover,
 .lolarr-card-slot:has(.lolarr-card:focus-visible),
 .lolarr-card-slot:has(.lolarr-card.focused) {
   width: var(--card-w-expanded);
@@ -267,7 +267,7 @@
     0 0 0 5px transparent;
   transition: box-shadow 300ms var(--ease-out-expo) var(--exp-delay);
 }
-.lolarr-card:hover,
+:root:not([data-nav-input='keyboard']) .lolarr-card:hover,
 .lolarr-card:focus-visible,
 .lolarr-card.focused {
   box-shadow:
@@ -297,16 +297,16 @@
 .lolarr-overlay {
   border-radius: inherit;
 }
-.lolarr-card:hover .lolarr-backdrop,
+:root:not([data-nav-input='keyboard']) .lolarr-card:hover .lolarr-backdrop,
 .lolarr-card:focus-visible .lolarr-backdrop,
 .lolarr-card.focused .lolarr-backdrop,
-.lolarr-card:hover .lolarr-overlay,
+:root:not([data-nav-input='keyboard']) .lolarr-card:hover .lolarr-overlay,
 .lolarr-card:focus-visible .lolarr-overlay,
 .lolarr-card.focused .lolarr-overlay {
   opacity: 1;
 }
 /* Only fade the poster out when there is a real backdrop to reveal. */
-.lolarr-card.has-backdrop:hover .lolarr-poster,
+:root:not([data-nav-input='keyboard']) .lolarr-card.has-backdrop:hover .lolarr-poster,
 .lolarr-card.has-backdrop:focus-visible .lolarr-poster,
 .lolarr-card.has-backdrop.focused .lolarr-poster {
   opacity: 0;
