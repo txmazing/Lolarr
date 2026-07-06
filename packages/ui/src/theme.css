@@ -150,3 +150,30 @@
 
 /* Overlay-Backdrops werden direkt in GlassDialog gestylt (dim only, kein Blur —
    der Blur kommt allein vom Glass-Popup). Keine globalen Komponentenregeln nötig. */
+
+/* Favorite-Heart: kurzer Pop beim Aktivieren (Player-Leiste). Reine CSS-Animation,
+   kein npm-Dependency. Wird via .fav-pop auf dem aktiven Herz-Icon angewandt. */
+@keyframes fav-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  70% {
+    transform: scale(0.92);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.fav-pop {
+  animation: fav-pop 320ms var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fav-pop {
+    animation: none;
+  }
+}
