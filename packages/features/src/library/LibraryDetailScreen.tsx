@@ -6,6 +6,7 @@ import {
   ErrorPanel,
   LoadingPanel,
   SeasonSelector,
+  StatusBadge,
   type ActionComponent,
   type NavItem,
 } from '@lolarr/ui'
@@ -85,7 +86,9 @@ export function LibraryDetailScreen({
           Action={Action}
           onRetry={detailQuery.error ? () => void detailQuery.refetch() : undefined}
         />
-        <Action onPress={onBack} focusKey="library-back">Back</Action>
+        <Action variant="ghost" onPress={onBack} focusKey="library-back">
+          Back
+        </Action>
       </AppFrame>
     )
   }
@@ -96,15 +99,20 @@ export function LibraryDetailScreen({
 
   return (
     <AppFrame {...frameProps}>
-      <section
-        className="relative overflow-hidden rounded-lg bg-cover bg-center"
-        style={images.backdropUrl ? { backgroundImage: `url(${images.backdropUrl})` } : undefined}
-      >
-        <div className="max-w-[60%] bg-gradient-to-r from-background/90 via-background/60 to-background/20 p-12">
-          <h1>{item.title}</h1>
-          <p className="text-muted-foreground">{item.year ?? ''}</p>
-          <p>{item.overview}</p>
-          <div className="mt-4 flex gap-3">
+      <section className="relative min-h-[48vh] overflow-hidden rounded-lg">
+        {images.backdropUrl ? (
+          <img src={images.backdropUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-transparent" />
+        <div className="relative z-10 flex max-w-2xl flex-col gap-4 p-12">
+          <StatusBadge availability={item.availability} />
+          <h1 className="text-4xl font-semibold tracking-tight">{item.title}</h1>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            {item.year ? <span>{item.year}</span> : null}
+            <span>{item.mediaType === 'movie' ? 'Movie' : 'Series'}</span>
+          </div>
+          <p className="text-muted-foreground">{item.overview}</p>
+          <div className="flex items-center gap-3 pt-1">
             {item.mediaType === 'movie' ? (
               <Action
                 variant="primary"
@@ -119,11 +127,12 @@ export function LibraryDetailScreen({
                 focusKey="library-play"
                 ariaLabel="Play"
               >
-                ▶ Play
+                {item.jellyfin?.resumePositionTicks ? 'Fortsetzen' : 'Play'}
               </Action>
             ) : null}
             {item.mediaType === 'movie' && item.jellyfin?.resumePositionTicks ? (
               <Action
+                variant="ghost"
                 onPress={() =>
                   onPlay({ itemId: item.jellyfin?.itemId ?? itemId, title: item.title, seriesId: item.jellyfin?.seriesId })
                 }
@@ -132,7 +141,7 @@ export function LibraryDetailScreen({
                 Start from beginning
               </Action>
             ) : null}
-            <Action onPress={onBack} focusKey="library-back">
+            <Action variant="ghost" onPress={onBack} focusKey="library-back">
               Back
             </Action>
           </div>
