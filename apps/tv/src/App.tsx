@@ -10,6 +10,8 @@ import {
   Input,
   OverlayScopeProvider,
   cn,
+  installModalityTracking,
+  scrollFocusedIntoView,
   type ActionProps,
   type TextInputProps,
 } from '@lolarr/ui'
@@ -54,7 +56,7 @@ function TvAction({
 
   useEffect(() => {
     if (focused) {
-      scrollFocusedElementIntoView(ref.current)
+      scrollFocusedIntoView(ref.current, { smooth: false })
     }
   }, [focused, ref])
 
@@ -115,7 +117,7 @@ function TvTextInput({
     const input = ref.current as HTMLInputElement | null
 
     if (focused) {
-      scrollFocusedElementIntoView(input)
+      scrollFocusedIntoView(input, { smooth: false })
       return
     }
 
@@ -216,6 +218,8 @@ function TvShell({ children }: { children: ReactNode }) {
     trackChildren: true,
   })
 
+  useEffect(() => installModalityTracking(), [])
+
   useEffect(() => {
     focusSelf()
   }, [focusSelf])
@@ -261,7 +265,7 @@ function activateTextInput(input: HTMLInputElement | null) {
   blurActiveTextInput(input)
   input.focus()
   selectTextForEditing(input)
-  scrollFocusedElementIntoView(input)
+  scrollFocusedIntoView(input, { smooth: false })
 }
 
 function blurTextInput(input: HTMLInputElement | null) {
@@ -318,23 +322,6 @@ function selectTextForEditing(input: HTMLInputElement) {
   }
 
   input.select()
-}
-
-function scrollFocusedElementIntoView(element: Element | null) {
-  if (!element) {
-    return
-  }
-
-  window.requestAnimationFrame(() => {
-    try {
-      element.scrollIntoView({
-        block: 'nearest',
-        inline: 'nearest',
-      })
-    } catch {
-      element.scrollIntoView(false)
-    }
-  })
 }
 
 function isBackKey(event: KeyboardEvent) {
