@@ -1,0 +1,52 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'application'
+stack: 'frontend'
+dependsOn:
+  - 'features'
+  - 'ui'
+tags:
+  - 'react'
+  - 'vite'
+  - 'web'
+
+tasks:
+  dev:
+    command: 'pnpm run dev'
+    preset: 'server'
+  build:
+    command: 'pnpm run build'
+    deps:
+      - 'features:build'
+      - 'ui:build'
+    inputs:
+      - 'index.html'
+      - 'package.json'
+      - 'src/**/*'
+      - 'public/**/*'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      # Vite bundles @lolarr/* package sources directly (config/vite/react.ts
+      # aliases + each package's "exports" resolve to ./src), yet the library
+      # build tasks are typecheck-only and declare no outputs — so a dep on
+      # them cannot carry staleness forward. List the package sources here so a
+      # change under packages/*/src actually invalidates this build's cache.
+      - '/packages/*/src/**/*'
+    outputs:
+      - 'dist/**/*'
+  lint:
+    command: 'pnpm run lint'
+    inputs:
+      - 'src/**/*'
+      - '/eslint.config.js'
+  typecheck:
+    command: 'pnpm run typecheck'
+    deps:
+      - 'features:typecheck'
+      - 'ui:typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig*.json'
+      # tsc type-checks the imported @lolarr/* sources directly (see build note).
+      - '/packages/*/src/**/*'

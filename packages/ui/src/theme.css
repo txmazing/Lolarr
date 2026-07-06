@@ -1,0 +1,144 @@
+/* Lolarr Design-Tokens + Tailwind-v4-Entry (Slice 7, monochrome, dark-only) */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/inter';
+
+/* Utility-Quellen: geteilte Pakete + beide Apps (Pfade relativ zu dieser Datei) */
+@source './';
+@source '../../features/src/';
+@source '../../../apps/web/src/';
+@source '../../../apps/tv/src/';
+
+/* TvAction/TvTextInput togglen die Klasse `focused` — als Variante nutzbar */
+@custom-variant focused (&.focused);
+
+:root {
+  /* Semantische Basis-Tokens (Standard-Design-Token-Namen), monochrome dark palette */
+  --background: #0a0a0c;
+  --foreground: #f5f5f7;
+  --card: rgb(255 255 255 / 0.04);
+  --card-foreground: #f5f5f7;
+  --popover: rgb(42 42 42 / 0.9);
+  --popover-foreground: #f5f5f7;
+  --primary: #f5f5f7;
+  --primary-foreground: #0a0a0c;
+  --secondary: rgb(255 255 255 / 0.07);
+  --secondary-foreground: #f5f5f7;
+  --muted: rgb(255 255 255 / 0.07);
+  --muted-foreground: #a1a1a6;
+  --accent: rgb(255 255 255 / 0.11);
+  --accent-foreground: #f5f5f7;
+  --destructive: #d97b7b;
+  --destructive-foreground: #0a0a0c;
+  --border: rgb(255 255 255 / 0.1);
+  --input: rgb(255 255 255 / 0.1);
+  --ring: #f5f5f7;
+  --radius: 12px;
+
+  /* Lolarr-spezifische Tokens */
+  --surface: rgb(255 255 255 / 0.04);
+  --surface-2: rgb(255 255 255 / 0.07);
+  --surface-3: rgb(255 255 255 / 0.11);
+  /* Solid dark button chip that inverts to the near-white accent on hover. */
+  --surface-chip: rgb(40 40 40 / 0.8);
+  --glass: rgb(42 42 42 / 0.6);
+  --blur-overlay: 15px;
+  --blur-controls: 4px;
+  --status-available: #6fbf9f;
+  --status-processing: #8fa8c9;
+  --status-pending: #c9b37e;
+  --status-declined: #c98181;
+  --status-failed: #c98181;
+  --status-requested: #a393c9;
+  --danger: #d97b7b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-chip: var(--surface-chip);
+  --color-status-available: var(--status-available);
+  --color-status-processing: var(--status-processing);
+  --color-status-pending: var(--status-pending);
+  --color-status-declined: var(--status-declined);
+  --color-status-failed: var(--status-failed);
+  --color-status-requested: var(--status-requested);
+  --color-danger: var(--danger);
+
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snappy: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* 10-Foot-UI: beide TV-HTMLs tragen class="tv-ui" auf <html> */
+  html.tv-ui {
+    font-size: 150%;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+}
+
+/* Frosted Glass — Overlays (Dialoge, Modals) */
+@utility glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-overlay));
+  backdrop-filter: blur(var(--blur-overlay));
+}
+
+/* Frosted Glass — schwebende Controls (Player-Leiste, Buttons auf Bild) */
+@utility glass-controls {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(var(--blur-controls));
+  backdrop-filter: blur(var(--blur-controls));
+}
+
+/* Overlay-Backdrops werden direkt in GlassDialog gestylt (dim only, kein Blur —
+   der Blur kommt allein vom Glass-Popup). Keine globalen Komponentenregeln nötig. */

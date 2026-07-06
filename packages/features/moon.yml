@@ -1,0 +1,44 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'library'
+stack: 'frontend'
+dependsOn:
+  - 'api-client'
+  - 'domain'
+  - 'ui'
+tags:
+  - 'react'
+  - 'features'
+
+tasks:
+  build:
+    command: 'pnpm run build'
+    deps:
+      - 'api-client:build'
+      - 'domain:build'
+      - 'ui:build'
+    inputs:
+      - 'package.json'
+      - 'src/**/*'
+      - 'tsconfig.json'
+  lint:
+    command: 'pnpm run lint'
+    inputs:
+      - 'src/**/*'
+      - '/eslint.config.js'
+  typecheck:
+    command: 'pnpm run typecheck'
+    deps:
+      - 'api-client:typecheck'
+      - 'domain:typecheck'
+      - 'ui:typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'tsconfig.json'
+  test:
+    command: 'pnpm run test'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'

@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-tizen
+dist-ssr
+*.local
+data
+*.code-workspace
+*.wgt
+**/tizen/Debug
+.moon/cache
+.moon/docker
+.playwright-cli
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+/tizen/Debug
+
+# Local Claude Code dev-server config (machine-specific ports/paths)
+.claude/launch.json
+
+graphify-out/cost.json        # local only
+graphify-out/cache/         # optional: commit for speed, skip to keep repo small

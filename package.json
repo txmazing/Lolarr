@@ -1,0 +1,47 @@
+{
+  "name": "lolarr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "moon run api:dev",
+    "dev:web": "moon run web:dev",
+    "dev:tv": "moon run tv:dev",
+    "dev": "moon run api:dev web:dev",
+    "build": "moon run :build",
+    "build:api": "moon run api:build",
+    "build:web": "moon run web:build",
+    "build:tv": "moon run tv:build",
+    "lint": "moon run :lint",
+    "typecheck": "moon run :typecheck",
+    "test": "moon run :test",
+    "tizen:sync": "moon run tv:tizen-sync"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.7",
+    "@eslint/js": "^10.0.1",
+    "@moonrepo/cli": "^2.3.5",
+    "@rolldown/plugin-babel": "^0.2.3",
+    "@tailwindcss/vite": "^4.3.2",
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "^24.13.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint": "^10.6.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
+    "tailwindcss": "^4.3.2",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.62.0",
+    "vite": "^8.1.1",
+    "vitest": "^3.2.6"
+  }
+}

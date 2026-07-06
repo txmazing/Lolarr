@@ -1,0 +1,12 @@
+node_modules
+.moon/cache
+.moon/docker
+apps/*/dist
+apps/*/dist-tizen
+apps/*/node_modules
+apps/tv/tizen/Debug
+packages/*/node_modules
+data
+*.log
+*.wgt
+.DS_Store

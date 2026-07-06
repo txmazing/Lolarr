@@ -1,0 +1,31 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'library'
+dependsOn:
+  - 'domain'
+tags:
+  - 'api-client'
+
+tasks:
+  build:
+    command: 'pnpm run build'
+    deps:
+      - 'domain:build'
+    inputs:
+      - 'package.json'
+      - 'src/**/*'
+      - 'tsconfig.json'
+  lint:
+    command: 'pnpm run lint'
+    inputs:
+      - 'src/**/*'
+      - '/eslint.config.js'
+  typecheck:
+    command: 'pnpm run typecheck'
+    deps:
+      - 'domain:typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'tsconfig.json'

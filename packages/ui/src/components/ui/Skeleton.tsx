@@ -1,0 +1,12 @@
+import type { ComponentProps } from 'react'
+import { cn } from '@ui/lib/utils'
+
+export function Skeleton({ className, ...props }: ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="skeleton"
+      className={cn('animate-pulse rounded-md bg-surface-2', className)}
+      {...props}
+    />
+  )
+}

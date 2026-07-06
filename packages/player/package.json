@@ -1,0 +1,24 @@
+{
+  "name": "@lolarr/player",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "pnpm run typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@lolarr/domain": "workspace:*",
+    "@lolarr/jellyfin": "workspace:*",
+    "hls.js": "^1.6.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1",
+    "vitest": "^3"
+  }
+}

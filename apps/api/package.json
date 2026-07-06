@@ -1,0 +1,26 @@
+{
+  "name": "@lolarr/api",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch --env-file-if-exists=../../.env.local src/index.ts",
+    "lint": "eslint .",
+    "start": "tsx --env-file-if-exists=../../.env.local src/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/rate-limit": "^11.1.0",
+    "@lolarr/domain": "workspace:*",
+    "fastify": "^5.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0",
+    "undici": "^7.28.0",
+    "vitest": "^3.2.6"
+  }
+}

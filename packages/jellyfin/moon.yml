@@ -1,0 +1,31 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'library'
+tags:
+  - 'jellyfin'
+  - 'client'
+
+tasks:
+  build:
+    command: 'pnpm run build'
+    inputs:
+      - 'package.json'
+      - 'src/**/*'
+      - 'tsconfig.json'
+  lint:
+    command: 'pnpm run lint'
+    inputs:
+      - 'src/**/*'
+      - '/eslint.config.js'
+  typecheck:
+    command: 'pnpm run typecheck'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'
+      - 'tsconfig.json'
+  test:
+    command: 'pnpm run test'
+    inputs:
+      - 'src/**/*'
+      - 'tests/**/*'

@@ -1,0 +1,11 @@
+{
+  "name": "@lolarr/desktop",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node -e \"console.log('desktop: reuses web build output')\"",
+    "lint": "node -e \"console.log('desktop: no lint target yet')\"",
+    "typecheck": "node -e \"console.log('desktop: no typecheck target yet')\""
+  }
+}

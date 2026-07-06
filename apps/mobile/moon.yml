@@ -1,0 +1,18 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+layer: 'application'
+stack: 'frontend'
+tags:
+  - 'mobile'
+  - 'capacitor'
+
+tasks:
+  build:
+    command: 'pnpm run build'
+    deps:
+      - 'web:build'
+  lint:
+    command: 'pnpm run lint'
+  typecheck:
+    command: 'pnpm run typecheck'
