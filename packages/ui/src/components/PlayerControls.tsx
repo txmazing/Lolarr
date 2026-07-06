@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { cn } from '@ui/lib/utils'
 import {
+  ArrowLeft,
   SkipBack,
   RotateCcw,
   Play,
@@ -87,7 +88,7 @@ export function PlayerControls({
     onSeekTo(value)
   }
 
-  const remaining = hasDuration ? `-${formatTime(duration - position)}` : '-–:––'
+  const remaining = hasDuration ? `-${formatTime(Math.max(0, duration - position))}` : '-–:––'
   const endsLabel = hasDuration ? endsAt(position, duration, now) : null
 
   return (
@@ -99,7 +100,7 @@ export function PlayerControls({
     >
       <div className="flex items-center gap-4">
         <Action variant="ghost" onPress={onBack} focusKey="player-back" ariaLabel="Back" className={CONTROL}>
-          <SkipBack className="size-5" aria-hidden />
+          <ArrowLeft className="size-5" aria-hidden />
         </Action>
         {title ? <span className="text-lg font-semibold">{title}</span> : null}
       </div>

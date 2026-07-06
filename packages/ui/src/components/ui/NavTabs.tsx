@@ -37,7 +37,7 @@ export function NavTabs({
           className={cn(
             'h-9 rounded-[9px] px-4 text-sm font-medium backdrop-blur-[8px]',
             item.active
-              ? 'bg-primary-solid text-background font-semibold'
+              ? 'bg-primary-solid text-background font-semibold hover:bg-primary-solid'
               : 'text-muted-foreground hover:bg-transparent hover:text-foreground',
           )}
         >

@@ -36,7 +36,7 @@ export function SeasonSelector({
               'h-9 rounded-[9px] px-4 text-sm font-medium',
               isActive
                 ? 'bg-primary-solid text-background font-semibold'
-                : 'text-muted-foreground hover:text-foreground',
+                : 'text-muted-foreground hover:bg-transparent hover:text-foreground',
             )}
           >
             {season.name}
