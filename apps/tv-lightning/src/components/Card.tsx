@@ -17,7 +17,10 @@ const RING_T = 3; // strip thickness per ring
 export const Card = ({ item, x, focused }: { item: Item; x: number; focused: boolean }) => {
   const w = focused ? CARD_W_FOCUSED : CARD_W_REST;
   return (
-    <lng-view style={{ x, y: 0, w, h: CARD_H, zIndex: focused ? 10 : 1 }} transition={{ x: DUR, w: DUR }}>
+    <lng-view
+      style={{ x, y: 0, w, h: CARD_H, zIndex: focused ? 10 : 1, clipping: true }}
+      transition={{ x: DUR, w: DUR }}
+    >
       {/* fallback rect underneath — texture loads swap in above it */}
       <lng-view style={{ w, h: CARD_H, color: 0x1a1a1eff, borderRadius: 12 }} transition={{ w: DUR }} />
 

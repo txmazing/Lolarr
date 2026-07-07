@@ -24,6 +24,12 @@ const options: RenderOptions = {
       atlasDataUrl: './fonts/Ubuntu-Regular.msdf.json',
     },
   ],
+  // Register the 'Rounded' webgl shader type so style.borderRadius (used by
+  // Card.tsx) resolves instead of falling back to the renderer's default
+  // (square) shader — see @plextv/react-lightning's createRoot(), which maps
+  // string entries here through `import('@lightningjs/renderer/webgl/shaders')`
+  // into stage.shManager.registerShaderType(name, ShaderType).
+  shaders: ['Rounded'],
 };
 
 const appElement = document.getElementById('app');
