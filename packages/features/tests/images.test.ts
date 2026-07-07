@@ -51,4 +51,15 @@ describe('resolveItemImages', () => {
     expect(posterUrl).toBe('fallback-p.jpg')
     expect(backdropUrl).toBe('fallback-b.jpg')
   })
+
+  it('requests a larger poster when the item has no backdrop (landscape-card fallback)', () => {
+    vi.stubGlobal('devicePixelRatio', 1)
+    const noBackdrop = {
+      ...item,
+      jellyfin: { itemId: 'jf1', imageTags: { primary: 'tag-p' } },
+    } as unknown as MediaItem
+    const { posterUrl, backdropUrl } = resolveItemImages(noBackdrop, session)
+    expect(posterUrl).toContain('fillWidth=400')
+    expect(backdropUrl).toBe('fallback-b.jpg')
+  })
 })
