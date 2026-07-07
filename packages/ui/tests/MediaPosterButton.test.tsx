@@ -47,4 +47,15 @@ describe('MediaPosterButton', () => {
     expect(overlay?.tagName).toBe('SPAN')
     expect(container.querySelectorAll('button').length).toBe(1)
   })
+
+  it('decodes card images off the main thread', () => {
+    const { container } = render(
+      <MediaPosterButton item={item} onOpen={() => {}} Action={DefaultAction} focusKeyPrefix="row" />,
+    )
+    const imgs = Array.from(container.querySelectorAll('img'))
+    expect(imgs.length).toBeGreaterThan(0)
+    for (const img of imgs) {
+      expect(img.getAttribute('decoding')).toBe('async')
+    }
+  })
 })
