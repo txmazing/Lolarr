@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import rows from './rows.json';
 
-export type Item = { id: string; title: string; posterUrl: string };
+export type Item = { id: string; title: string; posterUrl: string; landscapeUrl: string };
 export type Row = { id: string; title: string; items: Item[] };
 
 export function useRows() {

@@ -1,7 +1,9 @@
 import type { Row } from '../data/useRows';
 import { Card } from './Card';
 
-const DUR = { duration: 400 };
+// Same ease-out-expo curve as Card.tsx — natively supported by the installed
+// @lightningjs/renderer beta20 cubic-bezier() parser.
+const DUR = { duration: 400, easing: 'cubic-bezier(0.16,1,0.3,1)' };
 
 export const Rail = ({ row, y, focusedCard, railFocused }: {
   row: Row; y: number; focusedCard: number; railFocused: boolean;
