@@ -25,12 +25,15 @@ const RING_RADIUS_INNER = 10; // slightly tighter so the inset ring nests visual
 // only loading on focus — fine at this scale, would need eviction at prod scale.
 const ALPHA_EPS = 0.004;
 
-// RN Gate 1 conversion: no more manual `x` prop — the parent Rail's flex row
-// (Yoga) positions cards; the focused card's animated `width` pushes its
-// siblings via relayout instead of the old neighbor-shift math. All
-// overlapping layers below (fallback rect / poster / landscape / gradient /
-// focus rings) use `position: 'absolute'` so Yoga excludes them from normal
-// flex flow and they stack at (0,0) like the original lng-view tree did.
+// RN Gate 1 conversion: this card no longer takes a manual `x` prop — Rail.tsx
+// positions each card with manual `left` math on a wrapping absolute View
+// (see Rail.tsx's header comment for why: Yoga flex-row relayout of the
+// card row corrupted rendering once the focused card advanced far enough
+// into a 20-item rail). Within a single card, the focused width `w` still
+// transitions/cascades locally. All overlapping layers below (fallback rect /
+// poster / landscape / gradient / focus rings) use `position: 'absolute'` so
+// Yoga excludes them from normal flex flow and they stack at (0,0) like the
+// original lng-view tree did.
 export const Card = ({ item, focused }: { item: Item; focused: boolean }) => {
   const w = focused ? CARD_W_FOCUSED : CARD_W_REST;
   return (
