@@ -12,11 +12,16 @@
         width: 100vw;
         height: 100vh;
         overflow: hidden;
+        /* Gate 2: page must not paint an opaque backdrop over the AVPlay
+           hole-punch <object>; the canvas clears transparent too. */
+        background-color: transparent;
       }
     </style>
   </head>
   <body>
     <div id="app"></div>
+    <!-- Gate 2: Samsung webapis (avplay) — resolved by the Tizen runtime. -->
+    <script src="$WEBAPIS/webapis/webapis.js"></script>
     <script src="./assets/tv-lightning.js"></script>
   </body>
 </html>

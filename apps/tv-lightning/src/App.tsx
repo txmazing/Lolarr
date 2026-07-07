@@ -22,7 +22,7 @@ export const App = () => {
 
   if (isLoading || !rows) {
     return (
-      <lng-view style={{ w: 1920, h: 1080, color: 0x0a0a0cff }}>
+      <lng-view style={{ w: 1920, h: 1080 }}>
         <lng-text style={{ x: 60, y: 40, fontSize: 32, fontFamily: 'sans-serif' }}>
           Loading…
         </lng-text>
@@ -31,8 +31,10 @@ export const App = () => {
     );
   }
 
+  // Gate 2: no backgroundColor on the root — every pixel the rails/cards
+  // don't paint stays transparent so the AVPlay plane shows through.
   return (
-    <View style={{ width: 1920, height: 1080, backgroundColor: '#0a0a0c', flexDirection: 'column', paddingTop: 120, gap: 20 }}>
+    <View style={{ width: 1920, height: 1080, flexDirection: 'column', paddingTop: 120, gap: 20 }}>
       {rows.map((row, idx) => (
         <Rail
           key={row.id}

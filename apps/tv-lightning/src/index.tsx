@@ -11,13 +11,21 @@ import { NativeCanvas, getReactNativePlugins } from '@plextv/react-native-lightn
 import { App } from './App';
 import { keyMap } from './keyMap';
 import { startProbe } from './probe';
+import { startAvplay } from './avplay';
 
 const queryClient = new QueryClient();
 
 // Spike-only auto measurement probe (self-delays 15s, see src/probe.ts).
 startProbe();
+// Gate 2: AVPlay test video behind the canvas (no-ops in the dev browser).
+startAvplay();
 
 const options: RenderOptions = {
+  // Gate 2: transparent clear instead of the library default 0x000000FF
+  // (opaque black) — the WebGL context is created with alpha:true, so
+  // unpainted canvas regions punch through to the AVPlay video plane behind
+  // the page. See avplay.ts.
+  clearColor: 0x00000000,
   fonts: [
     {
       type: 'sdf',

@@ -4,6 +4,10 @@
 // scenario buckets while synthesizing d-pad key presses, then POSTs
 // the resulting stats to the dev listener(s). See task-5 brief.
 
+import { report } from './report';
+import { sampleAvplay } from './avplay';
+import { useFocusStore } from './store';
+
 type FrameStats = {
   n: number;
   avg: number;
@@ -11,19 +15,6 @@ type FrameStats = {
   p95: number;
   over17: number;
 };
-
-const REPORT_URLS = ['http://192.168.1.221:9099/report', 'http://192.168.1.151:9099/report'];
-
-function report(body: unknown): void {
-  const json = JSON.stringify(body);
-  for (const url of REPORT_URLS) {
-    fetch(url, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: json,
-    }).catch(() => {});
-  }
-}
 
 function stats(deltas: number[]): FrameStats {
   const n = deltas.length;
@@ -127,6 +118,40 @@ async function runAutoScenario(): Promise<void> {
   const railSwitch = await scenario(railSwitchPresses);
 
   report({ probe: 'result', idle, settleAnim, rattle, railSwitch });
+
+  await runGate2Check();
+}
+
+function snapshotFocus() {
+  const s = useFocusStore.getState();
+  return { railIndex: s.railIndex, cardIndex: { ...s.cardIndex } };
+}
+
+// Gate 2 evidence: (a) avplay time advances across a 4s gap → video really
+// playing, (b) focus state changes across a d-pad press burst while the
+// video plays → UI above the video stays operable. Runs after the Gate-1
+// scenarios so the player has long since finished prepare().
+async function runGate2Check(): Promise<void> {
+  const focusBefore = snapshotFocus();
+  const avBefore = sampleAvplay();
+
+  const presses = [
+    { key: 'ArrowRight', delayMs: 400 },
+    { key: 'ArrowRight', delayMs: 400 },
+    { key: 'ArrowDown', delayMs: 400 },
+    { key: 'ArrowRight', delayMs: 400 },
+  ];
+  for (const p of presses) {
+    press(p.key);
+    await wait(p.delayMs);
+  }
+
+  const focusAfter = snapshotFocus();
+  const avMid = sampleAvplay();
+  await wait(4000);
+  const avAfter = sampleAvplay();
+
+  report({ probe: 'gate2', avBefore, avMid, avAfter, focusBefore, focusAfter });
 }
 
 export function startProbe(): void {
