@@ -94,19 +94,28 @@ Upstream-Antwort gilt die Konvention unabhängig davon.
        colorTop/colorBottom-Gradient, Shader-Registrierung
        `['Rounded','RoundedWithBorder']`, Fokus-Ring als 2 verschachtelte
        Border-Views, Fast-Nav-Snap (Spike-Task-7-Lehren).
-- **Reanimated (geprüft 2026-07-08): nicht in Phase 1.** Web würde gehen
-  (offizieller RNW-Support; Worklets laufen dort als normale
-  JS-Funktionen auf dem Main-Thread, Babel-Plugin oder explizite
-  Dependency-Arrays). TV geht NICHT: @plextv/react-native-lightning 0.4.2
-  hat weder Animated-Export noch Reanimated-Anbindung, Reanimateds
-  Web-Pfad schreibt in DOM-`element.style` (existiert bei Lightning
-  nicht), und selbst ein Shim wäre per-Frame-JS — exakt der Kostenpfad,
-  den die Spike-Messungen auf dem S94C falsifiziert haben. Der bewiesene
-  60fps-Pfad bleibt der renderer-seitige Tween (transition-Prop). Der
-  Animation-Seam (Intent-Tokens → Web-CSS-Transition / TV-transition-
-  Prop) ist so geschnitten, dass Reanimated in Phase 2 für
-  react-native-tvos (nativ, echte Worklets) als drittes Backend
-  einklinken kann.
+- **Reanimated (Re-Prüfung 2026-07-08 — korrigiert):** Es gibt
+  `@plextv/react-lightning-plugin-reanimated` 0.4.2, im exakten
+  Peer-Lockstep mit unserem Gate-1-Stack (Renderer 3.0.1, React 19.2,
+  RN 0.85.1, Reanimated ^4.3.0). Quelltext-verifiziert: das Plugin ist
+  ein Drop-in-Replacement — `withTiming/withSpring/…` erzeugen nur
+  Descriptors, `useAnimatedStyle` **kompiliert sie in Lightning-
+  `transition`-Einträge (renderer-seitige Tweens)**, also den bewiesenen
+  60fps-Pfad, KEIN per-Frame-JS. Setup: Alias `react-native-reanimated`
+  → Plugin, echtes Reanimated als `react-native-reanimated-original`
+  (Plugin re-exportiert `*` daraus, u. a. useSharedValue/Easing; Shared-
+  Value-Listener triggern die Style-Neuberechnung). Web nutzt echtes
+  Reanimated (offizieller RNW-Support; Worklets = Main-Thread-JS).
+  **Damit ist der Reanimated-Dialekt ein ernsthafter Kandidat für die
+  geteilte Animations-API** — dieselbe `useAnimatedStyle`-Quelle für Web
+  und TV statt Intent-Tokens. Vor Festlegung Mini-Spike (Slice 0):
+  (a) Morph-Karte in rn-web-spike auf Reanimated-API, Look-Parität
+  gegen Gate-3-Stand; (b) TV-Spike mit Plugin-Alias, Gate-Zahlen-Lauf
+  (Erwartung: identisch, da Tween-Kompilierung — beweisen);
+  (c) Bundle-Size + eval-Freiheit des Reanimated-Web-Builds im
+  Tizen-Bundle (CSP!). Fallback bleibt der Intent-Token-Seam.
+  Subset-Grenze beachten: kein useAnimatedProps/useDerivedValue im
+  Plugin-Override — geteilter Code bleibt beim Style-Objekt-Muster.
 - **Frost auf TV:** kein backdrop-blur in Lightning; Blur-Shader sind
   teuer (DOM-Messung + Gates-Doc). **Default: dunkleres opakes Panel**
   (frost-Farbe mit höherem Alpha, z. B. rgb(28 28 30 / 0.96)) —
