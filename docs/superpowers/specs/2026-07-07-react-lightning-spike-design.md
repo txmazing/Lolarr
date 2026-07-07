@@ -144,6 +144,20 @@ Lightning-Canvas** (Video hinter transparentem Canvas-Loch) — MUSS als
 Phase-0-Gate des Rewrites on-device verifiziert werden, bevor Screens gebaut
 werden. Zweites Strukturthema: Web bleibt DOM → zwei View-Layer dauerhaft.
 
+### Nachtrag: Look-Angleichung (Task 7, 2026-07-07 spät)
+
+Card-Look an die Web-App angeglichen (Poster→Landscape-**Crossfade** statt
+Textur-Streckung, **Gradient-Titel-Overlay** via nativer
+`colorTop`/`colorBottom`-Props, **ease-out-expo** via nativ geparster
+`cubic-bezier`-Strings, Doppelring-Fokus). Messlauf mit dem reicheren Look:
+Fokus-Animation **unverändert avg 17,4 / p95 16,8** (Gate hält); Rattern
+regrediert 19→29 ms avg (parallele Crossfades bei Schnellfeuer) — Hebel dafür
+ist das bewährte Fast-Nav-Gating der Web-App (Snap beim Rattern), im Rewrite
+einzuplanen. Neue Befunde: Gradients und Cubic-Bezier-Easing brauchen KEINE
+Workarounds; **abgerundete Ecken rendern nicht** (gleiche 0.4.0-Limitierung
+wie der Border-Shader) — für den Rewrite klären (neuere Renderer-Version oder
+eigener Rounded-Shader).
+
 ### Empfehlung
 
 **Go für die Rewrite-Diskussion.** Die Zahlen sind eindeutig (Animation 25→17 ms,
