@@ -5,14 +5,29 @@
 
 ## Beschluss
 
-Lolarr stellt die UI auf **React-Native-Primitives** um — Web via
-`react-native-web`, TV via `@plextv/react-native-lightning` — **wenn und nur
+Lolarr stellt die UI auf **React-Native-Primitives** um — **wenn und nur
 wenn** die drei Gates unten bestehen. Motivation: eine UI-Codebasis für Web+TV;
 Mobile-Apps (RN nativ) sind erwünschter Bonus, kein Treiber. Bewusst
 akzeptierte Konsequenz: die bestehende Web-UI (Slice 7 + Redesign,
 DOM/Tailwind/shadcn) wird auf RN-Primitives neu gebaut. Die Logik-Schicht
 (domain, api-client, jellyfin, player-Kern, features-Hooks/Stores) bleibt —
 im react-lightning-Spike als renderer-agnostisch bewiesen.
+
+**Plattform-Roadmap (User-Entscheid 2026-07-08):**
+
+| Phase | Plattform | RN-Backend |
+|---|---|---|
+| 1 (Start) | Web | `react-native-web` (DOM) |
+| 1 (Start) | Samsung Tizen | `@plextv/react-native-lightning` (WebGL) |
+| 2 (später) | LG webOS | `@plextv/react-native-lightning` (WebGL, gleiche Web-App-Schiene) |
+| 2 (später) | Android TV, Apple TV | `react-native-tvos` (nativ) |
+
+Konsequenz aus Gate 1 für die Architektur: Layout-Konvention definieren, die
+Web-Flexbox UND Tizen-Yoga-Plugin überlebt (heißer Pfad ggf. absolut
+positioniert / Plugin-Bug upstream melden); Kern-Layouts pro Plattform
+verifizieren, bevor Screens massenhaft migriert werden. Das Monorepo bleibt:
+`apps/api` (BFF) und alle Logik-Packages sind frontend-agnostisch; die neue
+RN-App entsteht daneben, die DOM-Apps laufen bis zur Ablösung weiter.
 
 ## Gates (alle on-device bzw. real verifiziert, VOR jedem Migrations-Slice)
 
