@@ -2,6 +2,7 @@ import { useRows } from './data/useRows';
 import { useFocusStore } from './store';
 import { useDpad } from './useDpad';
 import { Rail } from './components/Rail';
+import { FPSMonitor } from './components/FPSMonitor';
 
 export const App = () => {
   const { data: rows, isLoading } = useRows();
@@ -14,6 +15,7 @@ export const App = () => {
         <lng-text style={{ x: 60, y: 40, fontSize: 32, fontFamily: 'sans-serif' }}>
           Loading…
         </lng-text>
+        <FPSMonitor />
       </lng-view>
     );
   }
@@ -29,6 +31,7 @@ export const App = () => {
           railFocused={railIndex === idx}
         />
       ))}
+      <FPSMonitor />
     </lng-view>
   );
 };

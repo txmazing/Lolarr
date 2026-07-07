@@ -5,8 +5,12 @@ import { Canvas, type RenderOptions } from '@plextv/react-lightning';
 
 import { App } from './App';
 import { keyMap } from './keyMap';
+import { startProbe } from './probe';
 
 const queryClient = new QueryClient();
+
+// Spike-only auto measurement probe (self-delays 15s, see src/probe.ts).
+startProbe();
 
 const options: RenderOptions = {
   fonts: [
