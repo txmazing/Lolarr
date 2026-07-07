@@ -95,3 +95,58 @@ Koexistenz AVPlay `<object>` über/unter dem Canvas).
 
 Playback/AVPlay, Auth/BFF/Seerr, Web, Integration in `apps/tv`, `packages/ui`,
 finales Design, Tests/CI (Wegwerf-Code; nur die Messung muss stimmen).
+
+---
+
+## Fazit (2026-07-07, Spike abgeschlossen)
+
+### Messwerte (S94C, Normal-Launch, 2 konsistente Kaltstart-Läufe)
+
+| Szenario | Lauf 1 avg/p95/max (ms) | Lauf 2 avg/p95/max (ms) | DOM-Vergleich (avg) |
+|---|---|---|---|
+| Idle | 16,7 / 16,8 / 16,8 | 16,7 / 16,8 / 16,8 | 16,7 |
+| **Fokus-Animation (Gate)** | **17,4 / 16,8** / 133 | **17,3 / 16,8** / 67 | 25,3 (~40 fps) |
+| Rattern (12×@60 ms) | 19,3 / 33,4 / 33,4 | 18,8 / 33,4 / 33,4 | 44,2 (~23 fps) |
+| Rail-Wechsel | 17,5 / 16,8 / 33,4 | 17,5 / 16,8 / 33,4 | 100+-Spitzen |
+
+**Go-Kriterium (avg ≤ 20 UND p95 ≤ 34): BESTANDEN** — p95 der Fokus-Animation
+liegt sogar auf 60-fps-Niveau (16,8). Die max-Ausreißer (133/67 ms) sind
+einzelne Textur-Lade-Hitches beim ersten Sichtbarwerden, nicht die Animation.
+
+### Beweisziele
+
+| # | Beweis | Ergebnis |
+|---|---|---|
+| 1 | Animation flüssig on-device | **GO** — animierte Expansion bei faktisch 60 fps; Rattern „meist 60, Dips auf 30" (an der gemessenen Canvas-Decke) |
+| 2 | React-Stack integrierbar | **GO** — react-query (Provider durch den Lightning-Reconciler) + zustand liefen unverändert; React 19 |
+| 3 | D-Pad/Fokus praktikabel | **GO mit Ansage** — Per-Rail-Memory + Snake als deterministischer zustand-Store + window-keydown (Muster der Haupt-App). Lightnings eigenes Fokus-/Key-System blieb unbenutzt (bewusst) |
+
+### Reibungspunkte / Lehren
+
+- **Border-Shader rendert nicht** (0.4.0, Ursache nicht final geklärt) — Fokus-Rahmen als 4 dünne `lng-view`-Strips gebaut; funktioniert einwandfrei.
+- **`w`-Tween auf `lng-image` streckt die Textur** (kein object-fit); `scale` hätte Center-Pivot-Probleme. Für Produktion: Pivot setzen oder Texture-Crop klären.
+- **IIFE-Tizen-Bundle:** zwei dynamische `import()` in react-lightning erfordern `inlineDynamicImports: true`; `tseep` (Event-Emitter-Dep) nutzt `eval()` → CSP braucht `unsafe-eval` (Risiko für Samsung-Store-Review prüfen!).
+- **Texture-Loading läuft in Web-Workern** — unsichtbar für Main-Frame-Netzwerk-Monitoring (Debugging-Falle).
+- **Hintergrund-Tabs drosseln rAF** — Tweens wirken im Preview eingefroren; Verifikation nur im Vordergrund/on-device.
+- **MSDF-Font-Pipeline** funktionierte reibungslos (Template-Plugin); Inter-Konvertierung für Produktion ausstehend.
+- Kaputte `.d.ts` in `@plextv/vite-plugin-msdf-fontgen@1.3.4` (tsc-only, kein Laufzeit-Problem).
+- react-lightning 0.4.0 = pre-1.0: API-Fläche war stabil und ausreichend, aber Breaking Changes einplanen; Plex' eigene TV-Strategie ist inzwischen React Native (Wartungsrisiko beobachten).
+
+### Aufwandsschätzung View-Layer-Rewrite (grob)
+
+Wiederverwendbar bleiben `packages/features`-Logik (Hooks/Query/Store/API),
+`domain`, `api-client`, `jellyfin`, `player`-Kern. Neu zu bauen: alle 9 Screens
++ Overlays/Dialoge/Toasts + Player-UI in Lightning-Primitives, Fokus-System
+(Store-Muster skaliert), Inter-MSDF, Bild-Pipeline (fit/crop). Größenordnung:
+**vergleichbar mit dem UI-Redesign-Slice ×2 (≈ 15–25 Tasks über 2–3 Slices)**.
+Größtes ungeprüftes Risiko: **AVPlay-`<object>`-Koexistenz mit dem
+Lightning-Canvas** (Video hinter transparentem Canvas-Loch) — MUSS als
+Phase-0-Gate des Rewrites on-device verifiziert werden, bevor Screens gebaut
+werden. Zweites Strukturthema: Web bleibt DOM → zwei View-Layer dauerhaft.
+
+### Empfehlung
+
+**Go für die Rewrite-Diskussion.** Die Zahlen sind eindeutig (Animation 25→17 ms,
+Rattern 44→19 ms) und alle drei Beweisziele stehen. Vor einem Rewrite-Slice:
+(1) AVPlay-Koexistenz-Spike (klein, on-device), (2) Entscheidung
+Web/TV-Divergenz akzeptieren, (3) `unsafe-eval`-Frage klären.
