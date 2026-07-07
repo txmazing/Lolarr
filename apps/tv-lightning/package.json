@@ -7,11 +7,13 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
+    "build:tizen": "vite build --config vite.tizen.config.ts",
     "clean": "del ./dist",
     "dev": "vite --host 0.0.0.0",
     "preview": "vite preview --host",
     "check:types": "tsc --noEmit",
-    "test:unit": "vitest run --passWithNoTests"
+    "test:unit": "vitest run --passWithNoTests",
+    "tizen:sync": "pnpm run build:tizen && rm -rf tizen/assets tizen/fonts && cp -R dist-tizen/assets tizen/assets && cp -R public/fonts tizen/fonts"
   },
   "dependencies": {
     "@lightningjs/renderer": "3.0.0-beta20",

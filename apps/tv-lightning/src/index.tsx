@@ -17,8 +17,11 @@ const options: RenderOptions = {
     {
       type: 'sdf',
       fontFamily: 'sans-serif',
-      atlasUrl: '/fonts/Ubuntu-Regular.msdf.png',
-      atlasDataUrl: '/fonts/Ubuntu-Regular.msdf.json',
+      // Relative (not absolute) so the Tizen file:// bundle resolves them
+      // from tizen/index.html's own directory (./fonts/...). At the root
+      // path '/' in dev this is equivalent to the old absolute '/fonts/...'.
+      atlasUrl: './fonts/Ubuntu-Regular.msdf.png',
+      atlasDataUrl: './fonts/Ubuntu-Regular.msdf.json',
     },
   ],
 };
