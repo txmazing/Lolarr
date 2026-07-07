@@ -10,6 +10,7 @@ import {
   Input,
   OverlayScopeProvider,
   cn,
+  installFastNavTracking,
   installModalityTracking,
   installRailNavigation,
   scrollFocusedIntoView,
@@ -221,6 +222,8 @@ function TvShell({ children }: { children: ReactNode }) {
   })
 
   useEffect(() => installModalityTracking(), [])
+
+  useEffect(() => installFastNavTracking(), [])
 
   // Per-rail focus memory (Up/Down resumes a rail where you left it) + forward
   // snake (Right on the last card jumps to the next rail). Same shared

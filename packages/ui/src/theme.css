@@ -321,6 +321,24 @@
   }
 }
 
+/* While the remote/keyboard is rattling (held or rapid arrow keys —
+   data-nav-fast, see installFastNavTracking), suspend the expensive card
+   transitions so focus snaps instantly. The morph/glow/crossfade only plays
+   once focus settles; end states are identical. `.transition-transform`
+   covers the landscape-card scale. */
+:root[data-nav-fast='true']
+  :is(
+    .lolarr-card-slot,
+    .lolarr-card,
+    .lolarr-poster,
+    .lolarr-backdrop,
+    .lolarr-overlay,
+    .lolarr-art,
+    .transition-transform
+  ) {
+  transition: none;
+}
+
 /* Rail-Scroller: hält die fokussierte Card mit sichtbarem Peek der Nachbar-Card
    von der Kante weg (statt bündig), respektiert von scrollFocusedIntoView. */
 .lolarr-rail {

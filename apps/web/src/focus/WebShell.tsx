@@ -7,6 +7,7 @@ import {
 import { FocusContext, useFocusable } from '@noriginmedia/norigin-spatial-navigation-react'
 import {
   OverlayScopeProvider,
+  installFastNavTracking,
   installModalityTracking,
   installRailNavigation,
   type ShellProps,
@@ -37,6 +38,8 @@ export function WebShell({ children }: ShellProps) {
 
   // Modalitäts-Tracking installieren (Maus vs. Tastatur) für den Scroll-Guard.
   useEffect(() => installModalityTracking(), [])
+
+  useEffect(() => installFastNavTracking(), [])
 
   // Content loads async (react-query), so there are no focusables at mount —
   // seeding then would focus nothing. Instead the first arrow key seeds focus
