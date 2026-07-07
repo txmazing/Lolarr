@@ -6,7 +6,7 @@ export const Card = ({ item, x, focused }: { item: Item; x: number; focused: boo
     <lng-view style={{ w: 240, h: 360, color: 0x1a1a1eff, borderRadius: 12 }} />
     <lng-image src={item.posterUrl} style={{ w: 240, h: 360, borderRadius: 12 }} />
     {focused ? (
-      <lng-view style={{ w: 240, h: 360, borderRadius: 12, border: { w: 4, color: 0xf5f5f7ff } }} />
+      <lng-view style={{ w: 240, h: 360, borderRadius: 12, color: 0x00000000, border: { w: 4, color: 0xf5f5f7ff } }} />
     ) : null}
   </lng-view>
 );

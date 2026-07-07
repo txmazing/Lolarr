@@ -1,10 +1,12 @@
 import { useRows } from './data/useRows';
 import { useFocusStore } from './store';
+import { useDpad } from './useDpad';
 import { Rail } from './components/Rail';
 
 export const App = () => {
   const { data: rows, isLoading } = useRows();
   const { railIndex, cardIndex } = useFocusStore();
+  useDpad(rows);
 
   if (isLoading || !rows) {
     return (
