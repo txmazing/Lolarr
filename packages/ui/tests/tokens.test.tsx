@@ -16,4 +16,10 @@ describe('design tokens', () => {
     expect(css).toContain(":root[data-nav-fast='true']")
     expect(css).toMatch(/data-nav-fast[^}]*transition: none/s)
   })
+
+  it('contains card layout and skips offscreen rail rendering', () => {
+    expect(css).toContain('contain: layout style')
+    expect(css).toContain('content-visibility: auto')
+    expect(css).toContain('contain-intrinsic-block-size: auto 420px')
+  })
 })
