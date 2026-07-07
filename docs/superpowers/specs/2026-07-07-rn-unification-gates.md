@@ -34,7 +34,7 @@ RN-App entsteht daneben, die DOM-Apps laufen bis zur Ablösung weiter.
 | # | Gate | Kriterium | Status |
 |---|---|---|---|
 | 1 | **RN-Lightning-Performance** — die 3 Spike-Rails in `@plextv/react-native-lightning` (RN-Primitives + Yoga-Flexbox), gleiche Auto-Probe, S94C Normal-Launch | Fokus-Animation avg ≤ 20 ms UND p95 ≤ 34 ms (identisch zum react-lightning-Gate); Rattern dokumentieren | **ZAHLEN BESTANDEN, SUBSTANZ MIT VORBEHALT** (s. u.) |
-| 2 | **AVPlay-Koexistenz** — Video-`<object>` sichtbar hinter transparentem Lightning-Canvas-Loch, D-Pad bleibt bedienbar | Video spielt sichtbar + Canvas-UI darüber funktioniert on-device | **TECHNISCH BESTANDEN** (Telemetrie 2026-07-08); visuelle Abnahme User ausstehend (s. u.) |
+| 2 | **AVPlay-Koexistenz** — Video-`<object>` sichtbar hinter transparentem Lightning-Canvas-Loch, D-Pad bleibt bedienbar | Video spielt sichtbar + Canvas-UI darüber funktioniert on-device | **BESTANDEN** (Telemetrie + User-Blick 2026-07-08) |
 | 3 | **RN-Web-Look** — eine abyss-Karte (Morph) + ein Glass-Dialog (backdrop-blur!) in `react-native-web` | Look trägt den Renderer-Wechsel im Browser ohne sichtbaren Qualitätsverlust | **BESTANDEN** (2026-07-08, s. u.) |
 
 Scheitert ein Gate → zurück zur Alternativen (TV pur auf react-lightning,
@@ -65,6 +65,10 @@ durch; RN-String-Farben und 0xRRGGBBAA koexistieren; überlappende Layer
 brauchen explizit `position:'absolute'` (Yoga-Default ist Column-Flow).
 
 ## Gate-2-Ergebnis (2026-07-08, Branch spike/tv-rn-lightning, S94C Normal-Launch)
+
+**Abgeschlossen:** User-Blick auf den S94C (2026-07-08) bestätigt — das
+Video scheint sichtbar durch das Canvas-Loch. Damit sind alle 3 Gates
+bestanden.
 
 **Telemetrie: bestanden.** AVPlay spielt (open→IDLE, prepared READY mit
 korrekter Dauer 180.023 ms, PLAYING; timeMs 27.260→28.865→32.871

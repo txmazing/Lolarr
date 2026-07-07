@@ -94,6 +94,19 @@ Upstream-Antwort gilt die Konvention unabhängig davon.
        colorTop/colorBottom-Gradient, Shader-Registrierung
        `['Rounded','RoundedWithBorder']`, Fokus-Ring als 2 verschachtelte
        Border-Views, Fast-Nav-Snap (Spike-Task-7-Lehren).
+- **Reanimated (geprüft 2026-07-08): nicht in Phase 1.** Web würde gehen
+  (offizieller RNW-Support; Worklets laufen dort als normale
+  JS-Funktionen auf dem Main-Thread, Babel-Plugin oder explizite
+  Dependency-Arrays). TV geht NICHT: @plextv/react-native-lightning 0.4.2
+  hat weder Animated-Export noch Reanimated-Anbindung, Reanimateds
+  Web-Pfad schreibt in DOM-`element.style` (existiert bei Lightning
+  nicht), und selbst ein Shim wäre per-Frame-JS — exakt der Kostenpfad,
+  den die Spike-Messungen auf dem S94C falsifiziert haben. Der bewiesene
+  60fps-Pfad bleibt der renderer-seitige Tween (transition-Prop). Der
+  Animation-Seam (Intent-Tokens → Web-CSS-Transition / TV-transition-
+  Prop) ist so geschnitten, dass Reanimated in Phase 2 für
+  react-native-tvos (nativ, echte Worklets) als drittes Backend
+  einklinken kann.
 - **Frost auf TV:** kein backdrop-blur in Lightning; Blur-Shader sind
   teuer (DOM-Messung + Gates-Doc). **Default: dunkleres opakes Panel**
   (frost-Farbe mit höherem Alpha, z. B. rgb(28 28 30 / 0.96)) —
@@ -209,5 +222,5 @@ Infra aus den Spikes). Keine Massen-Screen-Migration vor Slice-1-Exit
 3. **Naming** `apps/rn-web`/`apps/rn-tv` + `packages/ui-rn` ok?
 4. **DOM-Apps während Migration:** eingefroren (nur Bugfixes, empfohlen)
    oder weiterentwickeln?
-5. **Gate-2-Restabnahme:** Blick auf den S94C (Testkarte läuft geloopt
-   hinter den Rails) — schließt Gate 2 formal.
+5. ~~**Gate-2-Restabnahme**~~ — erledigt 2026-07-08: Video auf dem S94C
+   sichtbar, Gate 2 formal geschlossen.
