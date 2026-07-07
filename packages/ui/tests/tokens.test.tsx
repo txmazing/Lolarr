@@ -17,6 +17,10 @@ describe('design tokens', () => {
     expect(css).toMatch(/data-nav-fast[^}]*transition: none/s)
   })
 
+  it('snaps card navigation permanently on the TV (html.tv-ui)', () => {
+    expect(css).toMatch(/:where\(html\.tv-ui, :root\[data-nav-fast='true'\]\)/)
+  })
+
   it('contains card layout and skips offscreen rail rendering', () => {
     expect(css).toContain('contain: layout style')
     expect(css).toContain('content-visibility: auto')

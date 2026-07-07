@@ -326,12 +326,18 @@
   }
 }
 
-/* While the remote/keyboard is rattling (held or rapid arrow keys —
-   data-nav-fast, see installFastNavTracking), suspend the expensive card
-   transitions so focus snaps instantly. The morph/glow/crossfade only plays
-   once focus settles; end states are identical. `.transition-transform`
-   covers the landscape-card scale. */
-:root[data-nav-fast='true']
+/* Suspend the expensive card transitions and let focus snap — end states are
+   identical, only the in-between animation is dropped. Two triggers:
+   • Web, while the keyboard is rattling (held or rapid arrow keys —
+     data-nav-fast, see installFastNavTracking): the morph/glow/crossfade only
+     plays once focus settles.
+   • TV, always (html.tv-ui): S94C on-device measurements (2026-07-07) show
+     the Tizen web engine cannot run ANY multi-frame animation at 60fps
+     (26-46ms/frame regardless of property, promotion, or compositor hints),
+     while settled navigation is a locked 60fps. Snapping is the only proven
+     60fps path on the device.
+   `.transition-transform` covers the landscape-card scale. */
+:where(html.tv-ui, :root[data-nav-fast='true'])
   :is(
     .lolarr-card-slot,
     .lolarr-card,
