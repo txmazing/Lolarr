@@ -20,7 +20,6 @@ function report(body: unknown): void {
     fetch(url, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
       body: json,
     }).catch(() => {});
   }
@@ -45,12 +44,13 @@ function stats(deltas: number[]): FrameStats {
 function recordFrames(durationMs: number): Promise<FrameStats> {
   return new Promise((resolve) => {
     const deltas: number[] = [];
-    let last = performance.now();
+    let last = 0;
     let raf = 0;
-    const startedAt = last;
+    let startedAt = 0;
 
     const tick = (now: number) => {
-      deltas.push(now - last);
+      if (last) deltas.push(now - last);
+      if (!startedAt) startedAt = now;
       last = now;
       if (now - startedAt >= durationMs) {
         cancelAnimationFrame(raf);
@@ -130,6 +130,8 @@ async function runAutoScenario(): Promise<void> {
 }
 
 export function startProbe(): void {
+  if ((window as any).__probeStarted) return;
+  (window as any).__probeStarted = true;
   setTimeout(() => {
     runAutoScenario().catch(() => {});
   }, 15000);
