@@ -106,4 +106,33 @@ describe('installRailNavigation', () => {
     expect(setFocus).not.toHaveBeenCalled()
     expect(ev.defaultPrevented).toBe(false)
   })
+
+  it('scans the document only once across repeated presses (cache reuse)', () => {
+    currentKey = 'r1-a'
+    const spy = vi.spyOn(document, 'querySelectorAll')
+    press('ArrowDown')
+    currentKey = 'r2-a'
+    press('ArrowUp')
+    currentKey = 'r1-a'
+    press('ArrowDown')
+    const railScans = spy.mock.calls.filter(([selector]) => selector === '[data-rail]').length
+    expect(railScans).toBe(1)
+    spy.mockRestore()
+  })
+
+  it('picks up rails added after install (observer invalidation)', async () => {
+    currentKey = 'r2-a'
+    press('ArrowDown') // builds the cache; no rail below r2 yet
+    expect(setFocus).not.toHaveBeenCalled()
+
+    const rail = document.createElement('div')
+    rail.setAttribute('data-rail', 'r3')
+    rail.innerHTML = '<button data-focus-key="r3-a"></button>'
+    document.body.appendChild(rail)
+    // Let the MutationObserver deliver its records (macrotask flush).
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    press('ArrowDown')
+    expect(setFocus).toHaveBeenLastCalledWith('r3-a')
+  })
 })

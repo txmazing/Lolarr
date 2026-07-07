@@ -10,29 +10,42 @@
 //
 // DOM contract: each rail's scroll container carries `data-rail="<id>"`; each
 // focusable card carries `data-focus-key="<key>"` (the same key Norigin uses).
+//
+// Lookups are cached so arrow-key handling never rescans the whole document
+// per keypress (rails are not virtualised — hundreds of cards are mounted).
+// A MutationObserver drops the cache on any DOM change; isConnected guards
+// catch same-task removals the (async) observer has not delivered yet.
 
 type RailNavDeps = {
   setFocus: (focusKey: string) => void
   getCurrentFocusKey: () => string
 }
 
-function cardByKey(key: string): HTMLElement | null {
-  if (!key) {
-    return null
+type RailNavCache = {
+  cardByKey: Map<string, HTMLElement>
+  rails: HTMLElement[]
+  cardsByRail: Map<HTMLElement, HTMLElement[]>
+}
+
+function buildCache(): RailNavCache {
+  const cardByKey = new Map<string, HTMLElement>()
+  const cardsByRail = new Map<HTMLElement, HTMLElement[]>()
+  const rails = Array.from(document.querySelectorAll<HTMLElement>('[data-rail]'))
+  for (const rail of rails) {
+    const cards = Array.from(rail.querySelectorAll<HTMLElement>('[data-focus-key]'))
+    cardsByRail.set(rail, cards)
+    for (const card of cards) {
+      const key = card.getAttribute('data-focus-key')
+      if (key) {
+        cardByKey.set(key, card)
+      }
+    }
   }
-  return (
-    Array.from(document.querySelectorAll<HTMLElement>('[data-focus-key]')).find(
-      (el) => el.getAttribute('data-focus-key') === key,
-    ) ?? null
-  )
+  return { cardByKey, rails, cardsByRail }
 }
 
 function railOf(el: Element | null): HTMLElement | null {
   return (el?.closest<HTMLElement>('[data-rail]')) ?? null
-}
-
-function cardsIn(rail: Element): HTMLElement[] {
-  return Array.from(rail.querySelectorAll<HTMLElement>('[data-focus-key]'))
 }
 
 function keyOf(el: Element | null): string | null {
@@ -46,6 +59,47 @@ export function installRailNavigation(deps: RailNavDeps): () => void {
 
   // railId -> the card key last focused within that rail.
   const lastCardByRail = new Map<string, string>()
+
+  let cache: RailNavCache | null = null
+  const observer = new MutationObserver(() => {
+    cache = null
+  })
+  observer.observe(document.body, { childList: true, subtree: true })
+
+  function getCache(): RailNavCache {
+    cache ??= buildCache()
+    return cache
+  }
+
+  function cardByKey(key: string): HTMLElement | null {
+    if (!key) {
+      return null
+    }
+    const el = getCache().cardByKey.get(key) ?? null
+    if (el && !el.isConnected) {
+      cache = null
+      return getCache().cardByKey.get(key) ?? null
+    }
+    return el
+  }
+
+  function cardsIn(rail: HTMLElement): HTMLElement[] {
+    const cards = getCache().cardsByRail.get(rail) ?? []
+    if (cards.some((card) => !card.isConnected)) {
+      cache = null
+      return getCache().cardsByRail.get(rail) ?? []
+    }
+    return cards
+  }
+
+  function railList(): HTMLElement[] {
+    const rails = getCache().rails
+    if (rails.some((rail) => !rail.isConnected)) {
+      cache = null
+      return getCache().rails
+    }
+    return rails
+  }
 
   function currentCard(): HTMLElement | null {
     return cardByKey(deps.getCurrentFocusKey())
@@ -94,7 +148,7 @@ export function installRailNavigation(deps: RailNavDeps): () => void {
       return
     }
 
-    const rails = Array.from(document.querySelectorAll<HTMLElement>('[data-rail]'))
+    const rails = railList()
     const idx = rails.indexOf(rail)
 
     if (key === 'ArrowDown') {
@@ -132,5 +186,6 @@ export function installRailNavigation(deps: RailNavDeps): () => void {
   window.addEventListener('keydown', handleKeydown, true)
   return () => {
     window.removeEventListener('keydown', handleKeydown, true)
+    observer.disconnect()
   }
 }
