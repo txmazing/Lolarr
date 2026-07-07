@@ -1,6 +1,8 @@
+import { View, Image, Text } from 'react-native';
+
 import type { Item } from '../data/useRows';
 
-// ease-out-expo — verified against the installed @lightningjs/renderer beta20
+// ease-out-expo — verified against the installed @lightningjs/renderer
 // timing-function parser (src/core/utils.js: getTimingFunction/parseCubicBezier),
 // which regex-extracts the 4 numbers from a `cubic-bezier(a,b,c,d)` string, so
 // this literal is natively supported (no runtime rejection / fallback needed).
@@ -10,8 +12,8 @@ const FRAME_DUR = { duration: 200 };
 const CARD_H = 360;
 const CARD_W_FOCUSED = 640;
 const CARD_W_REST = 240;
-const RING_OUTER = 0xf5f5f7ff;
-const RING_INNER = 0x0a0a0cff;
+const RING_OUTER = '#f5f5f7';
+const RING_INNER = '#0a0a0c';
 const RING_T = 3; // border width per ring, and inset of the inner ring
 const RING_RADIUS_OUTER = 12; // matches the card's own borderRadius
 const RING_RADIUS_INNER = 10; // slightly tighter so the inset ring nests visually
@@ -23,27 +25,52 @@ const RING_RADIUS_INNER = 10; // slightly tighter so the inset ring nests visual
 // only loading on focus — fine at this scale, would need eviction at prod scale.
 const ALPHA_EPS = 0.004;
 
-export const Card = ({ item, x, focused }: { item: Item; x: number; focused: boolean }) => {
+// RN Gate 1 conversion: no more manual `x` prop — the parent Rail's flex row
+// (Yoga) positions cards; the focused card's animated `width` pushes its
+// siblings via relayout instead of the old neighbor-shift math. All
+// overlapping layers below (fallback rect / poster / landscape / gradient /
+// focus rings) use `position: 'absolute'` so Yoga excludes them from normal
+// flex flow and they stack at (0,0) like the original lng-view tree did.
+export const Card = ({ item, focused }: { item: Item; focused: boolean }) => {
   const w = focused ? CARD_W_FOCUSED : CARD_W_REST;
   return (
-    <lng-view
-      style={{ x, y: 0, w, h: CARD_H, zIndex: focused ? 10 : 1, clipping: true }}
-      transition={{ x: DUR, w: DUR }}
+    <View
+      style={{ width: w, height: CARD_H, overflow: 'hidden', zIndex: focused ? 10 : 1 }}
+      transition={{ w: DUR }}
     >
       {/* fallback rect underneath — texture loads swap in above it */}
-      <lng-view style={{ w, h: CARD_H, color: 0x1a1a1eff, borderRadius: 12 }} transition={{ w: DUR }} />
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: w,
+          height: CARD_H,
+          backgroundColor: '#1a1a1e',
+          borderRadius: 12,
+        }}
+        transition={{ w: DUR }}
+      />
 
       {/*
         Portrait poster — fixed size, never tweened. Crossfades out on focus.
-        alpha uses ALPHA_EPS instead of 0 when focused: alpha === 0 makes the
+        opacity uses ALPHA_EPS instead of 0 when focused: alpha === 0 makes the
         node non-renderable, which defers texture load until alpha next rises
         above 0 — i.e. only when focus returns, causing a visible pop. A tiny
         nonzero alpha keeps it renderable (texture stays loaded) while reading
         as invisible.
       */}
-      <lng-image
-        src={item.posterUrl}
-        style={{ x: 0, y: 0, w: CARD_W_REST, h: CARD_H, borderRadius: 12, alpha: focused ? ALPHA_EPS : 1 }}
+      <Image
+        source={{ uri: item.posterUrl }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: CARD_W_REST,
+          height: CARD_H,
+          borderRadius: 12,
+          opacity: focused ? ALPHA_EPS : 1,
+        }}
         transition={{ alpha: DUR }}
       />
 
@@ -52,27 +79,30 @@ export const Card = ({ item, x, focused }: { item: Item; x: number; focused: boo
         Same ALPHA_EPS eager-load trick while unfocused, so the backdrop
         texture is already decoded by the time focus lands (no late pop).
       */}
-      <lng-image
-        src={item.landscapeUrl}
-        style={{ x: 0, y: 0, w: CARD_W_FOCUSED, h: CARD_H, borderRadius: 12, alpha: focused ? 1 : ALPHA_EPS }}
+      <Image
+        source={{ uri: item.landscapeUrl }}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: CARD_W_FOCUSED,
+          height: CARD_H,
+          borderRadius: 12,
+          opacity: focused ? 1 : ALPHA_EPS,
+        }}
         transition={{ alpha: DUR }}
       />
 
-      {/*
-        Gradient title overlay — fades in with the landscape image (same group alpha).
-        colorTop/colorBottom are real INodeProps (see @lightningjs/renderer
-        CoreNode.d.ts) and pass straight through the react-lightning style prop
-        (LightningViewElementStyle extends Partial<INodeProps>, only omitting
-        parent/src/shader/data/texture) — no stacked-views fallback needed here.
-      */}
-      <lng-view style={{ x: 0, y: 0, w, h: CARD_H, alpha: focused ? 1 : 0 }} transition={{ alpha: DUR }}>
+      {/* Gradient title overlay — fades in with the landscape image (same group alpha). */}
+      <View
+        style={{ position: 'absolute', top: 0, left: 0, width: w, height: CARD_H, opacity: focused ? 1 : 0 }}
+        transition={{ alpha: DUR }}
+      >
         {/*
-          borderRadius accepts `number | [number, number?, number?, number?]`
-          (order [top-left, top-right, bottom-right, bottom-left] — see
-          react-lightning's jsx-CNsTDz-X.d.ts and the renderer's
-          RoundedTemplate.js prop setters top-left/top-right/bottom-right/
-          bottom-left). Round only the bottom corners so the gradient doesn't
-          blunt the card's own top rounding.
+          colorTop/colorBottom + a 4-corner borderRadius array are Lightning-only
+          node props with no React Native style equivalent (RN has no gradient
+          fill and no per-corner borderRadius array shorthand) — stays a raw
+          lng-view. Everything else in this file goes through RN View/Image/Text.
         */}
         <lng-view
           style={{
@@ -86,51 +116,63 @@ export const Card = ({ item, x, focused }: { item: Item; x: number; focused: boo
           }}
           transition={{ w: DUR }}
         />
-        <lng-text style={{ x: 20, y: 280, fontSize: 26, fontFamily: 'sans-serif' }}>{item.title}</lng-text>
-        <lng-text style={{ x: 20, y: 316, fontSize: 18, fontFamily: 'sans-serif', alpha: 0.7 }}>
+        <Text style={{ position: 'absolute', top: 280, left: 20, fontSize: 26, fontFamily: 'sans-serif', color: '#ffffff' }}>
+          {item.title}
+        </Text>
+        <Text
+          style={{ position: 'absolute', top: 316, left: 20, fontSize: 18, fontFamily: 'sans-serif', color: '#ffffff', opacity: 0.7 }}
+        >
           2026 · Details
-        </lng-text>
-      </lng-view>
+        </Text>
+      </View>
 
       {/*
         Focus frame — two nested, always-mounted rounded+bordered views whose
-        parent group toggles alpha. Each uses style.border + style.borderRadius,
-        which LightningViewElement._getShaderFromStyle resolves to the
-        'RoundedWithBorder' shader (registered in src/index.tsx) instead of the
-        old flat rectangular strip stand-in, so the ring now follows the card's
-        own corner rounding instead of squaring it off. Outer ring sits at the
-        card bounds; inner ring is inset by RING_T on all sides with a tighter
-        radius to fake the gap between the two rings. Both track the animated
-        card width via the `w` transition.
+        parent group toggles opacity. borderWidth/borderColor/borderRadius are
+        plain RN style props here; the css-transform plugin folds them into
+        the same `border: { w, color }` + `borderRadius` shape the
+        'RoundedWithBorder' shader (registered in src/index.tsx) expects, so
+        this still renders as a proper rounded ring instead of a flat
+        rectangular strip. Outer ring sits at the card bounds; inner ring is
+        inset by RING_T on all sides with a tighter radius to fake the gap
+        between the two rings. Both track the animated card width via the `w`
+        transition (Lightning-native key — the transition prop is matched
+        against node prop names post-style-conversion, not the RN style keys
+        used to author it).
       */}
-      <lng-view style={{ x: 0, y: 0, w, h: CARD_H, alpha: focused ? 1 : 0 }} transition={{ alpha: FRAME_DUR }}>
+      <View
+        style={{ position: 'absolute', top: 0, left: 0, width: w, height: CARD_H, opacity: focused ? 1 : 0 }}
+        transition={{ alpha: FRAME_DUR }}
+      >
         {/* outer ring — near-white */}
-        <lng-view
+        <View
           style={{
-            x: 0,
-            y: 0,
-            w,
-            h: CARD_H,
-            color: 0x00000000,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: w,
+            height: CARD_H,
             borderRadius: RING_RADIUS_OUTER,
-            border: { w: RING_T, color: RING_OUTER },
+            borderWidth: RING_T,
+            borderColor: RING_OUTER,
           }}
           transition={{ w: DUR }}
         />
         {/* inner ring — dark, inset by RING_T to fake the gap between card edge and ring */}
-        <lng-view
+        <View
           style={{
-            x: RING_T,
-            y: RING_T,
-            w: w - 2 * RING_T,
-            h: CARD_H - 2 * RING_T,
-            color: 0x00000000,
+            position: 'absolute',
+            top: RING_T,
+            left: RING_T,
+            width: w - 2 * RING_T,
+            height: CARD_H - 2 * RING_T,
             borderRadius: RING_RADIUS_INNER,
-            border: { w: RING_T, color: RING_INNER },
+            borderWidth: RING_T,
+            borderColor: RING_INNER,
           }}
           transition={{ w: DUR }}
         />
-      </lng-view>
-    </lng-view>
+      </View>
+    </View>
   );
 };

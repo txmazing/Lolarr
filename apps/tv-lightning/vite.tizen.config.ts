@@ -1,6 +1,9 @@
-import react from '@vitejs/plugin-react';
 import type { InlineConfig } from 'vite';
 
+// NOTE: the published package only exports a default (no named
+// `reactNativeLightningPlugin` as the setup recipe assumed) — see
+// vite.config.ts for the full explanation.
+import reactNativeLightningPlugin from '@plextv/vite-plugin-react-native-lightning';
 import fontGen from '@plextv/vite-plugin-msdf-fontgen';
 
 // Tizen build: single IIFE bundle (no <script type="module">, no code-split
@@ -21,7 +24,9 @@ import fontGen from '@plextv/vite-plugin-msdf-fontgen';
 //   forcing the chrome94 fallback the brief allows for.
 const config: InlineConfig = {
   plugins: [
-    react(),
+    // Must be first: bundles @vitejs/plugin-react + aliases `react-native` ->
+    // @plextv/react-native-lightning + resolves RN-style extensions.
+    reactNativeLightningPlugin(),
     fontGen({
       inputs: [
         {

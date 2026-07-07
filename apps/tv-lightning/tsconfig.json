@@ -2,6 +2,6 @@
   "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
     "isolatedDeclarations": false,
-    "types": ["@plextv/react-lightning/jsx"]
+    "types": ["@plextv/react-lightning/jsx", "@plextv/react-lightning-plugin-flexbox/jsx"]
   }
 }

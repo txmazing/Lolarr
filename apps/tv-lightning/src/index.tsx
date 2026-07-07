@@ -1,7 +1,12 @@
+// Types for flex props (View/Text/Image style props extended with
+// flexDirection/gap/etc) come from this side-effect-only types import.
+import '@plextv/react-lightning-plugin-flexbox/jsx';
+
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-import { Canvas, type RenderOptions } from '@plextv/react-lightning';
+import type { RenderOptions } from '@plextv/react-lightning';
+import { NativeCanvas, getReactNativePlugins } from '@plextv/react-native-lightning';
 
 import { App } from './App';
 import { keyMap } from './keyMap';
@@ -34,6 +39,10 @@ const options: RenderOptions = {
   // dist/LightningViewElement-*.js: `if (type === 'Rounded') type =
   // 'RoundedWithBorder'`) — used by the focus ring's two nested bordered views.
   shaders: ['Rounded', 'RoundedWithBorder'],
+  // Gate 1: the RN layer. useWebWorker: false — Tizen's file:// origin can't
+  // spawn the YogaManagerWorker (blob/module worker loading is unreliable
+  // over file://), so flex layout runs on the main thread instead.
+  plugins: getReactNativePlugins([], { flexbox: { useWebWorker: false } }),
 };
 
 const appElement = document.getElementById('app');
@@ -43,9 +52,9 @@ if (!appElement) {
 }
 
 createRoot(appElement).render(
-  <Canvas keyMap={keyMap} options={options}>
+  <NativeCanvas keyMap={keyMap} options={options}>
     <QueryClientProvider client={queryClient}>
       <App />
     </QueryClientProvider>
-  </Canvas>,
+  </NativeCanvas>,
 );
