@@ -24,12 +24,16 @@ const options: RenderOptions = {
       atlasDataUrl: './fonts/Ubuntu-Regular.msdf.json',
     },
   ],
-  // Register the 'Rounded' webgl shader type so style.borderRadius (used by
-  // Card.tsx) resolves instead of falling back to the renderer's default
-  // (square) shader — see @plextv/react-lightning's createRoot(), which maps
-  // string entries here through `import('@lightningjs/renderer/webgl/shaders')`
-  // into stage.shManager.registerShaderType(name, ShaderType).
-  shaders: ['Rounded'],
+  // Register the webgl shader types Card.tsx's styles resolve to — see
+  // @plextv/react-lightning's createRoot(), which maps string entries here
+  // through `import('@lightningjs/renderer/webgl/shaders')` into
+  // stage.shManager.registerShaderType(name, ShaderType).
+  // 'Rounded' covers plain borderRadius (poster/landscape images, fallback
+  // rect). 'RoundedWithBorder' is what LightningViewElement._getShaderFromStyle
+  // requests when a style has BOTH borderRadius and border/borderColor (see
+  // dist/LightningViewElement-*.js: `if (type === 'Rounded') type =
+  // 'RoundedWithBorder'`) — used by the focus ring's two nested bordered views.
+  shaders: ['Rounded', 'RoundedWithBorder'],
 };
 
 const appElement = document.getElementById('app');
