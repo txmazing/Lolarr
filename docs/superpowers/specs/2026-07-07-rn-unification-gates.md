@@ -34,8 +34,8 @@ RN-App entsteht daneben, die DOM-Apps laufen bis zur Ablösung weiter.
 | # | Gate | Kriterium | Status |
 |---|---|---|---|
 | 1 | **RN-Lightning-Performance** — die 3 Spike-Rails in `@plextv/react-native-lightning` (RN-Primitives + Yoga-Flexbox), gleiche Auto-Probe, S94C Normal-Launch | Fokus-Animation avg ≤ 20 ms UND p95 ≤ 34 ms (identisch zum react-lightning-Gate); Rattern dokumentieren | **ZAHLEN BESTANDEN, SUBSTANZ MIT VORBEHALT** (s. u.) |
-| 2 | **AVPlay-Koexistenz** — Video-`<object>` sichtbar hinter transparentem Lightning-Canvas-Loch, D-Pad bleibt bedienbar | Video spielt sichtbar + Canvas-UI darüber funktioniert on-device | offen |
-| 3 | **RN-Web-Look** — eine abyss-Karte (Morph) + ein Glass-Dialog (backdrop-blur!) in `react-native-web` | Look trägt den Renderer-Wechsel im Browser ohne sichtbaren Qualitätsverlust | offen |
+| 2 | **AVPlay-Koexistenz** — Video-`<object>` sichtbar hinter transparentem Lightning-Canvas-Loch, D-Pad bleibt bedienbar | Video spielt sichtbar + Canvas-UI darüber funktioniert on-device | **TECHNISCH BESTANDEN** (Telemetrie 2026-07-08); visuelle Abnahme User ausstehend (s. u.) |
+| 3 | **RN-Web-Look** — eine abyss-Karte (Morph) + ein Glass-Dialog (backdrop-blur!) in `react-native-web` | Look trägt den Renderer-Wechsel im Browser ohne sichtbaren Qualitätsverlust | **BESTANDEN** (2026-07-08, s. u.) |
 
 Scheitert ein Gate → zurück zur Alternativen (TV pur auf react-lightning,
 Web bleibt DOM) ohne Migrations-Sunk-Cost.
@@ -63,6 +63,82 @@ Weitere Gate-1-Funde: Peer-Kette erzwingt Lockstep-Upgrades (renderer 3.0.1,
 react-lightning 0.4.2, vite 8); `transition`-Prop passt durch RN-Komponenten
 durch; RN-String-Farben und 0xRRGGBBAA koexistieren; überlappende Layer
 brauchen explizit `position:'absolute'` (Yoga-Default ist Column-Flow).
+
+## Gate-2-Ergebnis (2026-07-08, Branch spike/tv-rn-lightning, S94C Normal-Launch)
+
+**Telemetrie: bestanden.** AVPlay spielt (open→IDLE, prepared READY mit
+korrekter Dauer 180.023 ms, PLAYING; timeMs 27.260→28.865→32.871
+wall-clock-synchron, TV zieht das File per Range-Requests). D-Pad-Burst
+WÄHREND PLAYING: Fokus rail 0/card 13 → rail 1 ✓. Frame-Stats mit laufendem
+Video-Decode auf Gate-1-Niveau: idle avg 16,7 (lock-60), settleAnim avg
+16,9/p95 16,8, railSwitch p95 33,3 — Video-Decode kostet die Canvas-UI
+nichts. Verbleibender Rest: ob das Video durch das Canvas-Loch **optisch**
+durchscheint, ist remote nicht messbar (Video läuft auf separater
+Hardware-Plane, kein Screenshot möglich) → App läuft mit geloopter
+Testkarte auf dem TV, ein User-Blick schließt das Gate.
+
+**Implementierung (apps/tv-lightning):** `<object type="application/avplayer">`
+fullscreen als erstes body-Kind (`position:fixed`, kein z-index nötig — DOM-
+Reihenfolge reicht); Canvas `clearColor: 0x00000000` in `RenderOptions`
+(Library-Default ist 0x000000FF opak-schwarz; der WebGL-Kontext wird von
+Lightning eh mit `alpha:true` erzeugt); Root-View ohne `backgroundColor`;
+html/body `background-color: transparent`; AVPlay-Lifecycle wie
+`packages/player/src/avplayPlayer.ts` (open → setDisplayRect(0,0,1920,1080)
+→ setListener → prepareAsync → play), Zustands-Beacons an den Dev-Listener.
+
+**Lehren:**
+- Die klassische BBB-Sample-URL (`commondatastorage.googleapis.com/gtv-videos-bucket/…`)
+  liefert inzwischen **HTTP 403** (vom Host verifiziert) — AVPlay meldet das
+  irreführend als `PLAYER_ERROR_CONNECTION_FAILED`. Testvideo jetzt
+  LAN-gehostet (ffmpeg testsrc2, 3 min 1080p H.264/AAC; node-Server **mit
+  Range-Support** — AVPlay fragt Range an; `python3 -m http.server` kann das
+  nicht).
+- `$WEBAPIS/webapis/webapis.js`-Script-Tag in tizen/index.html ist nötig —
+  war zuvor NIRGENDS im Repo (auch nicht in apps/tv → dort ist AVPlay
+  on-device also noch nie gelaufen!).
+- `http://developer.samsung.com/privilege/avplay` in config.xml ergänzen.
+- Loop/Replay nach `onstreamcompleted`: stop → open → setDisplayRect →
+  prepareAsync → play (setDisplayRect vor prepare erneut nötig).
+- AVPlay-Event-Order nicht garantiert: `onbufferingcomplete` kann vor dem
+  prepareAsync-Success feuern (im IDLE-State beobachtet) — Listener nicht
+  auf Reihenfolge bauen.
+- D-Pad-Handling (window keydown) ist völlig Canvas-/Video-unabhängig —
+  keinerlei Fokus-Sonderbehandlung für die Koexistenz nötig.
+
+## Gate-3-Ergebnis (2026-07-08, apps/rn-web-spike, react-native-web 0.21.2)
+
+**Bestanden.** Morph-Karte + Glass-Dialog als RN-Primitives-Mini-App
+(View/Text/Image/Pressable, vite-Alias react-native→react-native-web,
+Inter Variable via @fontsource-variable/inter). Verifikation per
+Computed-Style-Vergleich gegen die abyss-Referenzwerte aus
+packages/ui/src/theme.css / MediaPosterButton.tsx / GlassDialog.tsx —
+**1:1-Parität**:
+
+- Karte: Slot 240×360→640 nur-width @400ms cubic-bezier(0.16,1,0.3,1);
+  Ring als Layered-Box-Shadow `inset 0 0 3px rgb(200 200 200/.35), 0 0 0 3px
+  #0a0a0c, 0 0 0 5px #f5f5f7` @300ms; radius 12; Poster→Backdrop-Crossfade
+  400ms; Overlay-Gradient `to top, rgba(0,0,0,.85)→.4→0` p16/pt48 — alles
+  computed exakt.
+- Dialog: frost rgba(42,42,42,.72), **backdrop-filter blur(20px) kommt durch
+  und frostet sichtbar** (Screenshot: Panel über expandierter Karte),
+  Border 1px rgba(245,245,247,.16), radius 24, Shadow 0 24px 64px
+  rgba(0,0,0,.48), maxWidth 512, p20/gap16, Scrim rgba(0,0,0,.6),
+  Open-Anim fade+zoom .95 @150ms.
+- Inter Variable geladen (Weights 500/600 korrekt), position:fixed
+  funktioniert.
+
+**Befunde für die Migrations-Spec:**
+- react-native-web 0.21 reicht web-only-CSS-Props (transitionProperty/…,
+  boxShadow-String, backgroundImage-Gradient, backdropFilter,
+  position:fixed, overflowX) **untypisiert** durch — im Spike per
+  @ts-expect-error. Migration braucht einen typisierten Web-Style-Seam
+  (Modul-Augmentation oder `webStyle()`-Helper).
+- Genau diese Props existieren im Lightning-Backend NICHT (kein
+  backdrop-blur, kein CSS-transition-Modell, kein Gradient-Prop) — deckt
+  sich mit dem Gate-1-Yoga-Befund: das Design-System braucht eine
+  Plattform-Style-Schicht (Web-Vollwert vs. TV-Approximation), keine
+  1:1-geteilten Style-Objekte für die Showpieces.
+- `dataSet={{ testid }}` → data-testid funktioniert für Test-Hooks.
 
 ## Bekannte offene Punkte für die Migrations-Spec (nach Gate-Pass)
 
