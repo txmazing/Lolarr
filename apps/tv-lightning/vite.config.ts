@@ -21,18 +21,6 @@ const config: InlineConfig = {
       ],
     }),
   ],
-  resolve: {
-    // Reanimated mini-spike — same alias pair as vite.tizen.config.ts.
-    alias: [
-      { find: /^react-native-reanimated-original$/, replacement: 'react-native-reanimated' },
-      { find: /^react-native-reanimated$/, replacement: '@plextv/react-lightning-plugin-reanimated' },
-    ],
-  },
-  define: {
-    'process.env': '({})',
-    __DEV__: 'true',
-    global: 'globalThis',
-  },
   optimizeDeps: {
     esbuildOptions: {
       target: 'esnext',
