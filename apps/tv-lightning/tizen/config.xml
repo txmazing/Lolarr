@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://yourdomain/tvlightning" version="0.1.0" viewmodes="maximized">
+   <name>tv-lightning-spike</name>
+   <icon src="icon.png"></icon>
+   <content src="index.html"></content>
+   <access origin="*" subdomains="true"></access>
+   <feature name="http://tizen.org/feature/screen.size.normal.1080.1920"></feature>
+   <tizen:setting screen-orientation="landscape" context-menu="enable" background-support="disable" encryption="disable" install-location="auto" hwkey-event="enable"></tizen:setting>
+   <tizen:application id="lgtSpike01.tvlightning" package="lgtSpike01" required_version="2.3"></tizen:application>
+   <tizen:privilege name="http://tizen.org/privilege/application.launch"></tizen:privilege>
+   <tizen:privilege name="http://developer.samsung.com/privilege/avplay"></tizen:privilege>
+   <tizen:privilege name="http://tizen.org/privilege/internet"></tizen:privilege>
+   <tizen:privilege name="http://tizen.org/privilege/network.public"></tizen:privilege>
+   <tizen:allow-navigation>*</tizen:allow-navigation>
+   <tizen:content-security-policy>default-src 'self' data: blob: http: https:; connect-src 'self' http: https: ws: wss:; img-src 'self' data: blob: https: http:; media-src 'self' blob: http: https:; style-src 'self' 'unsafe-inline' http: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: blob:</tizen:content-security-policy>
+   <tizen:metadata key="http://samsung.com/tv/metadata/prelaunch.support" value="true"></tizen:metadata>
+   <tizen:metadata key="http://tizen.org/metadata/app_ui_type/base_screen_resolution" value="extensive"></tizen:metadata>
+   <tizen:profile name="tv-samsung"></tizen:profile>
+</widget>

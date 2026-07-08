@@ -89,3 +89,53 @@ export function scrollFocusedIntoView(
     }
   })
 }
+
+// Rapid arrow-key navigation (held key or fast tapping) mirrors onto the root
+// as data-nav-fast so CSS can suspend the expensive card transitions (width
+// morph, glow, crossfade) and let focus snap. The attribute clears shortly
+// after the last press, so the morph only plays once focus settles. A single
+// isolated press never enters fast mode — normal navigation stays animated.
+const FAST_NAV_INTERVAL_MS = 250
+const FAST_NAV_CLEAR_MS = 200
+const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'])
+
+export function installFastNavTracking(): () => void {
+  if (typeof window === 'undefined') {
+    return () => {}
+  }
+
+  let lastArrowAt = Number.NEGATIVE_INFINITY
+  let clearTimer: ReturnType<typeof setTimeout> | undefined
+
+  function setFast(fast: boolean) {
+    if (fast) {
+      document.documentElement.dataset.navFast = 'true'
+    } else {
+      delete document.documentElement.dataset.navFast
+    }
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (!ARROW_KEYS.has(event.key)) {
+      return
+    }
+    const now = Date.now()
+    if (event.repeat || now - lastArrowAt < FAST_NAV_INTERVAL_MS) {
+      setFast(true)
+      if (clearTimer !== undefined) {
+        clearTimeout(clearTimer)
+      }
+      clearTimer = setTimeout(() => setFast(false), FAST_NAV_CLEAR_MS)
+    }
+    lastArrowAt = now
+  }
+
+  window.addEventListener('keydown', handleKeydown, true)
+  return () => {
+    window.removeEventListener('keydown', handleKeydown, true)
+    if (clearTimer !== undefined) {
+      clearTimeout(clearTimer)
+    }
+    setFast(false)
+  }
+}

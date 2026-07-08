@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <title>React-Lightning Sample App</title>
+    <meta charset="UTF-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        /* Dev-only stand-in for the app background: since Gate 2 the canvas
+           clears transparent (video punch-through on TV), so the page
+           provides the dark backdrop in the browser. */
+        background-color: #0a0a0c;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./src/index.tsx"></script>
+  </body>
+</html>

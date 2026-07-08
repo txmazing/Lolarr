@@ -62,7 +62,7 @@ export function MediaPosterButton({
       >
         <span className="lolarr-art relative block aspect-video w-full overflow-hidden rounded-md bg-surface">
           {landscapeUrl ? (
-            <img src={landscapeUrl} alt="" loading="lazy" className="h-full w-full object-cover" />
+            <img src={landscapeUrl} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full items-center justify-center p-3 text-center text-3xl font-semibold text-muted-foreground">
               {item.title.slice(0, 1)}
@@ -95,14 +95,14 @@ export function MediaPosterButton({
         ariaLabel={`${item.title} öffnen`}
       >
         {item.posterUrl ? (
-          <img src={item.posterUrl} alt="" loading="lazy" className="lolarr-poster" />
+          <img src={item.posterUrl} alt="" loading="lazy" decoding="async" className="lolarr-poster" />
         ) : (
           <span className="lolarr-poster flex items-center justify-center bg-surface p-3 text-center text-3xl font-semibold text-muted-foreground">
             {item.title.slice(0, 1)}
           </span>
         )}
         {hasBackdrop ? (
-          <img src={item.backdropUrl} alt="" loading="lazy" className="lolarr-backdrop" />
+          <img src={item.backdropUrl} alt="" loading="lazy" decoding="async" className="lolarr-backdrop" />
         ) : null}
 
         {/* Landscape-state overlay — title, meta, and the "opens details" hint,

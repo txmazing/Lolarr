@@ -242,6 +242,10 @@
   width: var(--card-w);
   height: var(--card-h);
   transition: width 400ms var(--ease-out-expo) var(--exp-delay);
+  /* Inner churn (crossfade layers, badges) must not leak layout/style work
+     into the rail. Does not stop the slot's own width transition from
+     reflowing the rail — that is phase 2's compositor morph. */
+  contain: layout style;
 }
 /* Hover-intent: on the mouse, only expand after a short dwell, so sweeping the
    cursor across the row (and crossing the gaps between cards) doesn't thrash the
@@ -266,6 +270,7 @@
     0 0 0 3px transparent,
     0 0 0 5px transparent;
   transition: box-shadow 300ms var(--ease-out-expo) var(--exp-delay);
+  contain: layout style;
 }
 :root:not([data-nav-input='keyboard']) .lolarr-card:hover,
 .lolarr-card:focus-visible,
@@ -321,8 +326,33 @@
   }
 }
 
+/* While the remote/keyboard is rattling (held or rapid arrow keys —
+   data-nav-fast, see installFastNavTracking), suspend the expensive card
+   transitions so focus snaps instantly. The morph/glow/crossfade only plays
+   once focus settles; end states are identical. `.transition-transform`
+   covers the landscape-card scale. */
+:root[data-nav-fast='true']
+  :is(
+    .lolarr-card-slot,
+    .lolarr-card,
+    .lolarr-poster,
+    .lolarr-backdrop,
+    .lolarr-overlay,
+    .lolarr-art,
+    .transition-transform
+  ) {
+  transition: none;
+}
+
 /* Rail-Scroller: hält die fokussierte Card mit sichtbarem Peek der Nachbar-Card
    von der Kante weg (statt bündig), respektiert von scrollFocusedIntoView. */
 .lolarr-rail {
   scroll-padding-inline: 6rem;
+  /* Rails scrolled out of the viewport skip layout/paint entirely. The
+     intrinsic block size (card 360px + pt-4/pb-6 at tv-ui font scaling)
+     keeps the page height stable; `auto` remembers the real size once
+     rendered. Focus into a skipped rail forces rendering (focusable =
+     relevant to user), verified on-device (Task 7). */
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto 420px;
 }

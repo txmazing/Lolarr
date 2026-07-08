@@ -12,6 +12,7 @@
     "dev:api": "moon run api:dev",
     "dev:web": "moon run web:dev",
     "dev:tv": "moon run tv:dev",
+    "dev:tv:tizen": "moon run tv:dev-tizen",
     "dev": "moon run api:dev web:dev",
     "build": "moon run :build",
     "build:api": "moon run api:build",
@@ -20,6 +21,7 @@
     "lint": "moon run :lint",
     "typecheck": "moon run :typecheck",
     "test": "moon run :test",
+    "tizen:hmr": "pnpm --filter @lolarr/tv tizen:hmr",
     "tizen:sync": "moon run tv:tizen-sync"
   },
   "devDependencies": {

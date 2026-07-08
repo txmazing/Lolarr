@@ -148,6 +148,20 @@ The web app is served on `http://localhost:8080` and proxies `/api` to the gatew
 
 Open `apps/tv/tizen` in Tizen Studio, refresh the project, clean/build a signed package, then install the new `.wgt` on the TV.
 
+For on-device HMR, run the Tizen dev server on a LAN-reachable address:
+
+```sh
+pnpm run dev:tv:tizen
+```
+
+That command writes an HMR `apps/tv/tizen/index.html` pointing at the Vite server, then starts Vite with a fixed port. Deploy `apps/tv/tizen` once while the command is running; subsequent React/CSS changes update through Vite HMR without rebuilding the widget. If the auto-detected host is wrong, set it explicitly:
+
+```sh
+LOLARR_TV_DEV_SERVER_URL=http://192.168.1.50:5173 pnpm run dev:tv:tizen
+```
+
+Run `pnpm run tizen:sync` afterwards to restore the production Tizen entrypoint before making a release build.
+
 The installed TV app runs from `file://`, so relative API paths like `/api` do not work there. On first launch, enter the gateway URL shown by the API server, for example `http://192.168.1.50:4000`. The value is stored in TV local storage and can be changed with the `Gateway` button in the app header.
 
 You can also bake the gateway URL into a build:

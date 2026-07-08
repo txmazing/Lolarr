@@ -34,7 +34,7 @@ export function EpisodeList({
                 and focus (TV), reacting to `.focused` on the outer group. */}
             <span className="lolarr-art relative block aspect-video w-full overflow-hidden rounded-md bg-surface">
               {still ? (
-                <img src={still} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img src={still} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
               ) : null}
               {progress !== null ? (
                 <span className="absolute inset-x-0 bottom-0 h-1 bg-black/40" aria-hidden="true">

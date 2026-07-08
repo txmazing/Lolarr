@@ -11,4 +11,15 @@ describe('design tokens', () => {
     expect(css).toContain('--dialog-frost: rgb(42 42 42 / 0.72)')
     expect(css).toContain('--blur-controls: 8px')
   })
+
+  it('suspends card transitions while data-nav-fast is set', () => {
+    expect(css).toContain(":root[data-nav-fast='true']")
+    expect(css).toMatch(/data-nav-fast[^}]*transition: none/s)
+  })
+
+  it('contains card layout and skips offscreen rail rendering', () => {
+    expect(css).toContain('contain: layout style')
+    expect(css).toContain('content-visibility: auto')
+    expect(css).toContain('contain-intrinsic-block-size: auto 420px')
+  })
 })
