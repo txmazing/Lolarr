@@ -94,28 +94,34 @@ Upstream-Antwort gilt die Konvention unabhängig davon.
        colorTop/colorBottom-Gradient, Shader-Registrierung
        `['Rounded','RoundedWithBorder']`, Fokus-Ring als 2 verschachtelte
        Border-Views, Fast-Nav-Snap (Spike-Task-7-Lehren).
-- **Reanimated (Re-Prüfung 2026-07-08 — korrigiert):** Es gibt
-  `@plextv/react-lightning-plugin-reanimated` 0.4.2, im exakten
-  Peer-Lockstep mit unserem Gate-1-Stack (Renderer 3.0.1, React 19.2,
-  RN 0.85.1, Reanimated ^4.3.0). Quelltext-verifiziert: das Plugin ist
-  ein Drop-in-Replacement — `withTiming/withSpring/…` erzeugen nur
-  Descriptors, `useAnimatedStyle` **kompiliert sie in Lightning-
-  `transition`-Einträge (renderer-seitige Tweens)**, also den bewiesenen
-  60fps-Pfad, KEIN per-Frame-JS. Setup: Alias `react-native-reanimated`
-  → Plugin, echtes Reanimated als `react-native-reanimated-original`
-  (Plugin re-exportiert `*` daraus, u. a. useSharedValue/Easing; Shared-
-  Value-Listener triggern die Style-Neuberechnung). Web nutzt echtes
-  Reanimated (offizieller RNW-Support; Worklets = Main-Thread-JS).
-  **Damit ist der Reanimated-Dialekt ein ernsthafter Kandidat für die
-  geteilte Animations-API** — dieselbe `useAnimatedStyle`-Quelle für Web
-  und TV statt Intent-Tokens. Vor Festlegung Mini-Spike (Slice 0):
-  (a) Morph-Karte in rn-web-spike auf Reanimated-API, Look-Parität
-  gegen Gate-3-Stand; (b) TV-Spike mit Plugin-Alias, Gate-Zahlen-Lauf
-  (Erwartung: identisch, da Tween-Kompilierung — beweisen);
-  (c) Bundle-Size + eval-Freiheit des Reanimated-Web-Builds im
-  Tizen-Bundle (CSP!). Fallback bleibt der Intent-Token-Seam.
-  Subset-Grenze beachten: kein useAnimatedProps/useDerivedValue im
-  Plugin-Override — geteilter Code bleibt beim Style-Objekt-Muster.
+- **Reanimated (Mini-Spike 2026-07-08 — GEMESSEN, entschieden):**
+  `@plextv/react-lightning-plugin-reanimated` 0.4.2 existiert (Peer-
+  Lockstep exakt unser Stack) und kompiliert `withTiming`-Descriptors in
+  Lightning-Renderer-Tweens (quelltext-verifiziert). Der Mini-Spike
+  (Commits auf spike/tv-rn-lightning: Reanimated-Variante + Revert):
+  - **Web ✓:** echtes Reanimated 4.5.1 auf RNW trägt den Morph exakt —
+    Kurve gemessen 46 %@50 ms/78 %@100 ms, settled ~311 ms
+    (= ease-out-expo), Endwerte 240/640 px. Setup: .web.*-Extensions
+    auch im Dep-Optimizer, define process.env/global/__DEV__, ohne
+    Babel-Worklets-Plugin → explizite Dependency-Arrays.
+  - **CSP/Bundle ✓/－:** kein neues eval (nur die 4 tseep-Sites);
+    Bundle +22 % (1,06→1,30 MB).
+  - **TV ✗ (entscheidend):** S94C Normal-Launch, 2 konsistente warme
+    Läufe, identische Last (AVPlay-Video hinter Canvas): settleAnim
+    avg 20,7–21,1/p95 33,4/max 133–150 vs. transition-Prop-Baseline
+    16,9/16,8 — **Gate-avg gerissen, p95 verdoppelt**; railSwitch avg
+    28–30/p95 50 vs. 18,9/33,3. Der Tween läuft renderer-seitig, aber
+    der Apply-Pfad (useAnimatedStyle-Recompute + per-View-Anwendung,
+    6 Hooks/Karte) kostet pro Fokuswechsel messbar. Dazu: Timing-Easing
+    im Plugin hardcoded linear (expo-Kurve ignoriert) und Initial-Tweens
+    beim Mount (Kaltstart-Lauf: idle 3 Frames/avg 1083 ms).
+  **Entscheidung: Reanimated-Dialekt NICHT als geteilte Animations-API
+  in Phase 1.** Es bleibt beim Intent-Token-Seam (Web: CSS-Transition,
+  TV: transition-Prop — beide gate-bewiesen). Revisit nur, falls
+  plexinc Plugin-Apply-Kosten + Easing upstream fixt (Issue-Kandidat);
+  für Phase 2 (react-native-tvos, native Worklets) bleibt Reanimated
+  gesetzt. Alias-Lehre fürs Protokoll: String-Aliase rewriten auch
+  Subpfade — Regex-Exact-Match (`/^react-native-reanimated$/`) nötig.
 - **Frost auf TV:** kein backdrop-blur in Lightning; Blur-Shader sind
   teuer (DOM-Messung + Gates-Doc). **Default: dunkleres opakes Panel**
   (frost-Farbe mit höherem Alpha, z. B. rgb(28 28 30 / 0.96)) —
