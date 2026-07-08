@@ -17,6 +17,9 @@ tasks:
   dev:
     command: 'pnpm run dev'
     preset: 'server'
+  dev-tizen:
+    command: 'pnpm run dev:tizen'
+    preset: 'server'
   build:
     command: 'pnpm run build'
     deps:

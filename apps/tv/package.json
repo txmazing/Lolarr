@@ -5,10 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:tizen": "pnpm run tizen:hmr && vite --host 0.0.0.0 --strictPort",
     "build": "tsc -b && vite build",
     "build:tizen": "tsc -b && vite build --config vite.tizen.config.ts",
     "lint": "eslint .",
     "preview": "vite preview",
+    "tizen:hmr": "node scripts/write-tizen-hmr.mjs",
     "tizen:sync": "pnpm run build:tizen && rm -rf tizen/assets && cp -R public/. tizen/ && cp tizen-index.html tizen/index.html && cp -R dist-tizen/assets tizen/assets",
     "typecheck": "tsc -b"
   },
