@@ -5,9 +5,15 @@
 // byte-identical to the reference, do not "improve" them.
 import { useEffect, useState } from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
+// Mini-spike: the morph runs through the reanimated dialect (candidate for
+// the shared web+tv animation API). No babel worklets plugin in this vite
+// setup, so every reanimated hook gets an explicit dependency array.
+import Animated, { Easing, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 
 const FONT = "'Inter Variable', ui-sans-serif, system-ui, sans-serif";
 const EASE_OUT_EXPO = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const EXPO_BEZIER = Easing.bezier(0.16, 1, 0.3, 1);
+const MORPH = { duration: 400, easing: EXPO_BEZIER };
 const BACKGROUND = '#0a0a0c';
 const FOREGROUND = '#f5f5f7';
 
@@ -38,21 +44,34 @@ function backdropUrl(id: number) {
 // (240→640 @400ms ease-out-expo); the card fills the slot absolutely.
 // Focus ring is the layered box-shadow (3px background gap + ring to 5px).
 function MorphCard({ item, focused, onFocus }: { item: Item; focused: boolean; onFocus: () => void }) {
+  // Reanimated dialect: width morph + crossfades are JS-driven on web
+  // (main-thread; worklets are plain functions here). The focus ring stays a
+  // CSS transition below — box-shadow strings are not tweenable values.
+  const slotStyle = useAnimatedStyle(
+    () => ({ width: withTiming(focused ? CARD_W_EXPANDED : CARD_W, MORPH) }),
+    [focused],
+  );
+  const posterStyle = useAnimatedStyle(
+    () => ({ opacity: withTiming(focused ? 0 : 1, MORPH) }),
+    [focused],
+  );
+  const backdropStyle = useAnimatedStyle(
+    () => ({ opacity: withTiming(focused ? 1 : 0, MORPH) }),
+    [focused],
+  );
   return (
-    <View
+    <Animated.View
       // @ts-expect-error RNW dataSet → data-* attribute
       dataSet={{ testid: `card-slot-${item.id}` }}
-      style={{
-        position: 'relative',
-        flexShrink: 0,
-        flexGrow: 0,
-        width: focused ? CARD_W_EXPANDED : CARD_W,
-        height: CARD_H,
-        // @ts-expect-error RNW web-only transition props
-        transitionProperty: 'width',
-        transitionDuration: '400ms',
-        transitionTimingFunction: EASE_OUT_EXPO,
-      }}
+      style={[
+        {
+          position: 'relative',
+          flexShrink: 0,
+          flexGrow: 0,
+          height: CARD_H,
+        },
+        slotStyle,
+      ]}
     >
       <Pressable
         onHoverIn={onFocus}
@@ -74,58 +93,41 @@ function MorphCard({ item, focused, onFocus }: { item: Item; focused: boolean; o
           transitionTimingFunction: EASE_OUT_EXPO,
         }}
       >
-        <Image
+        <Animated.Image
           source={{ uri: posterUrl(item.id) }}
           resizeMode="cover"
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            opacity: focused ? 0 : 1,
-            // @ts-expect-error RNW web-only transition props
-            transitionProperty: 'opacity',
-            transitionDuration: '400ms',
-            transitionTimingFunction: EASE_OUT_EXPO,
-          }}
+          style={[
+            { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
+            posterStyle,
+          ]}
         />
-        <Image
+        <Animated.Image
           source={{ uri: backdropUrl(item.id) }}
           resizeMode="cover"
-          style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            left: 0,
-            opacity: focused ? 1 : 0,
-            // @ts-expect-error RNW web-only transition props
-            transitionProperty: 'opacity',
-            transitionDuration: '400ms',
-            transitionTimingFunction: EASE_OUT_EXPO,
-          }}
+          style={[
+            { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
+            backdropStyle,
+          ]}
         />
         {/* Overlay: bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 pt-12 */}
-        <View
+        <Animated.View
           // @ts-expect-error RNW dataSet → data-* attribute
           dataSet={{ testid: `overlay-${item.id}` }}
-          style={{
-            position: 'absolute',
-            right: 0,
-            bottom: 0,
-            left: 0,
-            padding: 16,
-            paddingTop: 48,
-            gap: 4,
-            opacity: focused ? 1 : 0,
-            // @ts-expect-error RNW web-only props (gradient + transition)
-            backgroundImage:
-              'linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0))',
-            transitionProperty: 'opacity',
-            transitionDuration: '400ms',
-            transitionTimingFunction: EASE_OUT_EXPO,
-          }}
+          style={[
+            {
+              position: 'absolute',
+              right: 0,
+              bottom: 0,
+              left: 0,
+              padding: 16,
+              paddingTop: 48,
+              gap: 4,
+              // @ts-expect-error RNW web-only prop (gradient)
+              backgroundImage:
+                'linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0))',
+            },
+            backdropStyle,
+          ]}
         >
           <Text
             numberOfLines={1}
@@ -136,9 +138,9 @@ function MorphCard({ item, focused, onFocus }: { item: Item; focused: boolean; o
           <Text style={{ fontFamily: FONT, fontSize: 12, color: 'rgba(255, 255, 255, 0.7)' }}>
             {item.meta}
           </Text>
-        </View>
+        </Animated.View>
       </Pressable>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -248,6 +250,10 @@ function GlassDialog({ onClose }: { onClose: () => void }) {
 export function App() {
   const [focusedCard, setFocusedCard] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Spike-only probe hook: lets the measurement eval drive the focus state
+  // directly (synthetic pointer events are untrusted and don't reach RNW's
+  // hover handlers).
+  (window as unknown as { __setFocused?: (i: number) => void }).__setFocused = setFocusedCard;
 
   return (
     <View style={{ minHeight: '100vh' as never, backgroundColor: BACKGROUND, paddingVertical: 48, gap: 12 }}>

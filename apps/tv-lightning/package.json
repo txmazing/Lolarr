@@ -21,11 +21,14 @@
     "@plextv/react-lightning-components": "0.4.2",
     "@plextv/react-lightning-plugin-css-transform": "0.4.2",
     "@plextv/react-lightning-plugin-flexbox": "0.4.2",
+    "@plextv/react-lightning-plugin-reanimated": "0.4.2",
     "@plextv/react-native-lightning": "0.4.2",
     "@tanstack/react-query": "^5.101.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.85.1",
+    "react-native-reanimated": "^4.5.1",
+    "react-native-worklets": "^0.10.2",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

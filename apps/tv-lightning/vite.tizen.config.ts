@@ -36,8 +36,25 @@ const config: InlineConfig = {
       ],
     }),
   ],
+  resolve: {
+    // Reanimated mini-spike: shared code imports 'react-native-reanimated';
+    // on the Lightning build that resolves to Plex's drop-in plugin, which
+    // itself pulls the real package under the '-original' name (for shared
+    // values, Easing, layout-animation builders).
+    // Exact-match regexes: plain string aliases also rewrite subpath imports
+    // (react-native-reanimated/scripts/…), which must keep resolving to the
+    // real package.
+    alias: [
+      { find: /^react-native-reanimated-original$/, replacement: 'react-native-reanimated' },
+      { find: /^react-native-reanimated$/, replacement: '@plextv/react-lightning-plugin-reanimated' },
+    ],
+  },
   define: {
     'process.env.NODE_ENV': JSON.stringify('production'),
+    // The real reanimated (web build) expects metro-provided globals.
+    'process.env': '({})',
+    __DEV__: 'false',
+    global: 'globalThis',
   },
   optimizeDeps: {
     esbuildOptions: {
