@@ -131,6 +131,35 @@ Upstream-Antwort gilt die Konvention unabhängig davon.
   Inter→MSDF-Pipeline produktiv machen (bisher Ubuntu-Testfont) — Task
   in Slice 0.
 
+### 3a. Animations-Seam konkret: `MotionView` (Entscheid 2026-07-08)
+
+Der Intent-Token-Seam bekommt die Form eines einheitlichen
+`transition`-Props mit CSS-Transition-Semantik („bei Änderung dieser
+Style-Props: tweene vom aktuellen Wert zum Ziel, retargeting-fähig"):
+
+```tsx
+<MotionView
+  style={{ width: focused ? 640 : 240, opacity: focused ? 1 : 0 }}
+  transition={{ width: MORPH, opacity: MORPH }}
+  // MORPH = { duration: 400, easing: 'cubic-bezier(0.16,1,0.3,1)' }
+/>
+```
+
+Backend-Mapping (jede Plattform fährt ihren NATIVEN Mechanismus — die
+Lehre aus dem Reanimated-Mini-Spike, wo der Plugin-Apply-Pfad auf dem
+TV das Gate riss):
+
+| Backend | Implementierung | Beleg |
+|---|---|---|
+| TV (Lightning) | `transition`-Prop 1:1 durchreichen (Key-Mapping width→w, opacity→alpha wie css-transform-Plugin) | Gate 1: 17 ms; Prop passt durch RN-Komponenten |
+| Web (RNW) | Übersetzen in `transitionProperty/Duration/TimingFunction` | Gate 3: exakte Kurve |
+| Mobile (Phase 2) | Prop-Diff → Reanimated `withTiming` (UI-Thread) | Standard-RN-Weg |
+
+Grenzen des geteilten Kontrakts (bewusst): nur numerische Props +
+opacity (+transform später); Easing ausschließlich als
+cubic-bezier-String-Token (CSS-nativ, Lightning parst nativ, mobile via
+Easing.bezier); keine Sequenzen/Springs/Gesten — plattformspezifisch.
+
 ## 4. Fokus-Engine
 
 Deterministischer zustand-Store (Spike-Muster `store.ts`):
